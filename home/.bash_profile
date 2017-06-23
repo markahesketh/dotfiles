@@ -1,4 +1,5 @@
 # Load .profile
-if [ -f ~/.bashrc ]; then
-   source ~/.bashrc
-fi
+[[ -f ~/.bashrc ]] && source ~/.bashrc
+
+# Local config
+[[ -f ~/.bash_profile.local ]] && source ~/.bash_profile.local

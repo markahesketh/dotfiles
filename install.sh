@@ -6,12 +6,12 @@
 BASEDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 DOTFILES=(
-    ".bash_aliases"
+    ".aliases"
     ".bash_profile"
     ".bash_prompt"
     ".bashrc"
     ".gitconfig"
-    ".gitignore_global"
+    ".gitignore"
     ".inputrc"
     ".myxkbmap"
     ".vimrc"
@@ -34,13 +34,6 @@ if [ "$CONT" == "y" ]; then
         rm -f ~/$i
         ln -nfs ${BASEDIR}/home/$i ~/$i
     done
-fi
-
-if [ -f ~/.bash_local ]; then
-    echo "~/.bash_local already exists. Skipping."
-else
-    touch ~/.bash_local
-    echo "Created ~/.bash_local"
 fi
 
 # ------------------------------------------------------------------------------

@@ -4,9 +4,7 @@
 # ------------------------------------------------------------------------------
 # Global settings
 # ------------------------------------------------------------------------------
-if [ -f /etc/bashrc ]; then
-    . /etc/bashrc
-fi
+[[ -f /etc/bashrc ]] && source /etc/bashrc
 
 # ------------------------------------------------------------------------------
 # Setup
@@ -36,26 +34,10 @@ PATH=$PATH:~/.config/composer/vendor/bin
 # Includes
 # ------------------------------------------------------------------------------
 # Aliases
-if [ -f ~/.bash_aliases ]; then
-  . ~/.bash_aliases
-fi
+[[ -f ~/.aliases ]] && source ~/.aliases
 
 # Custom prompt
-if [ -f ~/.bash_prompt ]; then
-  . ~/.bash_prompt
-fi
+[[ -f ~/.bash_prompt ]] && source ~/.bash_prompt
 
-# Local settings, not committed
-if [ -f ~/.bash_local ]; then
-  . ~/.bash_local
-fi
-
-# The next line updates PATH for the Google Cloud SDK.
-if [ -f /Users/markhesketh/google-cloud-sdk/path.bash.inc ]; then
-  source '/Users/markhesketh/google-cloud-sdk/path.bash.inc'
-fi
-
-# The next line enables shell command completion for gcloud.
-if [ -f /Users/markhesketh/google-cloud-sdk/completion.bash.inc ]; then
-  source '/Users/markhesketh/google-cloud-sdk/completion.bash.inc'
-fi
+# Local config
+[[ -f ~/.bashrc.local ]] && source ~/.bashrc.local

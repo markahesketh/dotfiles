@@ -51,8 +51,8 @@ alias t="./vendor/bin/phpunit"
 # ------------------------------------------------------------------------------
 # Misc
 # ------------------------------------------------------------------------------
-# Clean useless files
-alias clean='rm -rf "#"* "."*~ *~ *.bak *.dvi *.aux *.nfo'
-
 # Reload the shell (i.e. invoke as a login shell)
 alias reload="exec $SHELL -l"
+
+# Local config
+[[ -f ~/.aliases.local ]] && source ~/.aliases.local
