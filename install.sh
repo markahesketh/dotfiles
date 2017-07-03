@@ -43,6 +43,9 @@ if [ "$CONT" == "y" ]; then
     done
 fi
 
+# ------------------------------------------------------------------------------
+# Download third-party scripts
+# ------------------------------------------------------------------------------
 echo "Downloading git autocomplete"
 GIT_COMPLETION_URL="https://raw.githubusercontent.com/git/git/master/contrib/completion/git-completion.bash"
 if command_exists curl; then
