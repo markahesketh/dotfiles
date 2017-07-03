@@ -6,8 +6,6 @@ A collection of dotfiles and configuration from my dev environment.
 
 ## Installation
 
-    git clone https://github.com/heskethm/dotfiles.git
-    cd dotfiles
     chmod +x install.sh
     ./install.sh
     
@@ -16,19 +14,19 @@ This will:
 * Confirm and remove existing dotfiles
 * Create symlinks to this repo's [dotfiles](/home)
 * Download Git and Docker autocomplete bash scripts
-* Create a `~/.bash_local` file for [local settings](#local-settings)
 
 ## Usage
 
 ### Local settings
 
-The installation script will create a `~/.bash_local` file in your home 
-directory.
+Each dotfile will check for a `*.local` file matching its own name.
 
-The `~/.bash_local` is sourced after all other dotfiles, and so can be used 
-to override existing bash configuration such as aliases, $PATH and 
-environment variables.
+For example:
+
+* Local alias file would be `~/.aliases.local`
+* Local bashrc file would be `~/.bashrc.local`
+* etc.
 
 ## License
 
-Available under the [MIT license](LICENSE).
+Available under the [MIT License](LICENSE).
