@@ -15,6 +15,7 @@ This will:
 
 * Confirm and remove existing dotfiles
 * Create symlinks to this repo's [dotfiles](/home)
+* Download Git and Docker autocomplete bash scripts
 * Create a `~/.bash_local` file for [local settings](#local-settings)
 
 ## Usage

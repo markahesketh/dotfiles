@@ -41,3 +41,15 @@ PATH=$PATH:~/.config/composer/vendor/bin
 
 # Local config
 [[ -f ~/.bashrc.local ]] && source ~/.bashrc.local
+
+# Git auto-completion
+# Download from https://raw.githubusercontent.com/git/git/master/contrib/completion/git-completion.bash
+[[ -f ~/.git-completion.bash ]] && source ~/.git-completion.bash
+
+# Docker auto-completion
+# Download from https://raw.githubusercontent.com/docker/docker-ce/master/components/cli/contrib/completion/bash/docker
+[[ -f ~/.docker-completion.bash ]] && source ~/.docker-completion.bash
+
+# Docker Compose auto-completion
+# Download from https://raw.githubusercontent.com/docker/compose/master/contrib/completion/bash/docker-compose
+[[ -f ~/.docker-compose-completion.bash ]] && source ~/.docker-compose-completion.bash
