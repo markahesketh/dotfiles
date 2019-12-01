@@ -13,7 +13,7 @@ fi
 # Directory listing
 # ------------------------------------------------------------------------------
 if [[ "$OSTYPE" == "darwin"* ]]; then
-    alias ls="ls -GAF"
+    alias ls="ls -G"
     alias sed="gsed"
     alias fixaudio="sudo killall coreaudiod"
 else
