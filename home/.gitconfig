@@ -25,7 +25,7 @@
     poh = push origin HEAD
     pum = pull upstream master
     pumr = pull upstream master --rebase
-    unstage = reset
+    unstage = restore --staged
     deploy = push production master
     nah = "!f() { git clean -d -f; git reset --hard; }; f"
 [color]
