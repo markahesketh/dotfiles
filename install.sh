@@ -32,6 +32,7 @@ for i in "${DOTFILES[@]}"
 do
     echo "- ~/$i"
 done
+echo ""
 
 read -p "Create these files? They will be overwritten if they exist [y/N]: " CONT
 if [ "$CONT" == "y" ]; then
@@ -42,6 +43,7 @@ if [ "$CONT" == "y" ]; then
         ln -nfs ${BASEDIR}/home/$i ~/$i
     done
 fi
+echo ""
 
 # ------------------------------------------------------------------------------
 # Download third-party scripts
@@ -53,6 +55,7 @@ if command_exists curl; then
 elif command_exists wget; then
     wget -O ~/.git-completion.bash ${GIT_COMPLETION_URL}
 fi
+echo ""
 
 echo "Downloading Docker autocomplete"
 DOCKER_COMPLETION_URL="https://raw.githubusercontent.com/docker/docker-ce/master/components/cli/contrib/completion/bash/docker"
@@ -61,6 +64,7 @@ if command_exists curl; then
 elif command_exists wget; then
     wget -O ~/.docker-completion.bash ${DOCKER_COMPLETION_URL}
 fi
+echo ""
 
 echo "Downloading Docker Compose autocomplete"
 DOCKER_COMPLETION_URL="https://raw.githubusercontent.com/docker/compose/master/contrib/completion/bash/docker-compose"
@@ -69,6 +73,9 @@ if command_exists curl; then
 elif command_exists wget; then
     wget -O ~/.docker-compose-completion.bash ${DOCKER_COMPLETION_URL}
 fi
+echo ""
+
+sh macos/setup.sh
 
 # ------------------------------------------------------------------------------
 # Finish
