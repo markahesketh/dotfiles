@@ -13,7 +13,9 @@ fi
 # Directory listing
 # ------------------------------------------------------------------------------
 if [[ "$OSTYPE" == "darwin"* ]]; then
-    alias ls="ls -GA"
+    alias ls="ls -GAF"
+    alias sed="gsed"
+    alias fixaudio="sudo killall coreaudiod"
 else
     alias ls="ls -A --color=auto"
 fi
@@ -44,10 +46,15 @@ alias p="ps aux  | grep "
 # ------------------------------------------------------------------------------
 # Workflow
 # ------------------------------------------------------------------------------
+alias art="php artisan"
+alias con="php bin/console"
 alias c="composer"
 alias gae="dev_appserver.py --php_executable_path=$(which php-cgi)"
 alias robo="./vendor/bin/robo"
 alias t="./vendor/bin/phpunit"
+alias dcu="docker-compose up"
+alias dcd="docker-compose down"
+alias delete-squashed='git checkout -q master && git for-each-ref refs/heads/ "--format=%(refname:short)" | while read branch; do mergeBase=$(git merge-base master $branch) && [[ $(git cherry master $(git commit-tree $(git rev-parse $branch^{tree}) -p $mergeBase -m _)) == "-"* ]] && git branch -D $branch; done'
 
 # ------------------------------------------------------------------------------
 # Misc
