@@ -2,7 +2,7 @@
 
 A collection of dotfiles and configuration from my dev environment.
 
-![Terminal window](https://i.imgur.com/WgyW5lu.png)
+![Terminal window](https://ibb.co/XbkpNFP)
 
 ## Installation
 
