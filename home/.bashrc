@@ -20,6 +20,11 @@ shopt -s cdspell
 # it regains control.
 shopt -s checkwinsize
 
+# Get some colour
+export TERM=xterm-256color
+export CLICOLOR=1
+export LSCOLORS=GxFxCxDxBxegedabagaced
+
 # ------------------------------------------------------------------------------
 # EDITOR
 # ------------------------------------------------------------------------------
