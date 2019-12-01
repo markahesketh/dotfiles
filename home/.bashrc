@@ -28,6 +28,8 @@ export LSCOLORS=gxfxcxdxbxegedabagacad
 # Highlight grep matches
 export GREP_OPTIONS='—color=auto'
 
+# Silence bash deprecation notice from macOS Catalina
+export BASH_SILENCE_DEPRECATION_WARNING=1
 
 # ------------------------------------------------------------------------------
 # EDITOR
