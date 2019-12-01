@@ -26,6 +26,7 @@
     pum = pull upstream master
     pumr = pull upstream master --rebase
     unstage = restore --staged
+    staged = diff --cached
     deploy = push production master
     nah = "!f() { git clean -d -f; git reset --hard; }; f"
 [color]
