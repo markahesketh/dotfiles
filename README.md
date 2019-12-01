@@ -1,4 +1,4 @@
-# [Mark Hesketh](https://www.markhesketh.co.uk)'s dotfiles
+# dotfiles
 
 A collection of dotfiles and configuration from my dev environment.
 
@@ -17,16 +17,22 @@ This will:
 
 ## Usage
 
+Symlinks from your home directory to this repository's files will be created, meaning all changes to 
+dotfiles can be tracked in version control.
+
 ### Local settings
 
 Each dotfile will check for a `*.local` file matching its own name.
 
+This is useful for overwriting or supplementing configs on a specific environment outside of 
+version control. 
+
 For example:
 
-* Local alias file would be `~/.aliases.local`
-* Local bashrc file would be `~/.bashrc.local`
+* Local `.alias` file would be `~/.aliases.local`
+* Local `.bashrc` file would be `~/.bashrc.local`
 * etc.
 
 ## License
 
-Available under the [MIT License](LICENSE).
+[MIT](LICENSE).
