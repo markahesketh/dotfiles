@@ -23,7 +23,7 @@ shopt -s checkwinsize
 # Get some colour
 export TERM=xterm-256color
 export CLICOLOR=1
-export LSCOLORS=GxFxCxDxBxegedabagaced
+export LSCOLORS=gxfxcxdxbxegedabagacad
 
 # Highlight grep matches
 export GREP_OPTIONS='—color=auto'
