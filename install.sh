@@ -15,6 +15,7 @@ DOTFILES=(
     ".inputrc"
     ".myxkbmap"
     ".vimrc"
+    "Brewfile"
 )
 
 # ------------------------------------------------------------------------------
@@ -75,7 +76,7 @@ elif command_exists wget; then
 fi
 echo ""
 
-sh macos/setup.sh
+source scripts/macos.sh
 
 # ------------------------------------------------------------------------------
 # Finish
