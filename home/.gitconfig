@@ -40,6 +40,8 @@
     followTags = true
 [core]
     autocrlf = input
+    eol = lf
+    filemode = false
     excludesfile = ~/.gitignore
     editor = nano
 [include]
