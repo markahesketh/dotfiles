@@ -46,6 +46,11 @@ if [ "$CONT" == "y" ]; then
 fi
 echo ""
 
+if [ ! -d "$HOME/home" ]; then
+    echo "Creating bin folder in home directory (e.g. ~/bin)"
+    mkdir -p $HOME/bin
+fi
+
 # ------------------------------------------------------------------------------
 # Download third-party scripts
 # ------------------------------------------------------------------------------
@@ -74,6 +79,16 @@ if command_exists curl; then
 elif command_exists wget; then
     wget -O ~/.docker-compose-completion.bash ${DOCKER_COMPLETION_URL}
 fi
+echo ""
+
+echo "Downloading WP CLI"
+WP_CLI_URL="https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar"
+if command_exists curl; then
+    curl -o ~/bin/wp ${WP_CLI_URL}
+elif command_exists wget; then
+    wget -O ~/bin/wp ${WP_CLI_URL}
+fi
+chmod +x ~/bin/wp
 echo ""
 
 source scripts/macos.sh
