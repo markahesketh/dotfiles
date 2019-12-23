@@ -91,6 +91,15 @@ fi
 chmod +x ~/bin/wp
 echo ""
 
+echo "Downloading WP CLI autocomplete"
+WP_CLI_AUTOCOMPLETE_URL="https://raw.githubusercontent.com/wp-cli/wp-cli/v2.4.0/utils/wp-completion.bash"
+if command_exists curl; then
+    curl -o ~/.wp-completion.bash ${WP_CLI_AUTOCOMPLETE_URL}
+elif command_exists wget; then
+    wget -O ~/.wp-completion.bash ${WP_CLI_AUTOCOMPLETE_URL}
+fi
+echo ""
+
 source scripts/macos.sh
 
 # ------------------------------------------------------------------------------

@@ -67,3 +67,7 @@ PATH=$PATH:~/.config/composer/vendor/bin
 # Docker Compose auto-completion
 # Download from https://raw.githubusercontent.com/docker/compose/master/contrib/completion/bash/docker-compose
 [[ -f ~/.docker-compose-completion.bash ]] && source ~/.docker-compose-completion.bash
+
+# WP CLI auto-completion
+# Download from https://raw.githubusercontent.com/wp-cli/wp-cli/v2.4.0/utils/wp-completion.bash
+[[ -f ~/.wp-completion.bash ]] && source ~/.wp-completion.bash
