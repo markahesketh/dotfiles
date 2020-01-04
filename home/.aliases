@@ -53,6 +53,8 @@ alias gae="dev_appserver.py --php_executable_path=$(which php-cgi)"
 alias robo="./vendor/bin/robo"
 alias t="./vendor/bin/phpunit"
 alias dcu="docker-compose up"
+alias brun="./bin/run.sh"
+alias binstall="./bin/install.sh"
 alias dcd="docker-compose down"
 alias delete-squashed='git checkout -q master && git for-each-ref refs/heads/ "--format=%(refname:short)" | while read branch; do mergeBase=$(git merge-base master $branch) && [[ $(git cherry master $(git commit-tree $(git rev-parse $branch^{tree}) -p $mergeBase -m _)) == "-"* ]] && git branch -D $branch; done'
 
