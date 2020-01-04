@@ -24,6 +24,8 @@
     cia = commit -a
     p = push
     poh = push origin HEAD
+    pom = pull origin master
+    pomr = pull origin master --rebase
     pum = pull upstream master
     pumr = pull upstream master --rebase
     unstage = restore --staged
