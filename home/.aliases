@@ -58,6 +58,14 @@ alias binstall="./bin/install.sh"
 alias dcd="docker-compose down"
 alias delete-squashed='git checkout -q master && git for-each-ref refs/heads/ "--format=%(refname:short)" | while read branch; do mergeBase=$(git merge-base master $branch) && [[ $(git cherry master $(git commit-tree $(git rev-parse $branch^{tree}) -p $mergeBase -m _)) == "-"* ]] && git branch -D $branch; done'
 
+
+# ------------------------------------------------------------------------------
+# Projects
+# ------------------------------------------------------------------------------
+alias df="cd ~/code/dotfiles"
+alias lf="cd ~/code/littlefacet"
+alias mh="cd ~/code/markhesketh"
+
 # ------------------------------------------------------------------------------
 # Misc
 # ------------------------------------------------------------------------------
