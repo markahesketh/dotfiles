@@ -6,7 +6,6 @@ A collection of dotfiles and configuration from my dev environment.
 
 ## Installation
 
-    chmod +x install.sh
     ./install.sh
     
 This will:
