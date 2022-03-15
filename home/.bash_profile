@@ -6,5 +6,5 @@
 
 # fnm
 if [[ "$OSTYPE" == "darwin"* ]]; then
-    eval "$(fnm env --multi)"
+    eval "$(fnm env)"
 fi
