@@ -72,3 +72,6 @@ PATH=$PATH:/Applications/Visual\ Studio\ Code.app/Contents/Resources/app/bin
 # WP CLI auto-completion
 # Download from https://raw.githubusercontent.com/wp-cli/wp-cli/v2.4.0/utils/wp-completion.bash
 [[ -f ~/.wp-completion.bash ]] && source ~/.wp-completion.bash
+
+# Load rbenv
+eval "$(rbenv init -)"
