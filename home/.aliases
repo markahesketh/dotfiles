@@ -14,7 +14,6 @@ fi
 # ------------------------------------------------------------------------------
 if [[ "$OSTYPE" == "darwin"* ]]; then
     alias ls="ls -G"
-    alias sed="gsed"
     alias fixaudio="sudo killall coreaudiod"
 else
     alias ls="ls -A --color=auto"
@@ -28,7 +27,7 @@ alias ..="cd .."
 alias ...="cd ../.."
 alias ....="cd ../../.."
 alias .....="cd ../../../.."
-alias code="cd ~/Code"
+#alias code="cd ~/Code"
 
 # ------------------------------------------------------------------------------
 # Confirmation messages
@@ -47,17 +46,32 @@ alias p="ps aux  | grep "
 # Workflow
 # ------------------------------------------------------------------------------
 alias art="php artisan"
+alias dt="docker-compose exec php vendor/bin/phpunit"
+alias dphp="docker-compose exec php php"
 alias con="php bin/console"
 alias c="composer"
+alias c1="/usr/local/bin/composer1"
+alias c2="/usr/local/bin/composer"
 alias gae="dev_appserver.py --php_executable_path=$(which php-cgi)"
 alias robo="./vendor/bin/robo"
 alias t="./vendor/bin/phpunit"
+alias tt="./vendor/bin/phpunit --order-by=defects --stop-on-defect" 
 alias dcu="docker-compose up"
-alias brun="./bin/run.sh"
-alias binstall="./bin/install.sh"
+alias brun="./bin/run"
+alias binstall="./bin/install"
+alias bpre="./bin/precommit"
 alias dcd="docker-compose down"
 alias delete-squashed='git checkout -q master && git for-each-ref refs/heads/ "--format=%(refname:short)" | while read branch; do mergeBase=$(git merge-base master $branch) && [[ $(git cherry master $(git commit-tree $(git rev-parse $branch^{tree}) -p $mergeBase -m _)) == "-"* ]] && git branch -D $branch; done'
+alias python="python3"
+function gh() {
+    local repo_url=`git remote get-url origin | sed -e 's/git@//' -e 's/.git//' -e 's/:/\//'`
+    open "https://$repo_url"
+}
 
+function ghu() {
+     local repo_url=`git remote get-url upstream | sed -e 's/git@//' -e 's/.git//' -e 's/:/\//'`
+     open "https://$repo_url"
+}
 
 # ------------------------------------------------------------------------------
 # Projects
