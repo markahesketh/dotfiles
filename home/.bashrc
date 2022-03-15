@@ -43,6 +43,7 @@ PATH=$PATH:/usr/local/sbin:~/bin
 # Composer global binaries
 PATH=$PATH:~/.composer/vendor/bin
 PATH=$PATH:~/.config/composer/vendor/bin
+PATH=$PATH:/Applications/Visual\ Studio\ Code.app/Contents/Resources/app/bin
 
 # ------------------------------------------------------------------------------
 # Includes
