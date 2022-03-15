@@ -1,6 +1,6 @@
 [user]
 	name = Mark Hesketh
-	email = contact@markhesketh.co.uk
+	email = mark@markhesketh.com
 [alias]
     aa = add --all
     amend = commit -a --amend
