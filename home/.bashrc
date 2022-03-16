@@ -44,6 +44,7 @@ PATH=$PATH:/usr/local/sbin:~/bin
 PATH=$PATH:~/.composer/vendor/bin
 PATH=$PATH:~/.config/composer/vendor/bin
 PATH=$PATH:/Applications/Visual\ Studio\ Code.app/Contents/Resources/app/bin
+PATH=$PATH:/usr/local/opt/mysql-client/bin
 
 # ------------------------------------------------------------------------------
 # Includes
