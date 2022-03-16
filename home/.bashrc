@@ -76,3 +76,9 @@ PATH=$PATH:/usr/local/opt/mysql-client/bin
 
 # Load rbenv
 eval "$(rbenv init -)"
+
+# Switch between PHP versions
+phpswitch() {
+    brew unlink php
+    brew link --overwrite --force php@$1;
+}
