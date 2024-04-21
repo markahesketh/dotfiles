@@ -29,7 +29,7 @@ version control.
 For example:
 
 * Local `.alias` file would be `~/.aliases.local`
-* Local `.bashrc` file would be `~/.bashrc.local`
+* Local `.zprofile` file would be `~/.zprofile.local`
 * etc.
 
 ## License

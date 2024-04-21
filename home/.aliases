@@ -2,32 +2,15 @@
 [ -z "$PS1" ] && return
 
 # ------------------------------------------------------------------------------
-# System
-# ------------------------------------------------------------------------------
-if [ -n "$(which apt-get)" ]; then
-    alias upgrade="sudo apt-get update && sudo apt-get upgrade"
-    alias clipboard="xclip -se c"
-fi
-
-# ------------------------------------------------------------------------------
 # Directory listing
 # ------------------------------------------------------------------------------
 if [[ "$OSTYPE" == "darwin"* ]]; then
     alias ls="ls -G"
-    alias fixaudio="sudo killall coreaudiod"
 else
     alias ls="ls -A --color=auto"
 fi
 alias ll="ls -lh"
-
-# ------------------------------------------------------------------------------
-# Navigation
-# ------------------------------------------------------------------------------
-alias ..="cd .."
-alias ...="cd ../.."
-alias ....="cd ../../.."
-alias .....="cd ../../../.."
-#alias code="cd ~/Code"
+alias lla="ls -alh"
 
 # ------------------------------------------------------------------------------
 # Confirmation messages
@@ -36,33 +19,15 @@ alias rm='rm -iv'
 alias mv='mv -iv'
 
 # ------------------------------------------------------------------------------
-# Grep
+# Docker
 # ------------------------------------------------------------------------------
-alias h="history | grep "
-alias f="find .  | grep "
-alias p="ps aux  | grep "
+alias dcd="docker-compose down"
+alias dcu="docker-compose up"
 
 # ------------------------------------------------------------------------------
-# Workflow
+# Git
 # ------------------------------------------------------------------------------
-alias art="php artisan"
-alias dt="docker-compose exec php vendor/bin/phpunit"
-alias dphp="docker-compose exec php php"
-alias con="php bin/console"
-alias c="composer"
-alias c1="/usr/local/bin/composer1"
-alias c2="/usr/local/bin/composer"
-alias gae="dev_appserver.py --php_executable_path=$(which php-cgi)"
-alias robo="./vendor/bin/robo"
-alias t="./vendor/bin/phpunit"
-alias tt="./vendor/bin/phpunit --order-by=defects --stop-on-defect" 
-alias dcu="docker-compose up"
-alias brun="./bin/run"
-alias binstall="./bin/install"
-alias bpre="./bin/precommit"
-alias dcd="docker-compose down"
 alias delete-squashed='git checkout -q master && git for-each-ref refs/heads/ "--format=%(refname:short)" | while read branch; do mergeBase=$(git merge-base master $branch) && [[ $(git cherry master $(git commit-tree $(git rev-parse $branch^{tree}) -p $mergeBase -m _)) == "-"* ]] && git branch -D $branch; done'
-alias python="python3"
 function gh() {
     local repo_url=`git remote get-url origin | sed -e 's/git@//' -e 's/.git//' -e 's/:/\//'`
     open "https://$repo_url"
@@ -74,11 +39,32 @@ function ghu() {
 }
 
 # ------------------------------------------------------------------------------
+# PHP / Laravel
+# ------------------------------------------------------------------------------
+alias art="php artisan"
+alias c="composer"
+alias c1="/usr/local/bin/composer1"
+alias c2="/usr/local/bin/composer"
+
+# ------------------------------------------------------------------------------
+# Ruby on Rails
+# ------------------------------------------------------------------------------
+alias check="./bin/check"
+alias lint="./bin/lint"
+alias d="./bin/dev"
+alias con="bin/rails c"
+alias r="./bin/rails"
+alias t="./bin/rails test"
+alias s="bundle exec rspec"
+alias ta="./bin/rails test:all"
+alias ts="./bin/rails test:system"
+alias tt="./bin/rails test -f"
+
+# ------------------------------------------------------------------------------
 # Projects
 # ------------------------------------------------------------------------------
-alias df="cd ~/code/dotfiles"
-alias lf="cd ~/code/littlefacet"
-alias mh="cd ~/code/markhesketh"
+alias mh="cd ~/Code/markhesketh.com"
+alias tv="cd ~/Code/thevamoose.com"
 
 # ------------------------------------------------------------------------------
 # Misc

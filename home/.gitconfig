@@ -1,6 +1,6 @@
 [user]
 	name = Mark Hesketh
-	email = mark@markhesketh.com
+	email = contact@markhesketh.co.uk
 [alias]
     aa = add --all
     amend = commit -a --amend
@@ -14,14 +14,10 @@
     cob = checkout -b
     dc = diff --cached
     diff = diff --word-diff
-    filelog = log -u
-    fl = log -u
     lg = log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
     st = status -s
     up = pull --rebase --prune
     undo = reset HEAD~1 --mixed
-    amend = commit -a --amend
-    cia = commit -a
     p = push
     poh = push origin HEAD
     pom = pull origin master
@@ -29,13 +25,12 @@
     pum = pull upstream master
     pumr = pull upstream master --rebase
     unstage = restore --staged
-    staged = diff --cached
     deploy = push production master
     nah = "!f() { git clean -d -f; git reset --hard; }; f"
 [color]
     ui = true
 [merge]
-    ff = false
+    ff = true
 [pull]
     ff = only
 [push]
@@ -49,3 +44,10 @@
     editor = nano
 [include]
     path = ~/.gitconfig.local
+[init]
+	defaultBranch = main
+[filter "lfs"]
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+	required = true

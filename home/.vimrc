@@ -1,6 +1,6 @@
 " == SETTINGS ============================================================
 syntax on       			       " Coloured syntax
-set background=dark		           " Theme
+set background=light	           " Theme
 set number                         " Line numbers
 set autoread		               " Update files that change
 set cursorline                     " Highlight current line
