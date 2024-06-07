@@ -70,7 +70,10 @@ alias tv="cd ~/Code/thevamoose.com"
 # Misc
 # ------------------------------------------------------------------------------
 # Reload the shell (i.e. invoke as a login shell)
-alias reload="exec $SHELL -l"
+function reload() {
+    source ~/.zshrc
+    exec $SHELL -l
+}
 
 # Local config
 [[ -f ~/.aliases.local ]] && source ~/.aliases.local
