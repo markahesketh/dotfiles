@@ -7,7 +7,6 @@ BASEDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 DOTFILES=(
     ".aliases"
-    ".asdfrc"
     ".gitconfig"
     ".gitignore"
     ".hushlogin"

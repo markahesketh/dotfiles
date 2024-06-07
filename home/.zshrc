@@ -6,9 +6,6 @@ PATH=$PATH:~/.composer/vendor/bin
 # ------------------------------------------------------------------------------
 # Binaries
 # ------------------------------------------------------------------------------
-# ASDF [https://asdf-vm.com/guide/getting-started.html]
-. "$HOME/.asdf/asdf.sh"
-
 # Set VIM as the editor
 export VISUAL=vim
 export EDITOR="$VISUAL"
@@ -30,7 +27,6 @@ source ~/.orbstack/shell/init.zsh 2>/dev/null || :
 export TERM='xterm-256color'
 
 # cd case insensitivity + autocomplete
-fpath=(${ASDF_DIR}/completions $fpath) # asdf completions
 autoload -Uz compinit && compinit
 zstyle ':completion:*' matcher-list 'm:{a-z}={A-Za-z}'
 
