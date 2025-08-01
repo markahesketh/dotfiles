@@ -28,7 +28,7 @@ alias dcu="docker-compose up"
 # Git
 # ------------------------------------------------------------------------------
 alias delete-squashed='git checkout -q master && git for-each-ref refs/heads/ "--format=%(refname:short)" | while read branch; do mergeBase=$(git merge-base master $branch) && [[ $(git cherry master $(git commit-tree $(git rev-parse $branch^{tree}) -p $mergeBase -m _)) == "-"* ]] && git branch -D $branch; done'
-function gh() {
+function gho() {
     local repo_url=`git remote get-url origin | sed -e 's/git@//' -e 's/.git//' -e 's/:/\//'`
     open "https://$repo_url"
 }
