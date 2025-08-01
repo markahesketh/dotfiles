@@ -24,6 +24,9 @@ export HOMEBREW_NO_INSTALL_UPGRADE=1
 # Setup Orbstack
 source ~/.orbstack/shell/init.zsh 2>/dev/null || :
 
+# Setup Mise
+eval "$(/Users/markhesketh/.local/bin/mise activate zsh)"
+
 # ------------------------------------------------------------------------------
 # Preferences
 # ------------------------------------------------------------------------------
