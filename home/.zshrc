@@ -15,17 +15,23 @@ export VISUAL=vim
 export EDITOR="$VISUAL"
 
 # Setup Homebrew
-eval "$(/opt/homebrew/bin/brew shellenv)"
+if command -v brew >/dev/null 2>&1; then
+    eval "$($(which brew) shellenv)"
+fi
 
 # Stop Homebrew automatically updating all packages
 export HOMEBREW_NO_AUTO_UPDATE=1
 export HOMEBREW_NO_INSTALL_UPGRADE=1
 
 # Setup Orbstack
-source ~/.orbstack/shell/init.zsh 2>/dev/null || :
+if command -v orbstack >/dev/null 2>&1; then
+    source ~/.orbstack/shell/init.zsh 2>/dev/null || :
+fi
 
 # Setup Mise
-eval "$(/Users/markhesketh/.local/bin/mise activate zsh)"
+if command -v mise >/dev/null 2>&1; then
+    eval "$($(which mise) activate zsh)"
+fi
 
 # ------------------------------------------------------------------------------
 # Preferences
