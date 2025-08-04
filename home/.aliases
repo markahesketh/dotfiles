@@ -75,5 +75,15 @@ function reload() {
     exec $SHELL -l
 }
 
+# Refresh dotfiles symlinks and reload shell
+function dotfiles() {
+    local dotfiles_dir="$HOME/Code/markahesketh/dotfiles"
+    if [ -d "$dotfiles_dir" ]; then
+        cd "$dotfiles_dir" && ./scripts/dotfiles.sh
+    else
+        echo "Dotfiles directory not found at $dotfiles_dir"
+    fi
+}
+
 # Local config
 [[ -f ~/.aliases.local ]] && source ~/.aliases.local
