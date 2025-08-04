@@ -26,7 +26,8 @@
     pumr = pull upstream master --rebase
     unstage = restore --staged
     deploy = push production master
-    nah = "!f() { git clean -d -f; git reset --hard; }; f"
+    nah = "!f() { git clean -d -f; git reset --hard; }; f" # Thanks Jeffrey
+    wip = "!f() { git add .; git commit -m "wip"; }; f"
 [color]
     ui = true
 [merge]
