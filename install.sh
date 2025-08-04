@@ -7,6 +7,7 @@ BASEDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 DOTFILES=(
     ".aliases"
+    ".claude/commands"
     ".gitconfig"
     ".gitignore"
     ".hushlogin"
@@ -37,7 +38,14 @@ if [ "$CONT" == "y" ]; then
     for i in "${DOTFILES[@]}"
     do
         echo "Creating $i ..."
-        rm -f ~/$i
+        rm -rf ~/$i
+        
+        # Create parent directory if it doesn't exist
+        parent_dir=$(dirname ~/$i)
+        if [ "$parent_dir" != "$HOME" ] && [ ! -d "$parent_dir" ]; then
+            mkdir -p "$parent_dir"
+        fi
+        
         ln -nfs ${BASEDIR}/home/$i ~/$i
     done
 fi
