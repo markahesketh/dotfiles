@@ -29,8 +29,8 @@ if command -v orbstack >/dev/null 2>&1; then
 fi
 
 # Setup Mise
-if command -v mise >/dev/null 2>&1; then
-    eval "$($(which mise) activate zsh)"
+if [ -f $HOME/.local/bin/mise ]; then
+    eval "$($HOME/.local/bin/mise activate zsh)"
 fi
 
 # ------------------------------------------------------------------------------
