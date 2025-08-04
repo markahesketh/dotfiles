@@ -63,8 +63,8 @@ alias tt="./bin/rails test -f"
 # ------------------------------------------------------------------------------
 # Projects
 # ------------------------------------------------------------------------------
-alias mh="cd ~/Code/markhesketh.com"
-alias tv="cd ~/Code/thevamoose.com"
+alias mh="cd ~/Code/markahesketh/markhesketh.com"
+alias tv="cd ~/Code/markahesketh/thevamoose.com"
 
 # ------------------------------------------------------------------------------
 # Misc
