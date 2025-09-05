@@ -75,6 +75,12 @@ function reload() {
     exec $SHELL -l
 }
 
+# Add the kamal SSH key to the ssh-agent
+function ssh-add-kamal() {
+    eval "$(ssh-agent -s)"
+    ssh-add ~/.ssh/id_ed25519_kamal
+}
+
 # Refresh dotfiles symlinks and reload shell
 function dotfiles() {
     local dotfiles_dir="$HOME/Code/markahesketh/dotfiles"
