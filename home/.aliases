@@ -38,6 +38,52 @@ function ghu() {
      open "https://$repo_url"
 }
 
+function worktree() {
+    if [ -z "$1" ]; then
+        echo "Usage: worktree <branch-name>"
+        return 1
+    fi
+    local branch="$1"
+    local repo_root=$(git rev-parse --show-toplevel 2>/dev/null)
+    if [ -z "$repo_root" ]; then
+        echo "Error: Not in a git repository"
+        return 1
+    fi
+    local repo_name=$(basename "$repo_root")
+    local worktree_path="$(dirname "$repo_root")/${repo_name}--${branch}"
+
+    git worktree add -b "$branch" "$worktree_path" && cd "$worktree_path"
+}
+
+function worktree-rm() {
+    local current_path=$(git rev-parse --show-toplevel 2>/dev/null)
+    if [ -z "$current_path" ]; then
+        echo "Error: Not in a git repository"
+        return 1
+    fi
+
+    # Get main worktree (first line of git worktree list)
+    local main_worktree=$(git worktree list --porcelain | head -1 | sed 's/worktree //')
+
+    if [ "$current_path" = "$main_worktree" ]; then
+        echo "Error: Cannot remove main worktree. Run from a linked worktree."
+        return 1
+    fi
+
+    local branch=$(git branch --show-current)
+
+    echo "Remove worktree at $current_path and delete branch '$branch'? [Y/n]"
+    read -r confirm
+    if [ -z "$confirm" ] || [ "$confirm" = "y" ] || [ "$confirm" = "Y" ]; then
+        cd "$main_worktree"
+        git worktree remove "$current_path"
+        git branch -D "$branch"
+        echo "Worktree and branch '$branch' removed. Now in $main_worktree"
+    else
+        echo "Cancelled"
+    fi
+}
+
 # ------------------------------------------------------------------------------
 # PHP / Laravel
 # ------------------------------------------------------------------------------
