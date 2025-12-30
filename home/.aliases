@@ -69,6 +69,11 @@ alias tv="cd ~/Code/markahesketh/thevamoose.com"
 # ------------------------------------------------------------------------------
 # Misc
 # ------------------------------------------------------------------------------
+# Set terminal tab title
+function tab() {
+    printf '\e]1;%s\a' "$1"
+}
+
 # Reload the shell (i.e. invoke as a login shell)
 function reload() {
     source ~/.zshrc
