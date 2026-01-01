@@ -11,6 +11,7 @@ BASEDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/.."
 DOTFILES=(
     ".aliases"
     ".claude/commands"
+    ".claude/skills"
     ".gitconfig"
     ".gitignore"
     ".hushlogin"
