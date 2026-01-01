@@ -76,8 +76,15 @@ function worktree-rm() {
     read -r confirm
     if [ -z "$confirm" ] || [ "$confirm" = "y" ] || [ "$confirm" = "Y" ]; then
         cd "$main_worktree"
-        git worktree remove "$current_path"
-        git branch -D "$branch"
+        if ! git worktree remove "$current_path"; then
+            echo "Error: Failed to remove worktree. You may have uncommitted changes."
+            cd "$current_path"
+            return 1
+        fi
+        if ! git branch -D "$branch"; then
+            echo "Error: Failed to delete branch '$branch'."
+            return 1
+        fi
         echo "Worktree and branch '$branch' removed. Now in $main_worktree"
     else
         echo "Cancelled"
