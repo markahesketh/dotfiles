@@ -5,12 +5,11 @@ Create well-formatted commits with conventional commit messages.
 2. If 0 files are staged, automatically add all modified and new files with `git add`
 3. Performs a `git diff` to understand what changes are being committed
 4. Analyze the diff to determine if multiple distinct logical changes are present
-5. WIf multiple distinct changes are detected, break the commit into multiple smaller commits
+5. If multiple distinct changes are detected, break the commit into multiple smaller commits
 6. For each commit (or the single commit if not split), create a commit message using conventional commit format
 </steps>
 
 <best_practices>
-- **Verify before committing**: Ensure code is linted, tests are successful, and documentation is updated
 - **Atomic commits**: Each commit should contain related changes that serve a single purpose
 - **Split large changes**: If changes touch multiple concerns, split them into separate commits
 - **Conventional commit format**: Use the format `<type>: <description>` where type is one of:
@@ -73,11 +72,10 @@ Example of splitting commits:
 ## Important Instructions
 
 <important_instructions>
-- IF tests fail, ask if you want to proceed with the commit anyway or fix the issues first
 - IF specific files are already staged, ask if to commit only those files
 - IF no files are staged, automatically stage all modified and new files
 - IF suggesting multiple commits, help stage and commit the changes separately
-- ALWAYS write the commit message is based on the changes detected
+- ALWAYS write the commit message based on the changes detected
 - ALWAYS review the diff to identify if multiple commits would be more appropriate
 - ALWAYS review the commit diff to ensure the message matches the changes
 - NEVER add "Co-Authored-By:" or "🤖 Generated with " section to the commit message
