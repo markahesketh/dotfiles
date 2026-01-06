@@ -67,3 +67,4 @@ bindkey '\e[1;9C' forward-word     # Option + right arrow
 
 # Local config
 [[ -f ~/.zprofile.local ]] && source ~/.zprofile.local
+export PATH="$HOME/.local/bin:$PATH"
