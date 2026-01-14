@@ -4,11 +4,6 @@ if test ! "$(uname)" = "Darwin"
   exit 0
 fi
 
-echo "Updating macOS ..."
-echo "› sudo softwareupdate -i -a"
-sudo softwareupdate -i -a
-echo ""
-
 # Check for Homebrew
 if test ! $(which brew)
 then
