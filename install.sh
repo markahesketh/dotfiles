@@ -17,11 +17,6 @@ command_exists() {
 # ------------------------------------------------------------------------------
 source "${BASEDIR}/scripts/dotfiles.sh"
 
-if [ ! -d "$HOME/bin" ]; then
-    echo "Creating bin folder in home directory (e.g. ~/bin)"
-    mkdir -p $HOME/bin
-fi
-
 echo "Downloading Docker autocomplete"
 DOCKER_COMPLETION_URL="https://raw.githubusercontent.com/docker/cli/master/contrib/completion/zsh/_docker"
 if command_exists curl; then

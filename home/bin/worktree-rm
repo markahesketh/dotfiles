@@ -1,0 +1,42 @@
+#!/bin/bash
+#
+# Remove current git worktree and its branch
+# Outputs the main worktree path on success (for use with cd wrapper)
+#
+
+current_path=$(git rev-parse --show-toplevel 2>/dev/null)
+
+if [ -z "$current_path" ]; then
+    echo "Error: Not in a git repository" >&2
+    exit 1
+fi
+
+# Get main worktree (first line of git worktree list)
+main_worktree=$(git worktree list --porcelain | head -1 | sed 's/worktree //')
+
+if [ "$current_path" = "$main_worktree" ]; then
+    echo "Error: Cannot remove main worktree. Run from a linked worktree." >&2
+    exit 1
+fi
+
+branch=$(git branch --show-current)
+
+echo "Remove worktree at $current_path and delete branch '$branch'? [Y/n]" >&2
+read -r confirm
+
+if [ -z "$confirm" ] || [ "$confirm" = "y" ] || [ "$confirm" = "Y" ]; then
+    if ! git worktree remove "$current_path" >&2; then
+        echo "Error: Failed to remove worktree. You may have uncommitted changes." >&2
+        exit 1
+    fi
+    if ! git branch -D "$branch" >&2; then
+        echo "Error: Failed to delete branch '$branch'." >&2
+        exit 1
+    fi
+    echo "Worktree and branch '$branch' removed." >&2
+    # Output the main worktree path for the cd wrapper
+    echo "$main_worktree"
+else
+    echo "Cancelled" >&2
+    exit 1
+fi

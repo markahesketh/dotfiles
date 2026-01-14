@@ -1,7 +1,7 @@
 # ------------------------------------------------------------------------------
 # PATH
 # ------------------------------------------------------------------------------
-PATH=$PATH:~/.composer/vendor/bin
+PATH=$HOME/bin:$PATH:~/.composer/vendor/bin
 
 if [[ "$OSTYPE" == "darwin"* ]]; then
     PATH=$PATH:/Applications/RubyMine.app/Contents/MacOS
