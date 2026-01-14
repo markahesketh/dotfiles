@@ -2,11 +2,13 @@
 #
 # Copy local configuration files from the main repository to a worktree
 #
-# Files copied (if they exist):
-#   - .claude/settings.local.json
-#   - .idea/
-#   - config/master.key
-#
+
+# Files and directories to copy
+FILES_TO_COPY=(
+    ".claude/settings.local.json"
+    ".idea"
+    "config/master.key"
+)
 
 set -e
 
@@ -24,13 +26,6 @@ if [ "$current_path" = "$main_worktree" ]; then
     echo "Error: Already in main worktree. Run from a linked worktree." >&2
     exit 1
 fi
-
-# Files and directories to copy
-FILES_TO_COPY=(
-    ".claude/settings.local.json"
-    ".idea"
-    "config/master.key"
-)
 
 copied=0
 
