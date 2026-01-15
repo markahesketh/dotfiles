@@ -26,6 +26,12 @@ elif command_exists wget; then
 fi
 echo ""
 
+if ! command_exists atuin; then
+    echo "Installing Atuin"
+    curl --proto '=https' --tlsv1.2 -LsSf https://setup.atuin.sh | sh
+    echo ""
+fi
+
 source scripts/macos.sh
 
 # ------------------------------------------------------------------------------
