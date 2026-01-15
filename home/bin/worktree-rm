@@ -29,6 +29,8 @@ if [ -z "$confirm" ] || [ "$confirm" = "y" ] || [ "$confirm" = "Y" ]; then
         echo "Error: Failed to remove worktree. You may have uncommitted changes." >&2
         exit 1
     fi
+    # Change to main worktree before deleting branch (current directory no longer exists)
+    cd "$main_worktree" || exit 1
     if ! git branch -D "$branch" >&2; then
         echo "Error: Failed to delete branch '$branch'." >&2
         exit 1
