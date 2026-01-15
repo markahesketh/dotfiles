@@ -22,6 +22,7 @@
     poh = push origin HEAD
     pom = pull origin master
     pomr = pull origin master --rebase
+    posr = pull origin staging --rebase
     pum = pull upstream master
     pumr = pull upstream master --rebase
     unstage = restore --staged
