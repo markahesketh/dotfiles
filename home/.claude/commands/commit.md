@@ -23,6 +23,7 @@ Create well-formatted commits with conventional commit messages.
   - `chore`: Changes to the build process, tools, etc.
 - **Present tense, imperative mood**: Write commit messages as commands (e.g., "add feature" not "added feature")
 - **Concise first line**: Keep the first line under 72 characters
+- **Never mention Claude or AI**: Do not co-author commits or add "Generated with Claude AI" section to the commit message
   </best_practices>
 
 ## Guidelines for Splitting Commits
