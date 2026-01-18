@@ -1,6 +1,6 @@
 ---
 name: rspec-tester
-description: Generate RSpec test files for Ruby on Rails code. Creates model specs, request specs, service specs, and other test types. Uses FactoryBot when available in the project. Use when asked to write tests, create specs, add test coverage, or generate RSpec files.
+description: Generate RSpec test files for Ruby on Rails code following best practices. Use when writing RSpec specs in in Ruby on Rails projects.
 ---
 
 # RSpec Test Generator
