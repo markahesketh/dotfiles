@@ -1,7 +1,9 @@
 # ------------------------------------------------------------------------------
 # PATH
 # ------------------------------------------------------------------------------
-PATH=$HOME/bin:$PATH:~/.composer/vendor/bin
+PATH=~/bin:$PATH
+PATH=~/.composer/vendor/bin:$PATH
+PATH=~/.local/bin:$PATH
 
 if [[ "$OSTYPE" == "darwin"* ]]; then
     PATH=$PATH:/Applications/RubyMine.app/Contents/MacOS
@@ -58,8 +60,3 @@ bindkey '\e[1;9C' forward-word     # Option + right arrow
 # Aliases
 [[ -f ~/.aliases ]] && source ~/.aliases
 
-export PATH="$HOME/.local/bin:$PATH"
-
-. "$HOME/.atuin/bin/env"
-
-eval "$(atuin init zsh)"
