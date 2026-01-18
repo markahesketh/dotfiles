@@ -14,6 +14,7 @@ DOTFILES=(
     ".gitignore"
     ".hushlogin"
     ".vimrc"
+    ".zprofile"
     ".zshrc"
     "bin"
 )

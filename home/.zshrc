@@ -28,13 +28,6 @@ if command -v orbstack >/dev/null 2>&1; then
     source ~/.orbstack/shell/init.zsh 2>/dev/null || :
 fi
 
-# Setup Mise
-if [ -f $HOME/.local/bin/mise ]; then
-    eval "$($HOME/.local/bin/mise activate zsh)"
-elif [ -f /opt/homebrew/bin/mise ]; then
-    eval "$(/opt/homebrew/bin/mise activate zsh)"
-fi
-
 # ------------------------------------------------------------------------------
 # Preferences
 # ------------------------------------------------------------------------------
@@ -65,8 +58,6 @@ bindkey '\e[1;9C' forward-word     # Option + right arrow
 # Aliases
 [[ -f ~/.aliases ]] && source ~/.aliases
 
-# Local config
-[[ -f ~/.zprofile.local ]] && source ~/.zprofile.local
 export PATH="$HOME/.local/bin:$PATH"
 
 . "$HOME/.atuin/bin/env"
