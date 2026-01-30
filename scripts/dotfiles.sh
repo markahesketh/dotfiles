@@ -21,6 +21,7 @@ DOTFILES=(
 
 # Directories where we symlink individual items instead of the whole directory
 CLAUDE_DIRS=(
+    ".claude/agents"
     ".claude/commands"
     ".claude/skills"
 )
