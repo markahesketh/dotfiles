@@ -10,6 +10,9 @@ BASEDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/.."
 
 DOTFILES=(
     ".aliases"
+    ".claude/agents"
+    ".claude/commands"
+    ".claude/skills"
     ".gitconfig"
     ".gitignore"
     ".hushlogin"
@@ -17,13 +20,6 @@ DOTFILES=(
     ".zprofile"
     ".zshrc"
     "bin"
-)
-
-# Directories where we symlink individual items instead of the whole directory
-CLAUDE_DIRS=(
-    ".claude/agents"
-    ".claude/commands"
-    ".claude/skills"
 )
 
 # ------------------------------------------------------------------------------
@@ -35,19 +31,6 @@ do
     echo "- ~/$i"
 done
 
-# List individual items from .claude directories
-for dir in "${CLAUDE_DIRS[@]}"
-do
-    if [ -d "${BASEDIR}/home/${dir}" ]; then
-        for item in "${BASEDIR}/home/${dir}"/*; do
-            [ -e "$item" ] || continue
-            item_name=$(basename "$item")
-            # Skip .DS_Store files
-            [ "$item_name" == ".DS_Store" ] && continue
-            echo "- ~/${dir}/${item_name}"
-        done
-    fi
-done
 echo ""
 
 read -p "Create these files? They will be overwritten if they exist [y/N]: " CONT
@@ -64,25 +47,6 @@ if [ "$CONT" == "y" ]; then
         fi
 
         ln -nfs ${BASEDIR}/home/$i ~/$i
-    done
-
-    # Symlink individual items in .claude directories
-    for dir in "${CLAUDE_DIRS[@]}"
-    do
-        if [ -d "${BASEDIR}/home/${dir}" ]; then
-            # Ensure target directory exists
-            mkdir -p ~/${dir}
-
-            for item in "${BASEDIR}/home/${dir}"/*; do
-                [ -e "$item" ] || continue
-                item_name=$(basename "$item")
-                # Skip .DS_Store files
-                [ "$item_name" == ".DS_Store" ] && continue
-                echo "Creating ${dir}/${item_name} ..."
-                rm -rf ~/${dir}/${item_name}
-                ln -nfs "$item" ~/${dir}/${item_name}
-            done
-        fi
     done
 
     echo "Dotfiles symlinks created successfully!"
