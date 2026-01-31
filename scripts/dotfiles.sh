@@ -12,6 +12,7 @@ DOTFILES=(
     ".aliases"
     ".claude/agents"
     ".claude/commands"
+    ".claude/settings.json"
     ".claude/skills"
     ".gitconfig"
     ".gitignore"
