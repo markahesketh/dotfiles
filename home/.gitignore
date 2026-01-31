@@ -46,3 +46,4 @@ Thumbs.db
 .vscode
 CLAUDE.local.md
 .claude/settings.local.json
+.superset
