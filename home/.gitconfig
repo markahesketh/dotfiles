@@ -20,11 +20,12 @@
     undo = reset HEAD~1 --mixed
     p = push
     poh = push origin HEAD
-    pom = pull origin master
-    pomr = pull origin master --rebase
+    default-branch = "!git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's@^refs/remotes/origin/@@' || echo main"
+    pom = "!git pull origin $(git default-branch)"
+    pomr = "!git pull origin $(git default-branch) --rebase"
     posr = pull origin staging --rebase
-    pum = pull upstream master
-    pumr = pull upstream master --rebase
+    pum = "!git pull upstream $(git default-branch)"
+    pumr = "!git pull upstream $(git default-branch) --rebase"
     unstage = restore --staged
     deploy = push production master
     nah = "!f() { git clean -d -f; git reset --hard; }; f" # Thanks Jeffrey
