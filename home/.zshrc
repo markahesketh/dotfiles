@@ -33,8 +33,17 @@ fi
 # ------------------------------------------------------------------------------
 # Preferences
 # ------------------------------------------------------------------------------
-# Set term even on reloads
-export TERM='xterm-256color'
+# Set TERM only if not already set by the terminal emulator
+[[ -z "$TERM" || "$TERM" == "dumb" ]] && export TERM='xterm-256color'
+
+# History
+HISTSIZE=50000
+SAVEHIST=50000
+HISTFILE=~/.zsh_history
+setopt SHARE_HISTORY
+setopt HIST_IGNORE_DUPS
+setopt HIST_IGNORE_SPACE
+setopt HIST_REDUCE_BLANKS
 
 # cd case insensitivity + autocomplete
 autoload -Uz compinit && compinit

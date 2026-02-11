@@ -17,14 +17,18 @@ command_exists() {
 # ------------------------------------------------------------------------------
 source "${BASEDIR}/scripts/dotfiles.sh"
 
-echo "Downloading Docker autocomplete"
 DOCKER_COMPLETION_URL="https://raw.githubusercontent.com/docker/cli/master/contrib/completion/zsh/_docker"
-if command_exists curl; then
-    curl -L -o ~/.docker-completion.zsh ${DOCKER_COMPLETION_URL}
-elif command_exists wget; then
-    wget -O ~/.docker-completion.zsh ${DOCKER_COMPLETION_URL}
+if [ ! -f ~/.docker-completion.zsh ]; then
+    echo "Downloading Docker autocomplete"
+    if command_exists curl; then
+        curl -fL -o ~/.docker-completion.zsh ${DOCKER_COMPLETION_URL}
+    elif command_exists wget; then
+        wget -O ~/.docker-completion.zsh ${DOCKER_COMPLETION_URL}
+    fi
+    echo ""
+else
+    echo "Docker autocomplete already installed, skipping."
 fi
-echo ""
 
 if ! command_exists atuin; then
     echo "Installing Atuin"
