@@ -36,6 +36,7 @@
     ff = true
 [pull]
     ff = only
+	rebase = true
 [push]
     default = simple
     followTags = true
