@@ -1,0 +1,11 @@
+{
+  "contextFileName": "AGENTS.md",
+  "security": {
+    "auth": {
+      "selectedType": "oauth-personal"
+    }
+  },
+  "ui": {
+    "theme": "Default Light"
+  }
+}
