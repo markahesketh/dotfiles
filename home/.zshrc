@@ -69,3 +69,6 @@ bindkey '\e[1;9C' forward-word     # Option + right arrow
 # Aliases
 [[ -f ~/.aliases ]] && source ~/.aliases
 
+
+# opencode
+export PATH=/Users/markhesketh/.opencode/bin:$PATH
