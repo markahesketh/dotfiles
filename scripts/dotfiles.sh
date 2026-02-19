@@ -14,6 +14,8 @@ DOTFILES=(
     ".claude/commands"
     ".claude/settings.json"
     ".claude/skills"
+    ".config/atuin/config.toml"
+    ".gemini/settings.json"
     ".gitconfig"
     ".gitignore"
     ".hushlogin"
