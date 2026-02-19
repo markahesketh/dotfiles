@@ -11,5 +11,6 @@
       "Bash(git rebase *)"
     ]
   },
-  "effortLevel": "medium"
+  "effortLevel": "medium",
+  "model": "sonnet"
 }
