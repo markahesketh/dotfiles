@@ -17,6 +17,7 @@ DOTFILES=(
     ".gitconfig"
     ".gitignore"
     ".hushlogin"
+    ".tmux.conf"
     ".vimrc"
     ".zprofile"
     ".zshrc"
