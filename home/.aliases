@@ -2,7 +2,7 @@
 [ -z "$PS1" ] && return
 
 # ------------------------------------------------------------------------------
-# Directory listing
+# Directories and navigation
 # ------------------------------------------------------------------------------
 if [[ "$OSTYPE" == "darwin"* ]]; then
     alias ls="ls -G"
@@ -209,6 +209,17 @@ function dotfiles() {
     else
         echo "Dotfiles directory not found at $dotfiles_dir"
     fi
+}
+
+# ------------------------------------------------------------------------------
+# Claude Code
+# ------------------------------------------------------------------------------
+function claude() {
+    if [ -n "$TMUX_PANE" ]; then
+        tmux select-pane -T "Claude Code"
+        rm -f "/tmp/claude-pane-titled-${TMUX_PANE#%}"
+    fi
+    command claude "$@"
 }
 
 # Local config
