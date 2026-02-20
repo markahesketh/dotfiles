@@ -1,4 +1,5 @@
 brew "atuin"
+brew "fzf"
 brew "gh"
 brew "lazygit"
 brew "mise"

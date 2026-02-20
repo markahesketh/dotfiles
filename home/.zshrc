@@ -69,6 +69,16 @@ bindkey '\e[1;9C' forward-word     # Option + right arrow
 # Aliases
 [[ -f ~/.aliases ]] && source ~/.aliases
 
+# fzf
+if command -v fzf >/dev/null 2>&1; then
+    eval "$(fzf --zsh)"
+fi
+
+# atuin (init after fzf so it wins Ctrl+R)
+if command -v atuin >/dev/null 2>&1; then
+    eval "$(atuin init zsh)"
+fi
+
 
 # opencode
 export PATH=/Users/markhesketh/.opencode/bin:$PATH
