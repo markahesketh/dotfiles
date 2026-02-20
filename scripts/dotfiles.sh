@@ -16,6 +16,7 @@ DOTFILES=(
     ".claude/skills"
     ".config/atuin/config.toml"
     ".config/tmux/is-dark-mode.sh"
+    ".config/workmux/config.yaml"
     ".gemini/settings.json"
     ".gitconfig"
     ".gitignore"
