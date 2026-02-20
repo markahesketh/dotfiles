@@ -1,4 +1,6 @@
 brew "atuin"
+
+cask "orbstack"
 brew "fzf"
 brew "gh"
 brew "lazygit"
