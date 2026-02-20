@@ -211,16 +211,5 @@ function dotfiles() {
     fi
 }
 
-# ------------------------------------------------------------------------------
-# Claude Code
-# ------------------------------------------------------------------------------
-function claude() {
-    if [ -n "$TMUX_PANE" ]; then
-        tmux select-pane -T "Claude Code"
-        rm -f "/tmp/claude-pane-titled-${TMUX_PANE#%}"
-    fi
-    command claude "$@"
-}
-
 # Local config
 [[ -f ~/.aliases.local ]] && source ~/.aliases.local

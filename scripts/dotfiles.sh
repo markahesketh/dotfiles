@@ -12,7 +12,6 @@ DOTFILES=(
     ".aliases"
     ".claude/agents"
     ".claude/commands"
-    ".claude/hooks"
     ".claude/settings.json"
     ".claude/skills"
     ".config/atuin/config.toml"

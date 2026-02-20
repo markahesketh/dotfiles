@@ -49,6 +49,12 @@ setopt HIST_REDUCE_BLANKS
 autoload -Uz compinit && compinit
 zstyle ':completion:*' matcher-list 'm:{a-z}={A-Za-z}'
 
+# Terminal title (used by tmux pane-border-format via #{pane_title})
+_title_precmd() { printf '\033]0;zsh\007' }
+_title_preexec() { printf '\033]0;%s\007' "${1%% *}" }
+precmd_functions+=(_title_precmd)
+preexec_functions+=(_title_preexec)
+
 # Custom prompt, with git branch
 autoload -Uz vcs_info
 precmd_vcs_info() { vcs_info }
