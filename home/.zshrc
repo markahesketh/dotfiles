@@ -12,8 +12,8 @@ fi
 # ------------------------------------------------------------------------------
 # Binaries
 # ------------------------------------------------------------------------------
-# Set VIM as the editor
-export VISUAL=vim
+# Set Zed as the editor
+export VISUAL="zed --wait"
 export EDITOR="$VISUAL"
 
 # Setup Homebrew

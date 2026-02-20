@@ -10,7 +10,5 @@
       "Bash(git pull *)",
       "Bash(git rebase *)"
     ]
-  },
-  "model": "sonnet",
-  "effortLevel": "medium"
+  }
 }
