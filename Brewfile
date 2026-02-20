@@ -1,10 +1,10 @@
 brew "atuin"
-
-cask "orbstack"
 brew "fzf"
 brew "gh"
+cask "ghostty"
 brew "lazygit"
 brew "mise"
-brew "sesh"
+cask "orbstack"
+brew "raine/workmux/workmux"
 brew "tmux"
 brew "zoxide"
