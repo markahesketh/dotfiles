@@ -12,17 +12,5 @@
     ]
   },
   "model": "sonnet",
-  "effortLevel": "medium",
-  "hooks": {
-    "UserPromptSubmit": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "~/.claude/hooks/set-pane-title.sh"
-          }
-        ]
-      }
-    ]
-  }
+  "effortLevel": "medium"
 }
