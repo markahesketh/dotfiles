@@ -52,3 +52,4 @@ Thumbs.db
 CLAUDE.local.md
 .claude/settings.local.json
 .superset
+.workmux.yaml
