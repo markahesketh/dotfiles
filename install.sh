@@ -30,9 +30,15 @@ else
     echo "Docker autocomplete already installed, skipping."
 fi
 
-if ! command_exists atuin; then
+if [[ "$(uname)" != "Darwin" ]] && ! command_exists atuin; then
     echo "Installing Atuin"
     curl --proto '=https' --tlsv1.2 -LsSf https://setup.atuin.sh | sh
+    echo ""
+fi
+
+if [[ "$(uname)" == "Darwin" ]]; then
+    echo "Installing Homebrew packages"
+    brew bundle --file="${BASEDIR}/Brewfile"
     echo ""
 fi
 

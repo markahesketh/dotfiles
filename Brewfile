@@ -1,0 +1,6 @@
+brew "atuin"
+brew "gh"
+brew "lazygit"
+brew "mise"
+brew "sesh"
+brew "tmux"
