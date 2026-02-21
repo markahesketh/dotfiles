@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+port_in_use() {
+  lsof -nP -iTCP:"$1" -sTCP:LISTEN &>/dev/null
+}
+
+find_port() {
+  local port=$1
+  while port_in_use "$port"; do
+    ((port++))
+  done
+  echo "$port"
+}
+
+if [[ $# -eq 0 ]]; then
+  echo "Usage: setup-worktree-ports NAME=PORT [NAME=PORT ...]"
+  exit 1
+fi
+
+if [[ ! -f .env ]]; then
+  touch .env
+fi
+
+for arg in "$@"; do
+  if [[ ! "$arg" =~ ^[A-Za-z_][A-Za-z0-9_]*=[0-9]+$ ]]; then
+    echo "Invalid argument: $arg (expected NAME=PORT)" >&2
+    exit 1
+  fi
+  name="${arg%%=*}"
+  requested="${arg##*=}"
+  found=$(find_port "$requested")
+  echo "${name}: requested ${requested}, assigned ${found}"
+
+  if grep -q "^${name}=" .env 2>/dev/null; then
+    tmp=$(mktemp)
+    sed "s|^${name}=.*|${name}=${found}|" .env > "$tmp"
+    mv "$tmp" .env
+  else
+    echo "${name}=${found}" >> .env
+  fi
+done
+
+echo "Updated .env"
