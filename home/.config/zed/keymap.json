@@ -1,0 +1,78 @@
+// Zed keymap
+//
+// For information on binding keys, see the Zed
+// documentation: https://zed.dev/docs/key-bindings
+//
+// To see the default key bindings run `zed: open default keymap`
+// from the command palette.
+[
+  {
+    // These override Zed's built-in defaults (cmd-0 opens git panel by default)
+    "context": "Workspace",
+    "bindings": {
+      "shift shift": "file_finder::Toggle",
+      "cmd-shift-{": "workspace::ActivatePaneLeft",
+      "cmd-shift-}": "workspace::ActivatePaneRight",
+      "cmd-0": "terminal_panel::ToggleFocus",
+      "cmd-2": "outline_panel::ToggleFocus",
+      "cmd-k": "git_panel::ToggleFocus",
+      "cmd-3": "agent::ToggleFocus",
+    },
+  },
+  {
+    "context": "Pane",
+    "bindings": {
+      "cmd-w": null,
+    },
+  },
+  {
+    "context": "Editor",
+    "bindings": {
+      "cmd-0": "terminal_panel::ToggleFocus",
+    },
+  },
+  {
+    "context": "Terminal",
+    "bindings": {
+      "cmd-0": "workspace::ToggleBottomDock",
+      "cmd-2": "outline_panel::ToggleFocus",
+      "cmd-3": "agent::ToggleFocus",
+    },
+  },
+  {
+    "context": "GitPanel",
+    "bindings": {
+      "cmd-0": "terminal_panel::ToggleFocus",
+      "cmd-2": "outline_panel::ToggleFocus",
+      "cmd-k": "workspace::ToggleLeftDock",
+      "cmd-3": "agent::ToggleFocus",
+    },
+  },
+  {
+    "context": "OutlinePanel",
+    "bindings": {
+      "cmd-0": "terminal_panel::ToggleFocus",
+      "cmd-2": "workspace::ToggleLeftDock",
+      "cmd-k": "git_panel::ToggleFocus",
+      "cmd-3": "agent::ToggleFocus",
+    },
+  },
+  {
+    "context": "ProjectPanel",
+    "bindings": {
+      "cmd-0": "terminal_panel::ToggleFocus",
+      "cmd-2": "outline_panel::ToggleFocus",
+      "cmd-k": "git_panel::ToggleFocus",
+      "cmd-3": "agent::ToggleFocus",
+    },
+  },
+  {
+    "context": "AgentPanel",
+    "bindings": {
+      "cmd-0": "terminal_panel::ToggleFocus",
+      "cmd-2": "outline_panel::ToggleFocus",
+      "cmd-k": "git_panel::ToggleFocus",
+      "cmd-3": "workspace::ToggleRightDock",
+    },
+  },
+]
