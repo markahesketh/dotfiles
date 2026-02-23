@@ -10,7 +10,6 @@ BASEDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/.."
 
 DOTFILES=(
     ".aliases"
-    "bin/setup-worktree-ports"
     ".claude/agents"
     ".claude/commands"
     ".claude/settings.json"
