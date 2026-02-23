@@ -83,9 +83,6 @@ if command -v atuin >/dev/null 2>&1; then
     eval "$(atuin init zsh)"
 fi
 
-if command -v zoxide >/dev/null 2>&1; then
-    eval "$(zoxide init zsh --cmd cd)"
-fi
 
 # opencode
 if command -v opencode >/dev/null 2>&1; then
