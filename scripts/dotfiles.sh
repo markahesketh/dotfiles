@@ -15,6 +15,7 @@ DOTFILES=(
     ".claude/commands"
     ".claude/settings.json"
     ".claude/skills"
+    ".claude/statusline-command.sh"
     ".config/atuin/config.toml"
     ".config/tmux/is-dark-mode.sh"
     ".config/tmux/on-session-created.sh"
