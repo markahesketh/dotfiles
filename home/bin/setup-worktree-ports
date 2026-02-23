@@ -1,4 +1,19 @@
 #!/usr/bin/env bash
+# setup-worktree-ports - Assign available ports and write them to an env file.
+#
+# Usage:
+#   setup-worktree-ports [file=.env] NAME=PORT [NAME=PORT ...]
+#
+# Arguments:
+#   file=FILE     Env file to write to (default: .env)
+#   NAME=PORT     Env var name and requested starting port. If the port is in
+#                 use, the next available port is assigned instead.
+#
+# Examples:
+#   setup-worktree-ports PORT=3000
+#   setup-worktree-ports file=.env.local PORT=3000
+#   setup-worktree-ports file=.env PORT=3000 DB_PORT=5432
+
 set -euo pipefail
 
 port_in_use() {
@@ -14,15 +29,31 @@ find_port() {
 }
 
 if [[ $# -eq 0 ]]; then
-  echo "Usage: setup-worktree-ports NAME=PORT [NAME=PORT ...]"
+  echo "Usage: setup-worktree-ports [file=.env] NAME=PORT [NAME=PORT ...]"
   exit 1
 fi
 
-if [[ ! -f .env ]]; then
-  touch .env
-fi
+env_file=".env"
+args=()
 
 for arg in "$@"; do
+  if [[ "$arg" =~ ^file=(.+)$ ]]; then
+    env_file="${BASH_REMATCH[1]}"
+  else
+    args+=("$arg")
+  fi
+done
+
+if [[ ${#args[@]} -eq 0 ]]; then
+  echo "Usage: setup-worktree-ports [file=.env] NAME=PORT [NAME=PORT ...]"
+  exit 1
+fi
+
+if [[ ! -f "$env_file" ]]; then
+  touch "$env_file"
+fi
+
+for arg in "${args[@]}"; do
   if [[ ! "$arg" =~ ^[A-Za-z_][A-Za-z0-9_]*=[0-9]+$ ]]; then
     echo "Invalid argument: $arg (expected NAME=PORT)" >&2
     exit 1
@@ -32,13 +63,13 @@ for arg in "$@"; do
   found=$(find_port "$requested")
   echo "${name}: requested ${requested}, assigned ${found}"
 
-  if grep -q "^${name}=" .env 2>/dev/null; then
+  if grep -q "^${name}=" "$env_file" 2>/dev/null; then
     tmp=$(mktemp)
-    sed "s|^${name}=.*|${name}=${found}|" .env > "$tmp"
-    mv "$tmp" .env
+    sed "s|^${name}=.*|${name}=${found}|" "$env_file" > "$tmp"
+    mv "$tmp" "$env_file"
   else
-    echo "${name}=${found}" >> .env
+    echo "${name}=${found}" >> "$env_file"
   fi
 done
 
-echo "Updated .env"
+echo "Updated ${env_file}"
