@@ -19,6 +19,7 @@ DOTFILES=(
     ".config/atuin/config.toml"
     ".config/tmux/is-dark-mode.sh"
     ".config/tmux/on-session-created.sh"
+    ".config/tmux/run-tests.sh"
     ".config/workmux/config.yaml"
     ".gemini/settings.json"
     ".gitconfig"
