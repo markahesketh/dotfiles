@@ -30,6 +30,11 @@ DOTFILES=(
     ".zshrc"
 )
 
+AGENT_MIRRORS=(
+    "agents"
+    "skills"
+)
+
 # ------------------------------------------------------------------------------
 # Create dotfiles symlinks
 # ------------------------------------------------------------------------------
@@ -38,23 +43,40 @@ for i in "${DOTFILES[@]}"
 do
     echo "- ~/$i"
 done
+for i in "${AGENT_MIRRORS[@]}"
+do
+    echo "- ~/.codex/$i (from ~/.claude/$i)"
+done
 
 echo ""
 
 read -p "Create these files? They will be overwritten if they exist [y/N]: " CONT
 if [ "$CONT" == "y" ]; then
-    for i in "${DOTFILES[@]}"
-    do
-        echo "Creating $i ..."
-        rm -rf ~/$i
+    create_symlink() {
+        local source_path="$1"
+        local target_path="$2"
 
-        # Create parent directory if it doesn't exist
-        parent_dir=$(dirname ~/$i)
+        rm -rf "$target_path"
+
+        local parent_dir
+        parent_dir=$(dirname "$target_path")
         if [ "$parent_dir" != "$HOME" ] && [ ! -d "$parent_dir" ]; then
             mkdir -p "$parent_dir"
         fi
 
-        ln -nfs ${BASEDIR}/home/$i ~/$i
+        ln -nfs "$source_path" "$target_path"
+    }
+
+    for i in "${DOTFILES[@]}"
+    do
+        echo "Creating $i ..."
+        create_symlink "${BASEDIR}/home/$i" "$HOME/$i"
+    done
+
+    for i in "${AGENT_MIRRORS[@]}"
+    do
+        echo "Creating .codex/$i ..."
+        create_symlink "${BASEDIR}/home/.claude/$i" "$HOME/.codex/$i"
     done
 
     echo "Dotfiles symlinks created successfully!"
