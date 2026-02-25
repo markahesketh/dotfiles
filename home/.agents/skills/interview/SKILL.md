@@ -1,4 +1,5 @@
 ---
+name: interview
 allowed-tools: AskUserQuestion, Read, Glob, Grep, Write, Edit
 argument-hint: [plan-file]
 description: Interview to flesh out a plan/spec
