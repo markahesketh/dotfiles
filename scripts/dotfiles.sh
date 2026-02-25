@@ -9,12 +9,11 @@
 BASEDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/.."
 
 DOTFILES=(
+    ".agents"
     ".aliases"
-    ".claude/agents"
-    ".claude/commands"
     ".claude/settings.json"
-    ".claude/skills"
     ".claude/statusline-command.sh"
+    ".codex/AGENTS.md"
     ".config/atuin/config.toml"
     ".config/tmux/is-dark-mode.sh"
     ".config/tmux/on-session-created.sh"
@@ -30,7 +29,7 @@ DOTFILES=(
     ".zshrc"
 )
 
-AGENT_MIRRORS=(
+SHARED_AGENT_DIRS=(
     "agents"
     "skills"
 )
@@ -43,9 +42,10 @@ for i in "${DOTFILES[@]}"
 do
     echo "- ~/$i"
 done
-for i in "${AGENT_MIRRORS[@]}"
+for i in "${SHARED_AGENT_DIRS[@]}"
 do
-    echo "- ~/.codex/$i (from ~/.claude/$i)"
+    echo "- ~/.claude/$i (from .agents/)"
+    echo "- ~/.codex/$i (from .agents/)"
 done
 
 echo ""
@@ -73,10 +73,12 @@ if [ "$CONT" == "y" ]; then
         create_symlink "${BASEDIR}/home/$i" "$HOME/$i"
     done
 
-    for i in "${AGENT_MIRRORS[@]}"
+    for i in "${SHARED_AGENT_DIRS[@]}"
     do
+        echo "Creating .claude/$i ..."
+        create_symlink "${BASEDIR}/home/.agents/$i" "$HOME/.claude/$i"
         echo "Creating .codex/$i ..."
-        create_symlink "${BASEDIR}/home/.claude/$i" "$HOME/.codex/$i"
+        create_symlink "${BASEDIR}/home/.agents/$i" "$HOME/.codex/$i"
     done
 
     echo "Dotfiles symlinks created successfully!"
