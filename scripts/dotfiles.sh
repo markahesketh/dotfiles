@@ -34,6 +34,10 @@ SHARED_AGENT_DIRS=(
     "skills"
 )
 
+MACOS_DOTFILES=(
+    "Library/Application Support/lazygit/config.yml"
+)
+
 # ------------------------------------------------------------------------------
 # Create dotfiles symlinks
 # ------------------------------------------------------------------------------
@@ -47,6 +51,12 @@ do
     echo "- ~/.claude/$i (from .agents/)"
     echo "- ~/.codex/$i (from .agents/)"
 done
+if [[ "$(uname -s)" == "Darwin" ]]; then
+    for i in "${MACOS_DOTFILES[@]}"
+    do
+        echo "- ~/$i (macOS only)"
+    done
+fi
 
 echo ""
 
@@ -80,6 +90,14 @@ if [ "$CONT" == "y" ]; then
         echo "Creating .codex/$i ..."
         create_symlink "${BASEDIR}/home/.agents/$i" "$HOME/.codex/$i"
     done
+
+    if [[ "$(uname -s)" == "Darwin" ]]; then
+        for i in "${MACOS_DOTFILES[@]}"
+        do
+            echo "Creating $i ..."
+            create_symlink "${BASEDIR}/home/$i" "$HOME/$i"
+        done
+    fi
 
     echo "Dotfiles symlinks created successfully!"
 else
