@@ -1,3 +1,8 @@
+---
+name: test-coverage
+description: Analyze code coverage and generate missing tests until coverage gaps are filled.
+---
+
 Analyze code coverage and generate missing tests until coverage gaps are filled.
 
 <steps>

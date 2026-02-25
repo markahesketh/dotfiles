@@ -1,3 +1,8 @@
+---
+name: ci
+description: Run bin/ci and fix any issues until all checks pass.
+---
+
 Run `bin/ci` and fix any issues until all checks pass.
 
 <steps>
