@@ -1,4 +1,11 @@
 # ------------------------------------------------------------------------------
+# Helpers
+# ------------------------------------------------------------------------------
+command_exists() {
+	command -v "$@" > /dev/null 2>&1
+}
+
+# ------------------------------------------------------------------------------
 # PATH
 # ------------------------------------------------------------------------------
 PATH=~/bin:$PATH
@@ -75,16 +82,18 @@ bindkey '\e[1;9C' forward-word     # Option + right arrow
 # Aliases
 [[ -f ~/.aliases ]] && source ~/.aliases
 
-if command -v fzf >/dev/null 2>&1; then
+if command_exists fzf; then
     eval "$(fzf --zsh)"
 fi
 
-if command -v atuin >/dev/null 2>&1; then
+if command_exists atuin; then
     eval "$(atuin init zsh)"
 fi
 
+if command_exists workmux; then
+    eval "$(workmux completions zsh)"
+fi
 
-# opencode
-if command -v opencode >/dev/null 2>&1; then
+if command_exists opencode; then
     export PATH=/Users/markhesketh/.opencode/bin:$PATH
 fi
