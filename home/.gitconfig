@@ -34,6 +34,7 @@
     ui = true
 [merge]
     ff = true
+    conflictStyle = zdiff3
 [pull]
     ff = only
 	rebase = true
@@ -46,11 +47,14 @@
     eol = lf
     filemode = false
     excludesfile = ~/.gitignore
-    editor = nano
+    editor = vim
+    pager = delta
 [include]
     path = ~/.gitconfig.local
 [init]
 	defaultBranch = main
+[interactive]
+    diffFilter = delta --color-only
 [filter "lfs"]
 	clean = git-lfs clean -- %f
 	smudge = git-lfs smudge -- %f
@@ -64,3 +68,8 @@
 [credential "https://gist.github.com"]
 	helper = 
 	helper = !/opt/homebrew/bin/gh auth git-credential
+[delta]
+    features = line-numbers
+    navigate = true
+    hunk-header-style = syntax
+    hunk-header-decoration-style = "dim ul"
