@@ -15,6 +15,3 @@ description = "Use when the user wants to push code and create a GitHub Pull Req
 model = "gpt-5.3-codex"
 model_reasoning_effort = "low"
 developer_instructions = "Use the $create-pr skill."
-
-[projects."/Users/markhesketh/Code/markahesketh/dotfiles"]
-trust_level = "trusted"
