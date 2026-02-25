@@ -14,6 +14,7 @@ DOTFILES=(
     ".claude/settings.json"
     ".claude/statusline-command.sh"
     ".codex/AGENTS.md"
+    ".codex/config.toml"
     ".config/atuin/config.toml"
     ".config/tmux/is-dark-mode.sh"
     ".config/tmux/on-session-created.sh"
@@ -29,8 +30,11 @@ DOTFILES=(
     ".zshrc"
 )
 
-SHARED_AGENT_DIRS=(
+CLAUDE_ONLY_DIRS=(
     "agents"
+)
+
+SHARED_AGENT_DIRS=(
     "skills"
 )
 
@@ -45,6 +49,10 @@ echo "This script will create the following dotfiles:"
 for i in "${DOTFILES[@]}"
 do
     echo "- ~/$i"
+done
+for i in "${CLAUDE_ONLY_DIRS[@]}"
+do
+    echo "- ~/.claude/$i (from .agents/)"
 done
 for i in "${SHARED_AGENT_DIRS[@]}"
 do
@@ -81,6 +89,12 @@ if [ "$CONT" == "y" ]; then
     do
         echo "Creating $i ..."
         create_symlink "${BASEDIR}/home/$i" "$HOME/$i"
+    done
+
+    for i in "${CLAUDE_ONLY_DIRS[@]}"
+    do
+        echo "Creating .claude/$i ..."
+        create_symlink "${BASEDIR}/home/.agents/$i" "$HOME/.claude/$i"
     done
 
     for i in "${SHARED_AGENT_DIRS[@]}"
