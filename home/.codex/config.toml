@@ -1,0 +1,20 @@
+model = "gpt-5.3-codex"
+model_reasoning_effort = "high"
+
+[features]
+multi_agent = true
+
+[agents.commit]
+description = "Use when the user wants to commit changes to git."
+model = "gpt-5.3-codex"
+model_reasoning_effort = "low"
+developer_instructions = "Use the $create-commits skill."
+
+[agents.pr]
+description = "Use when the user wants to push code and create a GitHub Pull Request."
+model = "gpt-5.3-codex"
+model_reasoning_effort = "low"
+developer_instructions = "Use the $create-pr skill."
+
+[projects."/Users/markhesketh/Code/markahesketh/dotfiles"]
+trust_level = "trusted"
