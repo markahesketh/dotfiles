@@ -2,17 +2,17 @@
 # setup-worktree-ports - Assign available ports and write them to an env file.
 #
 # Usage:
-#   setup-worktree-ports [file=.env] NAME=PORT [NAME=PORT ...]
+#   setup-worktree-ports [--file=.env] NAME=PORT [NAME=PORT ...]
 #
 # Arguments:
-#   file=FILE     Env file to write to (default: .env)
+#   --file=FILE   Env file to write to (default: .env). Created if absent.
 #   NAME=PORT     Env var name and requested starting port. If the port is in
 #                 use, the next available port is assigned instead.
 #
 # Examples:
 #   setup-worktree-ports PORT=3000
-#   setup-worktree-ports file=.env.local PORT=3000
-#   setup-worktree-ports file=.env PORT=3000 DB_PORT=5432
+#   setup-worktree-ports --file=.env.local PORT=3000
+#   setup-worktree-ports --file=.env PORT=3000 DB_PORT=5432
 
 set -euo pipefail
 
@@ -29,7 +29,7 @@ find_port() {
 }
 
 if [[ $# -eq 0 ]]; then
-  echo "Usage: setup-worktree-ports [file=.env] NAME=PORT [NAME=PORT ...]"
+  echo "Usage: setup-worktree-ports [--file=.env] NAME=PORT [NAME=PORT ...]"
   exit 1
 fi
 
@@ -37,7 +37,7 @@ env_file=".env"
 args=()
 
 for arg in "$@"; do
-  if [[ "$arg" =~ ^file=(.+)$ ]]; then
+  if [[ "$arg" =~ ^--?file=(.+)$ ]]; then
     env_file="${BASH_REMATCH[1]}"
   else
     args+=("$arg")
@@ -45,7 +45,7 @@ for arg in "$@"; do
 done
 
 if [[ ${#args[@]} -eq 0 ]]; then
-  echo "Usage: setup-worktree-ports [file=.env] NAME=PORT [NAME=PORT ...]"
+  echo "Usage: setup-worktree-ports [--file=.env] NAME=PORT [NAME=PORT ...]"
   exit 1
 fi
 
