@@ -1,6 +1,7 @@
 brew "atuin"
 brew "fzf"
 brew "gh"
+brew "git-delta"
 cask "ghostty"
 brew "lazygit"
 brew "mise"
