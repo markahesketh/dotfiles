@@ -19,6 +19,7 @@ DOTFILES=(
     ".config/tmux/is-dark-mode.sh"
     ".config/tmux/on-session-created.sh"
     ".config/tmux/run-tests.sh"
+    ".config/ghostty/config"
     ".config/workmux/config.yaml"
     ".gemini/settings.json"
     ".gitconfig"
@@ -40,7 +41,6 @@ SHARED_AGENT_DIRS=(
 
 MACOS_DOTFILES=(
     "Library/Application Support/lazygit/config.yml"
-    "Library/Application Support/com.mitchellh.ghostty/config"
 )
 
 # ------------------------------------------------------------------------------
