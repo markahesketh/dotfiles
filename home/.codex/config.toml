@@ -5,13 +5,13 @@ model_reasoning_effort = "high"
 multi_agent = true
 
 [agents.commit]
-description = "Use when the user wants to commit changes to git."
+description = "ALWAYS use this agent for ANY git commit request."
 model = "gpt-5.3-codex"
 model_reasoning_effort = "low"
-developer_instructions = "Use the $create-commits skill."
+developer_instructions = "Use the $create-commits skill and follow its instructions exactly."
 
 [agents.pr]
-description = "Use when the user wants to push code and create a GitHub Pull Request."
+description = "ALWAYS use this agent when the user wants to create a GitHub Pull Request."
 model = "gpt-5.3-codex"
 model_reasoning_effort = "low"
-developer_instructions = "Use the $create-pr skill."
+developer_instructions = "Use the $create-pr skill and follow its instructions exactly."
