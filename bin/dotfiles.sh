@@ -4,7 +4,7 @@
 # Dotfiles Management Script
 # ------------------------------------------------------------------------------
 # This script manages dotfiles symlinks and can be run independently
-# or as part of the main install.sh script.
+# or as part of the main bin/setup script.
 
 BASEDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/.."
 
