@@ -40,6 +40,7 @@ SHARED_AGENT_DIRS=(
 
 MACOS_DOTFILES=(
     "Library/Application Support/lazygit/config.yml"
+    "Library/Application Support/com.mitchellh.ghostty/config"
 )
 
 # ------------------------------------------------------------------------------
