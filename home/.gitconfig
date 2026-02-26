@@ -30,6 +30,7 @@
     deploy = push production master
     nah = "!f() { git clean -d -f; git reset --hard; }; f" # Thanks Jeffrey
     wip = "!f() { git add .; git commit -m "wip"; }; f"
+    delta = !delta $(defaults read -g AppleInterfaceStyle &>/dev/null || echo --light)
 [color]
     ui = true
 [merge]
@@ -54,7 +55,7 @@
 [init]
 	defaultBranch = main
 [interactive]
-    diffFilter = delta --color-only
+    diffFilter = git delta --color-only
 [filter "lfs"]
 	clean = git-lfs clean -- %f
 	smudge = git-lfs smudge -- %f
