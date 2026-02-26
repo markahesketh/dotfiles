@@ -6,7 +6,7 @@ A collection of dotfiles and configuration from my dev environment.
 
 ## Installation
 
-    ./install.sh
+    bin/setup
     
 This will:
 
