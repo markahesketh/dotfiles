@@ -95,7 +95,7 @@ function ssh-add-kamal() {
 function dotfiles() {
     local dotfiles_dir="$HOME/Code/markahesketh/dotfiles"
     if [ -d "$dotfiles_dir" ]; then
-        cd "$dotfiles_dir" && ./bin/dotfiles.sh
+        cd "$dotfiles_dir" && ./bin/dotfiles
     else
         echo "Dotfiles directory not found at $dotfiles_dir"
     fi

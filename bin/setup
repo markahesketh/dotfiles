@@ -4,6 +4,7 @@
 # Configuration
 # ------------------------------------------------------------------------------
 BASEDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPODIR="$(cd "${BASEDIR}/.." && pwd)"
 
 # ------------------------------------------------------------------------------
 # Helpers
@@ -15,7 +16,7 @@ command_exists() {
 # ------------------------------------------------------------------------------
 # Setup dotfiles
 # ------------------------------------------------------------------------------
-source "${BASEDIR}/dotfiles.sh"
+source "${BASEDIR}/dotfiles"
 
 DOCKER_COMPLETION_URL="https://raw.githubusercontent.com/docker/cli/master/contrib/completion/zsh/_docker"
 if [ ! -f ~/.docker-completion.zsh ]; then
@@ -38,7 +39,7 @@ fi
 
 if [[ "$(uname)" == "Darwin" ]]; then
     echo "Installing Homebrew packages"
-    brew bundle --file="${BASEDIR}/../Brewfile"
+    brew bundle --file="${REPODIR}/Brewfile"
     echo ""
 fi
 
