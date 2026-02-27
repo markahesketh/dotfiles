@@ -44,6 +44,11 @@ function ghu() {
 alias wm="workmux"
 
 # ------------------------------------------------------------------------------
+# Lazygit
+# ------------------------------------------------------------------------------
+alias lg="lazygit"
+
+# ------------------------------------------------------------------------------
 # PHP / Laravel
 # ------------------------------------------------------------------------------
 alias art="php artisan"
@@ -59,11 +64,11 @@ alias lint="./bin/lint"
 alias d="./bin/dev"
 alias con="bin/rails c"
 alias r="./bin/rails"
-alias t="./bin/rails test"
-alias s="bundle exec rspec"
-alias ta="./bin/rails test:all"
-alias ts="./bin/rails test:system"
-alias tt="./bin/rails test -f"
+_uses_rspec() { [ -f .rspec ] || [ -d spec ]; }
+t() { if _uses_rspec; then bundle exec rspec "$@"; else ./bin/rails test "$@"; fi; }
+ta() { if _uses_rspec; then bundle exec rspec "$@"; else ./bin/rails test:all "$@"; fi; }
+ts() { if _uses_rspec; then bundle exec rspec spec/system "$@"; else ./bin/rails test:system "$@"; fi; }
+tt() { if _uses_rspec; then bundle exec rspec --fail-fast "$@"; else ./bin/rails test -f "$@"; fi; }
 
 # ------------------------------------------------------------------------------
 # Projects
@@ -72,8 +77,16 @@ alias mh="cd ~/Code/markahesketh/markhesketh.com"
 alias tv="cd ~/Code/markahesketh/thevamoose.com"
 
 # ------------------------------------------------------------------------------
+# AI Tools
+# ------------------------------------------------------------------------------
+alias cl="claude"
+alias cx="codex"
+
+# ------------------------------------------------------------------------------
 # Misc
 # ------------------------------------------------------------------------------
+alias x='exit'
+
 # Set terminal tab title
 function tab() {
     printf '\e]1;%s\a' "$1"
