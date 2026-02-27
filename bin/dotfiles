@@ -12,6 +12,8 @@ DOTFILES=(
     ".agents"
     ".aliases"
     "bin"
+    ".claude/hooks"
+    ".claude/media"
     ".claude/settings.json"
     ".claude/statusline-command.sh"
     ".codex/AGENTS.md"
