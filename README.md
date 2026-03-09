@@ -7,30 +7,71 @@ A collection of dotfiles and configuration from my dev environment.
 ## Installation
 
     bin/setup
-    
+
 This will:
 
-* Confirm and remove existing dotfiles
-* Create symlinks to this repo's [dotfiles](/home)
-* Download Git and Docker autocomplete bash scripts
+* Create symlinks from `~/` to files in this repo's [home/](/home) directory
+* Download Docker autocomplete
+* Install Homebrew packages from [Brewfile](/Brewfile) (macOS only)
+* Apply macOS system preferences
 
 ## Usage
 
-Symlinks from your home directory to this repository's files will be created, meaning all changes to 
-dotfiles can be tracked in version control.
+Symlinks from your home directory to this repository's files are created, meaning all changes to dotfiles can be tracked in version control.
+
+### Updating symlinks
+
+After adding or changing dotfiles, refresh symlinks with:
+
+    bin/dotfiles
+
+Or from anywhere using the shell function:
+
+    dotfiles
+
+### Reloading the shell
+
+    reload
 
 ### Local settings
 
-Each dotfile will check for a `*.local` file matching its own name.
-
-This is useful for overwriting or supplementing configs on a specific environment outside of 
-version control. 
+Each dotfile checks for a `*.local` file matching its own name. Use these for machine-specific config outside of version control.
 
 For example:
 
-* Local `.alias` file would be `~/.aliases.local`
-* Local `.zprofile` file would be `~/.zprofile.local`
+* `~/.aliases.local`
+* `~/.zprofile.local`
 * etc.
+
+## What's included
+
+| File/Directory | Description |
+|---|---|
+| `.zshrc` | Shell config — PATH, prompt, completions, key bindings |
+| `.zprofile` | Login shell config |
+| `.aliases` | Shell aliases (git, docker, Laravel, Rails) |
+| `.gitconfig` | Git configuration and aliases |
+| `.gitignore` | Global gitignore |
+| `.vimrc` | Vim configuration |
+| `.tmux.conf` | Tmux configuration |
+| `.hushlogin` | Suppresses login message |
+| `.config/ghostty/` | Ghostty terminal config |
+| `.config/tmux/` | Tmux scripts (dark mode, session hooks, test runner) |
+| `.config/atuin/` | Atuin shell history config |
+| `.config/workmux/` | Workmux workspace config |
+| `.config/zed/` | Zed editor config |
+| `.claude/` | Claude Code settings, hooks, and media |
+| `.codex/` | Codex config |
+| `.agents/` | Shared AI agent definitions and skills (symlinked into both `.claude/` and `.codex/`) |
+| `bin/` | Utility scripts |
+| `Library/` | macOS app config (lazygit) |
+
+### AI agent resources
+
+`home/.agents/` is the source of truth for shared AI resources. The install script creates symlinks so both `~/.claude/` and `~/.codex/` point into it:
+
+* `~/.claude/agents` and `~/.codex/agents` → `home/.agents/agents/`
+* `~/.claude/skills` and `~/.codex/skills` → `home/.agents/skills/`
 
 ## License
 
