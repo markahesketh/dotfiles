@@ -1,4 +1,4 @@
-model = "gpt-5.3-codex"
+model = "gpt-5.4"
 model_reasoning_effort = "high"
 
 [features]
@@ -18,3 +18,9 @@ developer_instructions = "Use the $create-pr skill and follow its instructions e
 
 [projects."/Users/markhesketh/Code/markahesketh/social"]
 trust_level = "trusted"
+
+[projects."/Users/markhesketh/Code/markahesketh/markhesketh.com"]
+trust_level = "trusted"
+
+[notice.model_migrations]
+"gpt-5.3-codex" = "gpt-5.4"
