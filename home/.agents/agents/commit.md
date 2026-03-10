@@ -6,4 +6,4 @@ model: haiku
 color: green
 ---
 
-Invoke the /create-commits skill and follow its instructions exactly.
+Use the `create-commits` skill and follow its instructions exactly.
