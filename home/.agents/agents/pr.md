@@ -6,4 +6,4 @@ model: haiku
 color: green
 ---
 
-Invoke the /create-pr skill and follow its instructions exactly.
+Use the `create-pr` skill and follow its instructions exactly.
