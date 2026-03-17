@@ -1,3 +1,4 @@
+cask "agent-browser"
 brew "atuin"
 brew "fzf"
 brew "gh"
