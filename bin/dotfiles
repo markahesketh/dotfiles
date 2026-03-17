@@ -24,6 +24,7 @@ DOTFILES=(
     ".config/tmux/run-tests.sh"
     ".config/ghostty/config"
     ".config/workmux/config.yaml"
+    ".config/worktrunk/config.toml"
     ".gemini/settings.json"
     ".gitconfig"
     ".gitignore"
