@@ -59,6 +59,7 @@ alias c2="/usr/local/bin/composer"
 # ------------------------------------------------------------------------------
 # Ruby on Rails
 # ------------------------------------------------------------------------------
+alias rr="rubymine ."
 alias check="./bin/check"
 alias lint="./bin/lint"
 alias d="./bin/dev"
