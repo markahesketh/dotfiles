@@ -54,6 +54,14 @@ Split when changes involve:
 
 Each commit should be atomic and serve a single purpose.
 
+## Critical: Never Bypass Hooks
+
+- NEVER use `--no-verify` or any flag that skips git hooks
+- If a pre-commit or commit-msg hook fails, **stop immediately**
+- Report the hook failure output back to the calling agent or user verbatim
+- Do NOT attempt to work around the failure — the calling agent must fix the underlying issue first
+- Only retry the commit after confirmation that the issue has been resolved
+
 ## Critical: No AI Attribution
 
 - NEVER add `Co-Authored-By:` lines
