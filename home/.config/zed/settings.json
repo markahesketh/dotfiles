@@ -20,6 +20,9 @@
       "model": "gpt-5-mini"
     }
   },
+  "file_scan_exclusions": [
+    "**/*.uid"
+  ],
   "confirm_quit": true,
   "ui_font_size": 15,
   "buffer_font_size": 14,
