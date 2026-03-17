@@ -97,3 +97,5 @@ fi
 if command_exists opencode; then
     export PATH=/Users/markhesketh/.opencode/bin:$PATH
 fi
+
+if command -v wt >/dev/null 2>&1; then eval "$(command wt config shell init zsh)"; fi
