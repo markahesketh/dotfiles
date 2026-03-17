@@ -87,6 +87,7 @@ alias cx="codex"
 # Misc
 # ------------------------------------------------------------------------------
 alias x='exit'
+alias tm='tmux new-session -A -s'
 
 # Set terminal tab title
 function tab() {
