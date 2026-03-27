@@ -68,5 +68,6 @@
   },
   "enabledPlugins": {
     "ruby-lsp@claude-plugins-official": true
-  }
+  },
+  "model": "opusplan"
 }
