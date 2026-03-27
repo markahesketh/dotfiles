@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+# branch-port - Generate a deterministic port (10000-19999) from a string.
+#
+# Usage:
+#   branch-port [STRING]
+#   echo STRING | branch-port
+#
+# Arguments:
+#   STRING  String to hash into a port (default: current git branch)
+#
+# Examples:
+#   branch-port
+#   branch-port feature/my-feature
+#   echo "feature/my-feature" | branch-port
+#   PORT=$(branch-port) bin/dev
+#   PORT=$(branch-port feature/my-feature) bin/dev
+
+set -euo pipefail
+
+if [[ $# -gt 0 ]]; then
+  input="$1"
+elif [[ ! -t 0 ]]; then
+  input=$(cat)
+else
+  if ! input=$(git branch --show-current 2>/dev/null) || [[ -z "$input" ]]; then
+    echo "Error: no string provided and not in a git repository" >&2
+    exit 1
+  fi
+fi
+
+port=$(printf '%s' "$input" | cksum | awk '{print ($1 % 10000) + 10000}')
+
+echo "$port"
