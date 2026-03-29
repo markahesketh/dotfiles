@@ -59,18 +59,19 @@ For example:
 | `.config/tmux/` | Tmux scripts (dark mode, session hooks, test runner) |
 | `.config/atuin/` | Atuin shell history config |
 | `.config/workmux/` | Workmux workspace config |
-| `.config/zed/` | Zed editor config |
+| `.config/worktrunk/` | Worktrunk config |
 | `.claude/` | Claude Code settings, hooks, and media |
 | `.codex/` | Codex config |
+| `.gemini/` | Gemini config |
 | `.agents/` | Shared AI agent definitions and skills (symlinked into both `.claude/` and `.codex/`) |
-| `bin/` | Utility scripts |
+| `bin/` | Utility scripts (branch-port, setup-worktree-ports) |
 | `Library/` | macOS app config (lazygit) |
 
 ### AI agent resources
 
 `home/.agents/` is the source of truth for shared AI resources. The install script creates symlinks so both `~/.claude/` and `~/.codex/` point into it:
 
-* `~/.claude/agents` and `~/.codex/agents` → `home/.agents/agents/`
+* `~/.claude/agents` → `home/.agents/agents/` (Claude only)
 * `~/.claude/skills` and `~/.codex/skills` → `home/.agents/skills/`
 
 ## License
