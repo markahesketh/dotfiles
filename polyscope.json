@@ -1,0 +1,13 @@
+{
+  "scripts": {
+    "setup": "",
+    "archive": "",
+    "run": [
+      { "label": "test", "command": "open http://localhost:$(branch-port)" }
+    ]
+  },
+  "preview": {
+    "command": "echo http://localhost:$(branch-port)"
+  },
+  "tasks": []
+}
