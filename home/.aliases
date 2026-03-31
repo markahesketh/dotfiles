@@ -82,6 +82,7 @@ alias tv="cd ~/Code/markahesketh/thevamoose.com"
 # ------------------------------------------------------------------------------
 alias cl="claude"
 alias cx="codex"
+alias oo="wt step open"
 
 # ------------------------------------------------------------------------------
 # Misc
