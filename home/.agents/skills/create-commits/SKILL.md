@@ -1,6 +1,6 @@
 ---
 name: create-commits
-description: Create atomic, well-formatted git commits. Use ONLY when invoked directly by the commit agent or by non-Claude-Code LLMs (e.g. Codex). In Claude Code, the commit agent handles all commit requests — do NOT invoke this skill directly.
+description: "Create atomic, well-formatted git commits. This skill is preloaded by the commit agent — do not invoke it directly. If you need to make commits, delegate to the commit agent instead."
 ---
 
 Create atomic, well-formatted git commits using conventional commit conventions.
