@@ -18,21 +18,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "workmux set-window-status waiting"
-          },
-          {
-            "type": "command",
             "command": "bash ~/.claude/hooks/notify-attention.sh"
-          }
-        ]
-      }
-    ],
-    "PostToolUse": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "workmux set-window-status working"
           }
         ]
       }
@@ -42,21 +28,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "workmux set-window-status done"
-          },
-          {
-            "type": "command",
             "command": "bash ~/.claude/hooks/notify-done.sh"
-          }
-        ]
-      }
-    ],
-    "UserPromptSubmit": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "workmux set-window-status working"
           }
         ]
       }
