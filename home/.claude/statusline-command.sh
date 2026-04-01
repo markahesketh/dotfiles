@@ -45,20 +45,30 @@ SEP=' • '
 
 dir_name=$(basename "$cwd")
 
-# Build: {blue:dir} on {red:branch} • {green:model} • {yellow:bar}
-parts="${BLUE}${dir_name}${RESET}"
+# Line 1: {blue:dir} on {red:branch}
+line1="${BLUE}${dir_name}${RESET}"
 
 if [ -n "$branch" ]; then
-  parts="${parts} on ${RED}${branch}${RESET}"
+  line1="${line1} on ${RED}${branch}${RESET}"
+fi
+
+# Line 2: context progress bar • {green:model}
+line2=""
+if [ -n "$used" ]; then
+  bar=$(progress_bar "$used")
+  line2="${YELLOW}${bar}${RESET}"
 fi
 
 if [ -n "$model" ]; then
-  parts="${parts}${SEP}${GREEN}${model}${RESET}"
+  if [ -n "$line2" ]; then
+    line2="${line2}${SEP}${GREEN}${model}${RESET}"
+  else
+    line2="${GREEN}${model}${RESET}"
+  fi
 fi
 
-if [ -n "$used" ]; then
-  bar=$(progress_bar "$used")
-  parts="${parts}${SEP}${YELLOW}${bar}${RESET}"
+if [ -n "$line2" ]; then
+  printf "%b\n%b" "$line1" "$line2"
+else
+  printf "%b" "$line1"
 fi
-
-printf "%b" "$parts"
