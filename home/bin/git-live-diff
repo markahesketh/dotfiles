@@ -1,0 +1,52 @@
+#!/bin/bash
+
+DELTA_FLAGS="--paging=never"
+defaults read -g AppleInterfaceStyle &>/dev/null || DELTA_FLAGS="$DELTA_FLAGS --light"
+
+BASE_BRANCH=""
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --base)
+      BASE_BRANCH="$2"
+      shift 2
+      ;;
+    *)
+      shift
+      ;;
+  esac
+done
+
+show_diff() {
+  clear
+  if [[ -n "$BASE_BRANCH" ]]; then
+    MERGE_BASE="$(git merge-base HEAD "$BASE_BRANCH")"
+    {
+      git diff "$MERGE_BASE"
+      git ls-files --others --exclude-standard | while IFS= read -r f; do
+        git diff --no-index /dev/null "$f"
+      done
+    } | delta $DELTA_FLAGS
+  else
+    {
+      git diff HEAD
+      git ls-files --others --exclude-standard | while IFS= read -r f; do
+        git diff --no-index /dev/null "$f"
+      done
+    } | delta $DELTA_FLAGS
+  fi
+}
+
+show_diff
+
+fswatch -o -l 0.3 -e '\.git/objects' -e '\.git/logs' . .git | while IFS= read -r _; do
+  show_diff
+done &
+
+FSWATCH_PID=$!
+
+trap 'kill $FSWATCH_PID 2>/dev/null; exit 0' INT TERM
+
+while IFS= read -rsn1 key; do
+  [[ "$key" == "q" ]] && kill $FSWATCH_PID 2>/dev/null && exit 0
+done
