@@ -11,6 +11,7 @@
       "Bash(git rebase *)"
     ]
   },
+  "model": "opusplan",
   "hooks": {
     "Notification": [
       {
@@ -39,7 +40,15 @@
     "command": "bash ~/.claude/statusline-command.sh"
   },
   "enabledPlugins": {
-    "ruby-lsp@claude-plugins-official": true
+    "ruby-lsp@claude-plugins-official": true,
+    "codex@openai-codex": true
   },
-  "model": "opusplan"
+  "extraKnownMarketplaces": {
+    "openai-codex": {
+      "source": {
+        "source": "github",
+        "repo": "openai/codex-plugin-cc"
+      }
+    }
+  }
 }
