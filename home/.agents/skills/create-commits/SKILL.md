@@ -54,6 +54,8 @@ Split when changes involve:
 
 Each commit should be atomic and serve a single purpose.
 
+**Never split tests from the implementation they test.** If a feature, fix, or refactor includes tests, commit the implementation and its tests together in the same commit. A `feat:` or `fix:` commit may include test files — do not separate them into a standalone `test:` commit.
+
 ## Critical: Never Bypass Hooks
 
 - NEVER use `--no-verify` or any flag that skips git hooks
@@ -81,4 +83,3 @@ Good:
 Splitting example:
 1. `feat: add new API type definitions`
 2. `docs: update documentation for new types`
-3. `test: add unit tests for new endpoints`
