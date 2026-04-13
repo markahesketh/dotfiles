@@ -53,5 +53,6 @@
         "repo": "openai/codex-plugin-cc"
       }
     }
-  }
+  },
+  "effortLevel": "medium"
 }
