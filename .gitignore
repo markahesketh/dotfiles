@@ -1,3 +1,5 @@
 /.claude
 /home/.agents/skills/.system
 /home/.claude/skills/dexory
+/home/.codex/config.toml
+/home/.ignored/*

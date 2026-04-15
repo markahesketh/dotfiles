@@ -28,4 +28,4 @@ osascript \
     -- "$title" "$message"
 
 # Play sound
-afplay ~/.claude/media/notification.mp3 &
+afplay ~/.glm/media/notification.mp3 &

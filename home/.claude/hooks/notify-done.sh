@@ -65,4 +65,4 @@ osascript \
     -- "$title" "$message"
 
 # Play sound
-afplay ~/.claude/media/done.mp3 &
+afplay ~/.glm/media/done.mp3 &

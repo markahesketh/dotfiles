@@ -39,14 +39,10 @@ function ghu() {
 }
 
 # ------------------------------------------------------------------------------
-# Workmux
-# ------------------------------------------------------------------------------
-alias wm="workmux"
-
-# ------------------------------------------------------------------------------
-# Lazygit
+# Workflow
 # ------------------------------------------------------------------------------
 alias lg="lazygit"
+alias oo="open http://localhost:$(branch-port)"
 
 # ------------------------------------------------------------------------------
 # PHP / Laravel
@@ -63,6 +59,7 @@ alias rr="rubymine ."
 alias check="./bin/check"
 alias lint="./bin/lint"
 alias d="./bin/dev"
+alias dp="PORT=$(branch-port) bin/dev"
 alias con="bin/rails c"
 alias r="./bin/rails"
 _uses_rspec() { [ -f .rspec ] || [ -d spec ]; }
@@ -72,17 +69,11 @@ ts() { if _uses_rspec; then bundle exec rspec spec/system "$@"; else ./bin/rails
 tt() { if _uses_rspec; then bundle exec rspec --fail-fast "$@"; else ./bin/rails test -f "$@"; fi; }
 
 # ------------------------------------------------------------------------------
-# Projects
-# ------------------------------------------------------------------------------
-alias mh="cd ~/Code/markahesketh/markhesketh.com"
-alias tv="cd ~/Code/markahesketh/thevamoose.com"
-
-# ------------------------------------------------------------------------------
-# AI Tools
+# AI
 # ------------------------------------------------------------------------------
 alias cl="claude"
 alias cx="codex"
-alias oo="wt step open"
+alias glm="claude --settings ~/.ignored/glm/settings.json"
 
 # ------------------------------------------------------------------------------
 # Misc
