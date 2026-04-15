@@ -9,20 +9,68 @@
       "skillFolderHash": "2ae0a0c7f8ba9ab76d6c531e78d980663af90577",
       "installedAt": "2026-03-10T21:35:05.163Z",
       "updatedAt": "2026-03-10T21:35:05.163Z"
+    },
+    "writing-for-interfaces": {
+      "source": "andrewgleave/skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/andrewgleave/skills.git",
+      "skillPath": "writing-for-interfaces/SKILL.md",
+      "skillFolderHash": "3b55ae171a989bce6f7c2ea635d303e6eaecebc0",
+      "installedAt": "2026-04-03T12:24:51.590Z",
+      "updatedAt": "2026-04-03T12:24:51.590Z"
+    },
+    "frontend-design": {
+      "source": "anthropics/skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/anthropics/skills.git",
+      "skillPath": "skills/frontend-design/SKILL.md",
+      "skillFolderHash": "928950704df8a8b885c03de5da626331e6f29cf8",
+      "pluginName": "example-skills",
+      "installedAt": "2026-04-04T20:19:08.208Z",
+      "updatedAt": "2026-04-04T20:19:08.208Z"
+    },
+    "web-design-guidelines": {
+      "source": "vercel-labs/agent-skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/vercel-labs/agent-skills.git",
+      "skillPath": "skills/web-design-guidelines/SKILL.md",
+      "skillFolderHash": "3116f3e62dbd02b44a598b1aa690d2a8938e8f89",
+      "installedAt": "2026-04-04T20:19:21.591Z",
+      "updatedAt": "2026-04-04T20:19:21.591Z"
+    },
+    "agent-browser": {
+      "source": "vercel-labs/agent-browser",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/vercel-labs/agent-browser.git",
+      "skillPath": "skills/agent-browser/SKILL.md",
+      "skillFolderHash": "068bc465a3f22625f98a7996817feefcd18d772f",
+      "installedAt": "2026-04-04T20:23:05.713Z",
+      "updatedAt": "2026-04-04T20:23:05.713Z"
+    },
+    "skill-creator": {
+      "source": "anthropics/skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/anthropics/skills.git",
+      "skillPath": "skills/skill-creator/SKILL.md",
+      "skillFolderHash": "98a510d1cfef9f82c3b1eec200229ca68725e613",
+      "pluginName": "example-skills",
+      "installedAt": "2026-04-04T20:26:41.768Z",
+      "updatedAt": "2026-04-04T20:26:41.768Z"
     }
-  },
-  "dismissed": {
-    "findSkillsPrompt": true
   },
   "lastSelectedAgents": [
     "amp",
+    "antigravity",
     "cline",
     "codex",
     "cursor",
+    "deepagents",
+    "firebender",
     "gemini-cli",
     "github-copilot",
     "kimi-cli",
     "opencode",
+    "warp",
     "claude-code"
   ]
 }
