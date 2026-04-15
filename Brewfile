@@ -1,4 +1,4 @@
-cask "agent-browser"
+brew "agent-browser"
 brew "atuin"
 brew "gh"
 brew "git-delta"
