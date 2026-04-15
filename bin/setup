@@ -43,7 +43,9 @@ if [[ "$(uname)" == "Darwin" ]]; then
     echo ""
 fi
 
-source "${BASEDIR}/setup_macos"
+if [[ "$(uname)" == "Darwin" ]]; then
+    source "${REPODIR}/bin/setup_macos"
+fi
 
 # ------------------------------------------------------------------------------
 # Finish
