@@ -1,0 +1,6 @@
+{
+  "name": "dexory",
+  "description": "Dexory-specific skills for the DexoryView project",
+  "version": "1.0.0",
+  "skills": "./skills/"
+}

@@ -1,0 +1,20 @@
+{
+  "name": "dotfiles",
+  "interface": {
+    "displayName": "Mark's Dotfiles"
+  },
+  "plugins": [
+    {
+      "name": "dexory",
+      "source": {
+        "source": "local",
+        "path": "./dexory"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}

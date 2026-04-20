@@ -1,0 +1,13 @@
+{
+  "name": "dotfiles",
+  "owner": {
+    "name": "Mark Hesketh"
+  },
+  "plugins": [
+    {
+      "name": "dexory",
+      "source": "./dexory",
+      "description": "Dexory-specific skills for the DexoryView project"
+    }
+  ]
+}
