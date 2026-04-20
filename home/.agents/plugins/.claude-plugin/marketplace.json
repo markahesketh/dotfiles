@@ -1,0 +1,13 @@
+{
+  "name": "dotfiles",
+  "owner": {
+    "name": "Mark Hesketh"
+  },
+  "plugins": [
+    {
+      "name": "internal",
+      "source": "./internal",
+      "description": "Internal-specific skills for the InternalView project"
+    }
+  ]
+}

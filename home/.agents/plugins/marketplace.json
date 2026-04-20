@@ -1,0 +1,20 @@
+{
+  "name": "dotfiles",
+  "interface": {
+    "displayName": "Mark's Dotfiles"
+  },
+  "plugins": [
+    {
+      "name": "internal",
+      "source": {
+        "source": "local",
+        "path": "./internal"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}
