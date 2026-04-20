@@ -1,0 +1,76 @@
+#!/usr/bin/env bash
+# copy-git-ignored - Copy gitignored files from a source repo into a target directory.
+#
+# Useful for seeding a git worktree with ignored files (e.g. Rails master.key,
+# .env files) that exist in the main branch but are not tracked by git.
+#
+# When run inside a git worktree with no arguments, the source defaults to the
+# main worktree (first entry of `git worktree list`) and the target defaults to
+# the current directory.
+#
+# Usage:
+#   copy-git-ignored [<source> <target>]
+#
+# Examples:
+#   copy-git-ignored                                               # auto-detect from worktree
+#   copy-git-ignored ~/Code/myapp ~/Code/myapp-worktrees/feature  # explicit paths
+
+set -euo pipefail
+
+if [[ $# -eq 0 ]]; then
+    if ! git rev-parse --git-dir > /dev/null 2>&1; then
+        echo "Error: not inside a git repository and no source/target provided" >&2
+        exit 1
+    fi
+    # First entry of worktree list is always the main worktree
+    SOURCE="$(git worktree list --porcelain | awk 'NR==1 && /^worktree / { print $2 }')"
+    TARGET="$(pwd)"
+elif [[ $# -eq 2 ]]; then
+    SOURCE="$(cd "$1" && pwd)"
+    TARGET="$(cd "$2" && pwd)"
+else
+    echo "Usage: copy-git-ignored [<source> <target>]" >&2
+    exit 1
+fi
+
+if ! git -C "$SOURCE" rev-parse --git-dir > /dev/null 2>&1; then
+    echo "Error: $SOURCE is not a git repository" >&2
+    exit 1
+fi
+
+if [[ ! -d "$TARGET" ]]; then
+    echo "Error: target directory does not exist: $TARGET" >&2
+    exit 1
+fi
+
+echo "Source: $SOURCE"
+echo "Target: $TARGET"
+echo ""
+
+IGNORED_FILES=()
+while IFS= read -r line; do
+    IGNORED_FILES+=("$line")
+done < <(git -C "$SOURCE" ls-files --others --ignored --exclude-standard | grep -v '^node_modules/' | grep -v '^tmp/')
+
+if [[ ${#IGNORED_FILES[@]} -eq 0 ]]; then
+    echo "No gitignored files found in source."
+    exit 0
+fi
+
+echo "Copying ${#IGNORED_FILES[@]} gitignored file(s)..."
+
+for file in "${IGNORED_FILES[@]}"; do
+    src="$SOURCE/$file"
+    dst="$TARGET/$file"
+
+    [[ -f "$src" ]] || continue
+
+    dst_dir="$(dirname "$dst")"
+    [[ -d "$dst_dir" ]] || mkdir -p "$dst_dir"
+
+    cp "$src" "$dst"
+    echo "  $file"
+done
+
+echo ""
+echo "Done."
