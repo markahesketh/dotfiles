@@ -6,6 +6,7 @@
     "commit": "",
     "pr": ""
   },
+  "includeGitInstructions": false,
   "permissions": {
     "ask": [
       "Bash(git commit *)",
@@ -45,7 +46,11 @@
   },
   "enabledPlugins": {
     "ruby-lsp@claude-plugins-official": true,
-    "codex@openai-codex": true
+    "dexory@dotfiles": true,
+    "codex@openai-codex": true,
+    "code-simplifier@claude-plugins-official": true,
+    "coderabbit@claude-plugins-official": true,
+    "typescript-lsp@claude-plugins-official": true
   },
   "extraKnownMarketplaces": {
     "openai-codex": {
@@ -55,5 +60,7 @@
       }
     }
   },
-  "effortLevel": "medium"
+  "effortLevel": "medium",
+  "showClearContextOnPlanAccept": true,
+  "disableAutoMode": "disable"
 }

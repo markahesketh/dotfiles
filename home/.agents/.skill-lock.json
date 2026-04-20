@@ -44,8 +44,8 @@
       "sourceUrl": "https://github.com/vercel-labs/agent-browser.git",
       "skillPath": "skills/agent-browser/SKILL.md",
       "skillFolderHash": "068bc465a3f22625f98a7996817feefcd18d772f",
-      "installedAt": "2026-04-04T20:23:05.713Z",
-      "updatedAt": "2026-04-04T20:23:05.713Z"
+      "installedAt": "2026-04-04T20:23:05.723Z",
+      "updatedAt": "2026-04-04T20:23:05.723Z"
     },
     "skill-creator": {
       "source": "anthropics/skills",
@@ -56,6 +56,15 @@
       "pluginName": "example-skills",
       "installedAt": "2026-04-04T20:26:41.768Z",
       "updatedAt": "2026-04-04T20:26:41.768Z"
+    },
+    "orca-cli": {
+      "source": "stablyai/orca",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/stablyai/orca.git",
+      "skillPath": "skills/orca-cli/SKILL.md",
+      "skillFolderHash": "57ab93e99a12dc947d4329ef7d1227d24bf3dd26",
+      "installedAt": "2026-04-16T10:40:10.495Z",
+      "updatedAt": "2026-04-16T10:40:10.495Z"
     }
   },
   "lastSelectedAgents": [

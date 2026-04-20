@@ -3,3 +3,5 @@
 /home/.claude/skills/dexory
 /home/.codex/config.toml
 /home/.ignored/*
+/home/.agents/plugins/dexory/skills/
+/home/.claude/plugins/
