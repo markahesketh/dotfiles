@@ -74,6 +74,7 @@ tt() { if _uses_rspec; then bundle exec rspec --fail-fast "$@"; else ./bin/rails
 alias cl="claude"
 alias cx="codex"
 alias glm="claude --settings ~/.ignored/glm/settings.json"
+alias oo="open http://localhost:$(branch-port)"
 
 # ------------------------------------------------------------------------------
 # Misc
