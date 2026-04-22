@@ -42,6 +42,7 @@ function ghu() {
 # Workflow
 # ------------------------------------------------------------------------------
 alias lg="lazygit"
+alias oo='open http://localhost:$(branch-port)'
 
 # ------------------------------------------------------------------------------
 # PHP / Laravel
@@ -58,7 +59,7 @@ alias rr="rubymine ."
 alias check="./bin/check"
 alias lint="./bin/lint"
 alias d="./bin/dev"
-alias dp="PORT=$(branch-port) bin/dev"
+alias dp='PORT=$(branch-port) bin/dev'
 alias con="bin/rails c"
 alias r="./bin/rails"
 _uses_rspec() { [ -f .rspec ] || [ -d spec ]; }
@@ -73,7 +74,6 @@ tt() { if _uses_rspec; then bundle exec rspec --fail-fast "$@"; else ./bin/rails
 alias cl="claude"
 alias cx="codex"
 alias glm="claude --settings ~/.ignored/glm/settings.json"
-alias oo="open http://localhost:$(branch-port)"
 
 # ------------------------------------------------------------------------------
 # Misc
