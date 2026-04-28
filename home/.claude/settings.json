@@ -15,8 +15,7 @@
       "Bash(git rebase *)"
     ]
   },
-  "model": "opusplan",
-  "effortLevel": "medium",
+  "model": "opus[1m]",
   "hooks": {
     "Notification": [
       {
@@ -49,8 +48,7 @@
     "dexory@dotfiles": true,
     "codex@openai-codex": true,
     "code-simplifier@claude-plugins-official": true,
-    "coderabbit@claude-plugins-official": true,
-    "typescript-lsp@claude-plugins-official": true
+    "coderabbit@claude-plugins-official": true
   },
   "extraKnownMarketplaces": {
     "openai-codex": {
@@ -60,7 +58,7 @@
       }
     }
   },
-  "effortLevel": "medium",
+  "effortLevel": "xhigh",
   "showClearContextOnPlanAccept": true,
   "disableAutoMode": "disable"
 }
