@@ -1,6 +1,8 @@
 ---
 name: finalise
 description: Pre-commit quality pass. Reviews all session work with fresh eyes before committing. Removes debug statements, AI slop, false starts, abandoned approaches, and dead code. Combines deslop and refactor into a single comprehensive cleanup. Use when the user says "finalise", "finalize", "ready to commit", "pre-commit cleanup", "clean this up before committing", or "quality pass".
+model: sonnet
+agent: true
 ---
 
 # Finalise

@@ -1,6 +1,8 @@
 ---
 name: create-commits
 description: "Create atomic, well-formatted git commits. This skill is preloaded by the commit agent — do not invoke it directly. If you need to make commits, delegate to the commit agent instead."
+model: sonnet
+agent: true
 ---
 
 Create atomic, well-formatted git commits using conventional commit conventions.
