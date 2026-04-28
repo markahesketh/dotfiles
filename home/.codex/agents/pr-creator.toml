@@ -1,5 +1,5 @@
 name = "pr-creator"
 description = "ALWAYS use this agent when the user wants to create a GitHub Pull Request."
-model = "gpt-5.3-codex"
+model = "gpt-5.4-mini"
 model_reasoning_effort = "low"
 developer_instructions = "Use the $create-pr skill and follow its instructions exactly."
