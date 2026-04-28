@@ -1,6 +1,7 @@
 ---
 name: create-commits
-description: "Create atomic, well-formatted git commits. This skill is preloaded by the commit agent — do not invoke it directly. If you need to make commits, delegate to the commit agent instead."
+description: "Create one or more git commits from the current worktree: inspect changes, stage appropriate files, split unrelated work into atomic commits, and write clear conventional commit messages. Use this for any request to commit code or prepare commits, including prompts like 'commit this', 'make the commit', 'stage and commit', 'write the commit message', 'split this into separate commits', 'create atomic commits', or similar commit-related requests."
+context: fork
 model: sonnet
 agent: true
 ---
@@ -17,17 +18,9 @@ Create atomic, well-formatted git commits using conventional commit conventions.
 
 ## Commit Message Format
 
-**CRITICAL: Single line only, max 72 characters. NEVER use multi-line commit messages.**
-
 ```
 <type>: <description>
 ```
-
-Always use `git commit -m "message"` with a single `-m` flag. NEVER use:
-- Multiple `-m` flags
-- HEREDOC syntax for commit messages
-- Extended body text or descriptions
-- Bullet points or line breaks in the message
 
 **Types:**
 - `feat`: New feature
@@ -43,8 +36,6 @@ Always use `git commit -m "message"` with a single `-m` flag. NEVER use:
 - Imperative mood ("add feature" not "added feature")
 - Lowercase after the colon
 - No period at the end
-- Entire message must fit on ONE line
-- Be succinct - summarize all changes in a single short phrase
 
 ## Splitting Commits
 
@@ -57,21 +48,6 @@ Split when changes involve:
 Each commit should be atomic and serve a single purpose.
 
 **Never split tests from the implementation they test.** If a feature, fix, or refactor includes tests, commit the implementation and its tests together in the same commit. A `feat:` or `fix:` commit may include test files — do not separate them into a standalone `test:` commit.
-
-## Critical: Never Bypass Hooks
-
-- NEVER use `--no-verify` or any flag that skips git hooks
-- If a pre-commit or commit-msg hook fails, **stop immediately**
-- Report the hook failure output back to the calling agent or user verbatim
-- Do NOT attempt to work around the failure — the calling agent must fix the underlying issue first
-- Only retry the commit after confirmation that the issue has been resolved
-
-## Critical: No AI Attribution
-
-- NEVER add `Co-Authored-By:` lines
-- NEVER mention Claude, AI, LLM, or any assistant
-- NEVER add "Generated with" or similar footers
-- Commits must appear as written by a human developer
 
 ## Examples
 
