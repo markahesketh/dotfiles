@@ -1,9 +1,8 @@
 ---
 name: create-commits
-description: "Create one or more git commits from the current worktree: inspect changes, stage appropriate files, split unrelated work into atomic commits, and write clear conventional commit messages. Use this for any request to commit code or prepare commits, including prompts like 'commit this', 'make the commit', 'stage and commit', 'write the commit message', 'split this into separate commits', 'create atomic commits', or similar commit-related requests."
+description: "Create one or more git commits from the current worktree: inspect changes, stage appropriate files, split unrelated work into atomic commits, and write clear conventional commit messages.Use this for any request to commit code or prepare commits, including prompts like 'commit this', 'commit and push', 'make the commit', 'stage and commit', 'write the commit message', 'split this into separate commits', 'create atomic commits', or similar commit-related requests."
 context: fork
 model: sonnet
-agent: true
 ---
 
 Create atomic, well-formatted git commits using conventional commit conventions.
