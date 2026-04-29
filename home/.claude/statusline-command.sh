@@ -3,7 +3,12 @@ input=$(cat)
 
 cwd=$(echo "$input" | jq -r '.cwd // empty')
 model_id=$(echo "$input" | jq -r '.model.id // empty')
-used=$(echo "$input" | jq -r '.context_window.used_percentage // 0' | cut -d. -f1)
+COMPACT_WINDOW=200000
+used=$(echo "$input" | jq -r "
+  (.context_window.used_percentage // 0) as \$pct |
+  (.context_window.context_window_size // 1) as \$total |
+  (\$pct * \$total / 100 / $COMPACT_WINDOW * 100) | floor | if . > 100 then 100 else . end
+")
 
 # Git branch
 branch=""
