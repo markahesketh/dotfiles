@@ -1,8 +1,8 @@
 ---
 name: lint
 description: Run bin/lint --fix in DexoryView and fix any remaining issues until all linting passes. Use when linting, fixing lint errors, running rubocop, fixing TypeScript errors, fixing biome issues, or when the user says "fix lint" or "run lint" in the DexoryView project.
+context: fork
 model: sonnet
-agent: true
 ---
 
 # Dexory Lint

@@ -2,8 +2,8 @@
 name: basecamp-comment
 description: Post a comment on a Basecamp card to say a task or fix has been completed. Uses the Basecamp CLI to add the comment and upload any screenshots. Use when finishing work and wanting to update a Basecamp card, when asked to "comment on basecamp", "update the basecamp card", "post to basecamp", or "let the team know it's done".
 allowed-tools: Bash, AskUserQuestion
+context: fork
 model: sonnet
-agent: true
 disable-model-invocation: true
 ---
 
