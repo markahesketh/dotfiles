@@ -17,25 +17,28 @@
       "cmd-2": "outline_panel::ToggleFocus",
       "cmd-k": "git_panel::ToggleFocus",
       "cmd-3": "agent::ToggleFocus",
-    },
-  },
-  {
-    "context": "Pane",
-    "bindings": {
-      "cmd-w": null,
+      "cmd-4": "workspace::NewCenterTerminal",
     },
   },
   {
     "context": "Editor",
     "bindings": {
       "cmd-0": "terminal_panel::ToggleFocus",
+      "cmd-w": "editor::SelectLargerSyntaxNode",
     },
   },
   {
     "context": "Terminal",
     "bindings": {
-      "cmd-0": "workspace::ToggleBottomDock",
+      "cmd-0": "workspace::ToggleLeftDock",
+    },
+  },
+  {
+    "context": "Dock",
+    "bindings": {
+      "cmd-0": "terminal_panel::ToggleFocus",
       "cmd-2": "outline_panel::ToggleFocus",
+      "cmd-k": "git_panel::ToggleFocus",
       "cmd-3": "agent::ToggleFocus",
     },
   },
@@ -43,36 +46,59 @@
     "context": "GitPanel",
     "bindings": {
       "cmd-0": "terminal_panel::ToggleFocus",
-      "cmd-2": "outline_panel::ToggleFocus",
-      "cmd-k": "workspace::ToggleLeftDock",
-      "cmd-3": "agent::ToggleFocus",
+      "cmd-k": "workspace::ToggleRightDock",
     },
   },
   {
     "context": "OutlinePanel",
     "bindings": {
       "cmd-0": "terminal_panel::ToggleFocus",
-      "cmd-2": "workspace::ToggleLeftDock",
-      "cmd-k": "git_panel::ToggleFocus",
-      "cmd-3": "agent::ToggleFocus",
+      "cmd-2": "workspace::ToggleRightDock",
     },
   },
   {
     "context": "ProjectPanel",
     "bindings": {
       "cmd-0": "terminal_panel::ToggleFocus",
-      "cmd-2": "outline_panel::ToggleFocus",
-      "cmd-k": "git_panel::ToggleFocus",
-      "cmd-3": "agent::ToggleFocus",
     },
   },
   {
     "context": "AgentPanel",
     "bindings": {
       "cmd-0": "terminal_panel::ToggleFocus",
-      "cmd-2": "outline_panel::ToggleFocus",
-      "cmd-k": "git_panel::ToggleFocus",
-      "cmd-3": "workspace::ToggleRightDock",
+      "cmd-3": "workspace::ToggleLeftDock",
+    },
+  },
+  {
+    "context": "Pane",
+    "use_key_equivalents": true,
+    "bindings": {
+      "cmd-0": "terminal_panel::ToggleFocus",
+      "cmd-w": null,
+      "cmd-\\": "pane::SplitRight",
+      "cmd-|": "pane::SplitHorizontal",
+      "cmd-shift-backspace": [
+        "pane::CloseActiveItem",
+        {
+          "close_pinned": false,
+        },
+      ],
+    },
+  },
+  {
+    "context": "Editor && mode == full",
+    "use_key_equivalents": true,
+    "bindings": {
+      "cmd-0": "terminal_panel::ToggleFocus",
+      "cmd-w": "editor::SelectLargerSyntaxNode",
+      "cmd-\\": "pane::SplitRight",
+      "cmd-|": "pane::SplitHorizontal",
+      "cmd-shift-backspace": [
+        "pane::CloseActiveItem",
+        {
+          "close_pinned": false,
+        },
+      ],
     },
   },
 ]

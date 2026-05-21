@@ -8,21 +8,21 @@
 // command palette (cmd-shift-p / ctrl-shift-p)
 {
   "session": {
-    "trust_all_worktrees": true
+    "trust_all_worktrees": true,
+  },
+  "terminal": {
+    "dock": "left",
   },
   "base_keymap": "JetBrains",
   "agent": {
-    "always_allow_tool_actions": true,
     "default_profile": "minimal",
-    "play_sound_when_agent_done": true,
+    "play_sound_when_agent_done": "always",
     "default_model": {
       "provider": "copilot_chat",
-      "model": "gpt-5-mini"
-    }
+      "model": "gpt-5-mini",
+    },
   },
-  "file_scan_exclusions": [
-    "**/*.uid"
-  ],
+  "file_scan_exclusions": ["**/*.uid"],
   "confirm_quit": true,
   "ui_font_size": 15,
   "buffer_font_size": 14,
@@ -30,6 +30,6 @@
   "theme": {
     "mode": "system",
     "light": "One Light",
-    "dark": "One Dark"
-  }
+    "dark": "One Dark",
+  },
 }
