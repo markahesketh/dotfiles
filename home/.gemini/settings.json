@@ -11,32 +11,17 @@
   "hooks": {
     "BeforeAgent": [
       {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "/Users/markhesketh/.superset/hooks/gemini-hook.sh"
-          }
-        ]
+        "hooks": []
       }
     ],
     "AfterAgent": [
       {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "/Users/markhesketh/.superset/hooks/gemini-hook.sh"
-          }
-        ]
+        "hooks": []
       }
     ],
     "AfterTool": [
       {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "/Users/markhesketh/.superset/hooks/gemini-hook.sh"
-          }
-        ]
+        "hooks": []
       }
     ]
   }
