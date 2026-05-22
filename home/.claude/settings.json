@@ -48,8 +48,7 @@
     "dexory@dotfiles": true,
     "codex@openai-codex": true,
     "code-simplifier@claude-plugins-official": true,
-    "coderabbit@claude-plugins-official": true,
-    "caveman@caveman": true
+    "coderabbit@claude-plugins-official": true
   },
   "extraKnownMarketplaces": {
     "openai-codex": {
@@ -57,15 +56,9 @@
         "source": "github",
         "repo": "openai/codex-plugin-cc"
       }
-    },
-    "caveman": {
-      "source": {
-        "source": "github",
-        "repo": "JuliusBrussee/caveman"
-      }
     }
   },
   "effortLevel": "xhigh",
   "showClearContextOnPlanAccept": true,
-  "disableAutoMode": "disable"
+  "theme": "light"
 }
