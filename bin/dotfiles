@@ -12,6 +12,7 @@ DOTFILES=(
     ".agents"
     ".aliases"
     "bin"
+    ".claude/CLAUDE.md"
     ".claude/karpathy.md"
     ".claude/hooks"
     ".claude/media"
