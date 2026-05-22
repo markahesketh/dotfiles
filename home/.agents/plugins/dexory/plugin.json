@@ -1,0 +1,6 @@
+{
+  "name": "dexory",
+  "version": "1.0.0",
+  "description": "Reusable greeting workflow",
+  "skills": "./skills/"
+}

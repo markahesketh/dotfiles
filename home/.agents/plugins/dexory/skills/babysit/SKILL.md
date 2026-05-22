@@ -16,7 +16,11 @@ There is relevant useful information in .claude/skills/address-ai-review/SKILL.m
 
 For all reviews and failures, triage, fix if obviously broken, confirm with user if any decision needs to be made, and be a diligent watcher with the aim of getting this PR ship-shape and ready to merge! All tests and lint passing, all review comments addressed and resolved, replied to with reasoning if we're not fixing.
 
+**When creating commits, always use the `create-commits` skill.** Don't run `git commit` directly with an ad-hoc message. Invoke the `create-commits` skill so the worktree is inspected, unrelated work is split into atomic commits, and messages follow the project's conventional-commit style. This applies to every commit made during babysitting — review fix-ups, CI fixes, rebase resolutions, anything.
+
 **Fixing failing tests is the whole job.** If a test is failing on CI, it must be fixed — regardless of whether the failure appears related to this PR's changes, appears to be a pre-existing flake, appears to be a timezone/midnight/date-boundary issue, or appears to be caused by anything else. "Unrelated flake" is not a reason to skip a fix — it is a reason to fix it properly (deflake the test, pin the clock, stabilise the assertion, etc.). Do not dismiss failing tests with analysis about root cause; do not re-run hoping it passes without fixing the underlying issue. Either fix the test or, if a decision is genuinely needed, ask the user. Simply re-running `gh run rerun --failed` without addressing the cause is not acceptable.
+
+Check docs/guides/debugging-system-tests/README.md if there are flakey system tests or cucumber features
 
 Rebase on staging if necessary - If there are any conflicts, consider the changes on both branches and figure out what needs porting
 
@@ -27,3 +31,5 @@ It is absolutely essential that the intent of changes from both branches are inc
 Prioritise review comments as code changes will invalidate the test run anyway
 
 Notify when the PR is ready, of if you get blocked with any issues or need user input
+
+Run /compact if the context window is over 200,000, and you are satisfied that the PR is ready to merge
