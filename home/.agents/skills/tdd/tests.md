@@ -1,5 +1,7 @@
 # Good and Bad Tests
 
+Do not add tests which simply restate the implementation. These provide zero value or confidence.
+
 ## Good Tests
 
 **Integration-style**: Test through real interfaces, not mocks of internal parts.
