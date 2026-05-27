@@ -68,10 +68,11 @@ Focus on tests that:
 - Test integration points between components
 - Guard against regressions in non-obvious behaviour
 
-Deprioritise:
+Do not include:
 - Trivial getters/setters with no logic
 - Framework boilerplate that doesn't need testing
 - Tests that duplicate existing coverage
+- Tests which simply restate the implementation
 
 ### 6. Write the tests
 
