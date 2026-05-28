@@ -11,6 +11,8 @@ description: Test-driven development with red-green-refactor loop. Use when user
 
 **Good tests** are integration-style: they exercise real code paths through public APIs. They describe _what_ the system does, not _how_ it does it. A good test reads like a specification - "user can checkout with valid cart" tells you exactly what capability exists. These tests survive refactors because they don't care about internal structure.
 
+**Worthless tests** simply restate the implementation. They assert the exact constants, assignments, branching shape, or generated values that were just written into the code without proving a user-visible behavior or domain rule. These tests provide zero confidence: they pass when the copied implementation is wrong, and they fail when the implementation changes safely. If an assertion feels like "the code says X, so the test expects X," replace it with a behavior-oriented assertion that explains why X matters.
+
 **Bad tests** are coupled to implementation. They mock internal collaborators, test private methods, or verify through external means (like querying a database directly instead of using the interface). The warning sign: your test breaks when you refactor, but behavior hasn't changed. If you rename an internal function and tests fail, those tests were testing implementation, not behavior.
 
 See [tests.md](tests.md) for examples and [mocking.md](mocking.md) for mocking guidelines.
@@ -104,6 +106,7 @@ After all tests pass, look for [refactor candidates](refactoring.md):
 [ ] Test describes behavior, not implementation
 [ ] Test uses public interface only
 [ ] Test would survive internal refactor
+[ ] Assertions prove feature behavior, not copied implementation values
 [ ] Code is minimal for this test
 [ ] No speculative features added
 ```
