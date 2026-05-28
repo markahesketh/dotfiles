@@ -34,9 +34,9 @@
       "sourceType": "github",
       "sourceUrl": "https://github.com/mattpocock/skills.git",
       "skillPath": "skills/engineering/grill-with-docs/SKILL.md",
-      "skillFolderHash": "2c6aa7079cc705a6e0c319fcf23a0fa39968de29",
+      "skillFolderHash": "2c3a4e48571bfe42203ed7b49cae85f31ef4b6f2",
       "installedAt": "2026-05-06T19:16:38.248Z",
-      "updatedAt": "2026-05-22T08:17:14.558Z"
+      "updatedAt": "2026-05-28T19:31:01.792Z"
     },
     "improve-codebase-architecture": {
       "source": "mattpocock/skills",
