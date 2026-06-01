@@ -73,6 +73,7 @@ tt() { if _uses_rspec; then bundle exec rspec --fail-fast "$@"; else ./bin/rails
 # ------------------------------------------------------------------------------
 alias cl="claude"
 alias cx="codex"
+alias oc="opencode"
 alias glm="claude --settings ~/.ignored/glm/settings.json"
 
 # ------------------------------------------------------------------------------
