@@ -37,6 +37,18 @@
           }
         ]
       }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "if": "Bash(git commit *)",
+            "command": "bash ~/.claude/hooks/validate-commit.sh"
+          }
+        ]
+      }
     ]
   },
   "statusLine": {
