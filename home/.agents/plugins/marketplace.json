@@ -8,7 +8,7 @@
       "name": "internal",
       "source": {
         "source": "local",
-        "path": "./internal"
+        "path": "./.agents/plugins/internal"
       },
       "policy": {
         "installation": "AVAILABLE",
