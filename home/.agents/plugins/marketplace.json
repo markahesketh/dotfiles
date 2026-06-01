@@ -8,7 +8,7 @@
       "name": "dexory",
       "source": {
         "source": "local",
-        "path": "./dexory"
+        "path": "./.agents/plugins/dexory"
       },
       "policy": {
         "installation": "AVAILABLE",

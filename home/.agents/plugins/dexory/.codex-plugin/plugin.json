@@ -1,6 +1,18 @@
 {
   "name": "dexory",
-  "description": "Dexory-specific skills for the DexoryView project",
   "version": "1.0.1",
-  "skills": "./skills/"
+  "description": "Dexory-specific skills for the DexoryView project",
+  "author": {
+    "name": "Mark Hesketh"
+  },
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Dexory",
+    "shortDescription": "Dexory-specific Codex workflows.",
+    "longDescription": "Dexory adds local Codex workflows for Basecamp handoffs, linting, landing work, babysitting agents, and DexoryView project tasks.",
+    "developerName": "Mark Hesketh",
+    "category": "Productivity",
+    "capabilities": [],
+    "defaultPrompt": "Help me use the Dexory workflows."
+  }
 }
