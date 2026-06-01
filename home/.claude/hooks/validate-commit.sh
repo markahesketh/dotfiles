@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
 # PreToolUse hook, gated by "if": "Bash(git commit *)" in settings.json, so it
-# only runs on commit creation. Blocks messages that break the create-commits
-# conventions so they get rewritten. Lenient: only clear mechanical violations.
-# Reads PreToolUse JSON on stdin. exit 2 + stderr = block; exit 0 = allow.
+# only runs on commit creation. Denies commits whose subject breaks the
+# create-commits conventions and feeds the reason back to Claude so it can
+# rewrite and retry. Lenient: only clear mechanical violations are denied.
+# Reads PreToolUse JSON on stdin; emits a permissionDecision on stdout
+# (deny to block, silent exit 0 to fall through to normal permission flow).
 
 python3 -c '
 import sys, json, re
@@ -20,15 +22,15 @@ subject = m.group(2).strip().splitlines()[0].strip() if m and m.group(2).strip()
 if not subject or re.match(r"(Merge|Revert)\b", subject):
     sys.exit(0)
 
-types = "feat|fix|docs|style|refactor|perf|test|chore"
-# Conventional subject (no scope) and no trailing period. A scoped subject like
+# Conventional subject (no scope) with no trailing period. A scoped subject like
 # "feat(api): x" fails the type match, so this covers scopes too.
+types = "feat|fix|docs|style|refactor|perf|test|chore"
 if re.match(rf"^({types})(!)?: .+", subject) and not subject.endswith("."):
     sys.exit(0)
 
-print("Commit message does not follow the create-commits conventions:",
-      "  " + subject,
-      "Invoke the create-commits skill to rewrite it, then commit again.",
-      sep="\n", file=sys.stderr)
-sys.exit(2)
+print(json.dumps({"hookSpecificOutput": {
+    "hookEventName": "PreToolUse",
+    "permissionDecision": "deny",
+    "permissionDecisionReason": "This commit does not follow the create-commits conventions. Invoke the create-commits skill to rewrite the message, then commit again.",
+}}))
 '
