@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # PreToolUse hook, gated by "if": "Bash(git commit *)" in settings.json, so it
 # only runs on commit creation. Denies commits whose subject breaks the
-# create-commits conventions and feeds the reason back to Claude so it can
+# commit-creator conventions and feeds the reason back to Claude so it can
 # rewrite and retry. Lenient: only clear mechanical violations are denied.
 # Reads PreToolUse JSON on stdin; emits a permissionDecision on stdout
 # (deny to block, silent exit 0 to fall through to normal permission flow).
@@ -31,6 +31,6 @@ if re.match(rf"^({types})(!)?: .+", subject) and not subject.endswith("."):
 print(json.dumps({"hookSpecificOutput": {
     "hookEventName": "PreToolUse",
     "permissionDecision": "deny",
-    "permissionDecisionReason": "This commit does not follow the create-commits conventions. Invoke the create-commits skill to rewrite the message, then commit again.",
+    "permissionDecisionReason": "This commit does not follow the commit-creator conventions. Invoke the commit-creator skill to rewrite the message, then commit again.",
 }}))
 '
