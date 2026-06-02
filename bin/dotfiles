@@ -13,6 +13,7 @@ DOTFILES=(
     ".aliases"
     "bin"
     ".claude/CLAUDE.md"
+    ".claude/RTK.md"
     ".claude/karpathy.md"
     ".claude/hooks"
     ".claude/media"
