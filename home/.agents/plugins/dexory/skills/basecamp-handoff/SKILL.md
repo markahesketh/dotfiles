@@ -1,6 +1,6 @@
 ---
 name: basecamp-handoff
-description: Hand a completed piece of work back to the team on Basecamp. Posts a friendly, non-technical comment on the card describing what changed, how to verify it, and includes the PR and review-app links. Then moves the card to the ready-for-QA column. Generates acceptance criteria from the actual changes (PR diff + card context). Use this when the user has finished work, has an open PR, and wants to update Basecamp — triggers include "hand off to QA", "ready for QA", "update the basecamp card with the PR", "finish on basecamp", "let QA know it's ready", "this is done, update basecamp". Composes with the create-pr skill if no PR exists yet.
+description: Hand a completed piece of work back to the team on Basecamp. Posts a friendly, non-technical comment on the card describing what changed, how to verify it, and includes the PR and review-app links. Then moves the card to the ready-for-QA column. Generates acceptance criteria from the actual changes (PR diff + card context). Use this when the user has finished work, has an open PR, and wants to update Basecamp — triggers include "hand off to QA", "ready for QA", "update the basecamp card with the PR", "finish on basecamp", "let QA know it's ready", "this is done, update basecamp". Composes with the pr-creator skill if no PR exists yet.
 allowed-tools: Bash, AskUserQuestion, Skill
 ---
 
@@ -46,12 +46,12 @@ gh pr view --json number,url,title,body,baseRefName 2>/dev/null
 
 ```
 AskUserQuestion: "There's no PR open on this branch yet. What now?"
-  - "Create one with the create-pr skill"
+  - "Create one with the pr-creator skill"
   - "I'll open it myself, pause this"
   - "Proceed without a PR or review-app link"
 ```
 
-If the user picks "Create one", invoke the `create-pr` skill. The `create-pr` skill runs in a forked context and cannot see this conversation, so pass the resolved Basecamp card URL (and any Jira ticket key the user has mentioned) explicitly in the invocation message — for example: "Create a PR. Basecamp: https://3.basecamp.com/.../cards/55510". Then re-run `gh pr view` to pick up the newly opened PR. If the user picks "pause", stop the skill cleanly. If they pick "proceed without", skip the review-app link in step 5.
+If the user picks "Create one", invoke the `pr-creator` skill. The `pr-creator` skill runs in a forked context and cannot see this conversation, so pass the resolved Basecamp card URL (and any Jira ticket key the user has mentioned) explicitly in the invocation message — for example: "Create a PR. Basecamp: https://3.basecamp.com/.../cards/55510". Then re-run `gh pr view` to pick up the newly opened PR. If the user picks "pause", stop the skill cleanly. If they pick "proceed without", skip the review-app link in step 5.
 
 **PR exists.** Construct the review-app link:
 
