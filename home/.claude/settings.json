@@ -148,17 +148,7 @@
   "enabledPlugins": {
     "ruby-lsp@claude-plugins-official": true,
     "dexory@dotfiles": true,
-    "codex@openai-codex": true,
-    "code-simplifier@claude-plugins-official": true,
-    "coderabbit@claude-plugins-official": true
-  },
-  "extraKnownMarketplaces": {
-    "openai-codex": {
-      "source": {
-        "source": "github",
-        "repo": "openai/codex-plugin-cc"
-      }
-    }
+    "code-simplifier@claude-plugins-official": true
   },
   "effortLevel": "high",
   "showClearContextOnPlanAccept": true,
