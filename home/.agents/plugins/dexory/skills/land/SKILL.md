@@ -1,6 +1,6 @@
 ---
 name: land
-description: "Landing sequence — runs add-tests, finalise, simplify, and dexory:lint in order. Use when finishing a task and wanting to run the full quality pipeline: add missing tests, clean up code, simplify, and fix lint. Trigger phrases: land, landing sequence, finish up, wrap up, run the pipeline."
+description: "Landing sequence — runs review-tests, finalise, simplify, and dexory:lint in order. Use when finishing a task and wanting to run the full quality pipeline: review and tighten the branch's tests, clean up code, simplify, and fix lint. Trigger phrases: land, landing sequence, finish up, wrap up, run the pipeline."
 disable-model-invocation: true
 ---
 
@@ -12,13 +12,13 @@ Runs the full task completion pipeline in sequence: tests → react best practic
 
 Run these skills in order, announcing the start and end of each stage clearly. Do not skip a stage if a previous one had warnings — only stop if a stage produces a hard failure that would block the next stage from running meaningfully.
 
-### Stage 1 — Add Tests
+### Stage 1 — Review Tests
 
-Announce: "**[1/5] Starting: add-tests**"
+Announce: "**[1/5] Starting: review-tests**"
 
-Use the Skill tool to invoke `add-tests`.
+Use the Skill tool to invoke `review-tests`.
 
-When complete, announce: "**[1/5] Done: add-tests**"
+When complete, announce: "**[1/5] Done: review-tests**"
 
 ---
 
