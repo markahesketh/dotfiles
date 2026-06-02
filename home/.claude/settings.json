@@ -102,7 +102,6 @@
       "Bash(git rebase *)"
     ]
   },
-  "model": "opus[1m]",
   "hooks": {
     "Notification": [
       {
@@ -135,8 +134,8 @@
           },
           {
             "type": "command",
-            "if": "Bash(git commit *)",
-            "command": "bash ~/.claude/hooks/validate-commit.sh"
+            "command": "bash ~/.claude/hooks/validate-commit.sh",
+            "if": "Bash(git commit *)"
           }
         ]
       }
