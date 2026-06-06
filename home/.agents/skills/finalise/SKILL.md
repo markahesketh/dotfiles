@@ -1,58 +1,52 @@
 ---
 name: finalise
-description: Pre-commit quality pass. Reviews all session work with fresh eyes before committing. Removes debug statements, AI slop, false starts, abandoned approaches, and dead code. Combines deslop and refactor into a single comprehensive cleanup. Use when the user says "finalise", "finalize", "ready to commit", "pre-commit cleanup", "clean this up before committing", or "quality pass".
-model: sonnet
-agent: true
+description: Pre-commit quality pass over the current branch's changes — reviews the diff with fresh eyes and strips debug statements, AI slop, false starts, abandoned approaches, and dead code introduced while building.
+context: fork
+model: opus
+disable-model-invocation: true
 ---
 
 # Finalise
 
-Review everything changed in this session and prepare it for commit. Approach it with fresh eyes — forget what you were trying to do and assess what's actually there.
+Prepare this branch's changes for commit. Judge what's actually on the page, not what it was meant to be.
 
-## Workflow
+Scope everything below to lines this branch changed. Pre-existing code — even if it looks messy or dead — is out of scope unless the user asks; touching it inflates the diff and buries the real work.
 
-### 1. Survey the diff
+## 1. Survey the diff
 
-Run `git diff` against the base branch. Read every changed file in full, not just the hunks. Build a complete picture of what changed and why.
+Find the base branch (`gh repo view --json defaultBranchRef -q .defaultBranchRef`, falling back to `main`/`master`), then run `git diff <base>` and `git status` so you catch committed, staged, unstaged, and untracked work alike. Read each changed file in full so you see the new code in its real context — but keep your edits to the changed lines.
 
-### 2. Find and remove false starts
+## 2. Strip development artifacts
 
-Look for evidence of approaches that were tried and abandoned:
-- Commented-out code from earlier attempts
-- Dead branches or conditions introduced and never used
-- Scaffolding added to debug a problem and never removed
-- Logic that was replaced but not fully cleaned up
-- Imports, variables, or functions that were part of a discarded approach
+Things added to build or debug and never cleaned up:
+- Debug output: `console.log`, `print`, `pp`, `var_dump`, `dump`, `dd`, `debugger`, `binding.pry`, `binding.irb`, `byebug`
+- `TODO`/`FIXME`/`HACK`/`XXX` comments added on this branch
+- Logging added only to diagnose a problem
 
-### 3. Remove debug statements
+## 3. Remove false starts and dead code
 
-Strip all temporary development artifacts:
-- `console.log`, `print`, `pp`, `var_dump`, `dump`, `dd`
-- `debugger`, `binding.pry`, `binding.irb`, `byebug`
-- `TODO`, `FIXME`, `HACK`, `XXX` comments added during this session
-- Any logging added purely to diagnose a problem during development
+Abandoned approaches leave residue. Within the changed lines, remove:
+- Commented-out earlier attempts
+- Branches, conditions, imports, variables, or functions belonging to a discarded approach
+- Logic replaced but not fully removed, and the paths it left unreachable
 
-### 4. Remove AI slop
+## 4. Remove AI slop
 
-Check for patterns inconsistent with the surrounding codebase:
-- Comments a human wouldn't write, or that narrate obvious code
-- Comments inconsistent with the style of the rest of the file
-- Excessive defensive checks or try/catch blocks that are abnormal for this codebase (especially in trusted or internally-validated codepaths)
-- Casts to `any` or equivalent to work around type issues
-- Style that doesn't match the file — spacing, naming, structure
+Patterns that break from the surrounding code and read as machine-authored:
+- Comments that narrate obvious code, or don't match the file's style
+- Defensive checks or try/catch that are abnormal for this codebase, especially on trusted or internally-validated paths
+- `any` casts (or equivalents) papering over a type issue
+- Spacing, naming, or structure that breaks the file's conventions
 
-### 5. Refactor for simplicity
+## 5. Simplify what you over-built
 
-- Remove dead code and unreachable paths
-- Straighten logic flows that became convoluted during development
-- Remove excessive parameters, especially ones added "just in case"
-- Remove premature abstractions or helpers created for a one-time use
-- Revert over-engineering introduced while exploring solutions
+Exploration leaves things bigger than they need to be:
+- Premature abstractions or helpers used only once — inline them
+- Parameters added "just in case"
+- Convoluted flows worth straightening now the shape is settled
 
-### 6. Verify
+Leave code that's genuinely clean alone. A comment that explains *why* (a non-obvious constraint, a gotcha) earns its place — don't strip it just because it's a comment.
 
-Run build and tests. Confirm behavior is unchanged.
+## 6. Verify and report
 
-### 7. Report
-
-Summarise what was changed in 3–5 sentences. Be specific about what was removed and why.
+Run the project's build and tests; confirm behaviour is unchanged. Then summarise in 3–5 sentences what you removed and why.

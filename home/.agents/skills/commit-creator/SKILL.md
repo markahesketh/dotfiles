@@ -1,6 +1,8 @@
 ---
 name: commit-creator
 description: "Create git commits from the worktree: inspect changes, group by intention, stage selectively, write Conventional Commit messages (no scopes, imperative, why-focused bodies). Use for any commit request — 'commit this', 'commit and push', 'stage and commit', 'write the commit message', 'split into separate commits', 'create atomic commits', or similar."
+context: fork
+model: sonnet
 ---
 
 Atomic commits. Conventional Commits.

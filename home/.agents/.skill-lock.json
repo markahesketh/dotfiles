@@ -47,16 +47,6 @@
       "installedAt": "2026-05-06T19:16:38.248Z",
       "updatedAt": "2026-05-22T08:17:17.487Z"
     },
-    "tdd": {
-      "source": "mattpocock/skills",
-      "sourceType": "github",
-      "sourceUrl": "https://github.com/mattpocock/skills.git",
-      "skillPath": "skills/engineering/tdd/SKILL.md",
-      "skillFolderHash": "75beb3030b4c979205dd771ff85ac600baeb68f4",
-      "pluginName": "mattpocock-skills",
-      "installedAt": "2026-05-06T19:16:38.248Z",
-      "updatedAt": "2026-05-06T19:16:38.248Z"
-    },
     "to-issues": {
       "source": "mattpocock/skills",
       "sourceType": "github",
@@ -76,50 +66,30 @@
       "installedAt": "2026-05-06T19:16:38.249Z",
       "updatedAt": "2026-06-02T19:36:32.752Z"
     },
-    "triage": {
-      "source": "mattpocock/skills",
+    "handoff": {
+      "source": "openclaw/agent-skills",
       "sourceType": "github",
-      "sourceUrl": "https://github.com/mattpocock/skills.git",
-      "skillPath": "skills/engineering/triage/SKILL.md",
-      "skillFolderHash": "de4f182c30876a2460ca307e2f601b9b892527e5",
-      "pluginName": "mattpocock-skills",
-      "installedAt": "2026-05-06T19:16:38.249Z",
-      "updatedAt": "2026-05-06T19:16:38.249Z"
-    },
-    "zoom-out": {
-      "source": "mattpocock/skills",
-      "sourceType": "github",
-      "sourceUrl": "https://github.com/mattpocock/skills.git",
-      "skillPath": "skills/engineering/zoom-out/SKILL.md",
-      "skillFolderHash": "6ecebabdea814d12888f56a611da7bf182b5fb26",
-      "pluginName": "mattpocock-skills",
-      "installedAt": "2026-05-06T19:16:38.250Z",
-      "updatedAt": "2026-05-06T19:16:38.250Z"
-    },
-    "setup-matt-pocock-skills": {
-      "source": "mattpocock/skills",
-      "sourceType": "github",
-      "sourceUrl": "https://github.com/mattpocock/skills.git",
-      "skillPath": "skills/engineering/setup-matt-pocock-skills/SKILL.md",
-      "skillFolderHash": "77638955bebe492948244f1338e54ca1a9445c29",
-      "installedAt": "2026-05-06T19:17:26.945Z",
-      "updatedAt": "2026-05-22T08:17:20.520Z"
+      "sourceUrl": "https://github.com/openclaw/agent-skills.git",
+      "skillPath": "skills/handoff/SKILL.md",
+      "skillFolderHash": "ed9e295d20ea217836f51b809bb728887e55eafd",
+      "installedAt": "2026-06-06T19:09:04.189Z",
+      "updatedAt": "2026-06-06T19:09:04.189Z"
     }
   },
   "lastSelectedAgents": [
     "amp",
     "antigravity",
+    "antigravity-cli",
     "cline",
     "codex",
     "cursor",
     "deepagents",
-    "dexto",
-    "firebender",
     "gemini-cli",
     "github-copilot",
-    "kimi-cli",
+    "kimi-code-cli",
     "opencode",
     "warp",
+    "zed",
     "claude-code"
   ],
   "dismissed": {

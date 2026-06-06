@@ -1,33 +1,18 @@
 # Deep Modules
 
-From "A Philosophy of Software Design":
+From _A Philosophy of Software Design_:
 
-**Deep module** = small interface + lots of implementation
+- **Deep module** = small interface + lots of implementation. Few methods, simple params, complex logic hidden inside. Aim for these.
+- **Shallow module** = large interface + thin implementation that just passes through. Avoid.
 
-```
-┌─────────────────────┐
-│   Small Interface   │  ← Few methods, simple params
-├─────────────────────┤
-│                     │
-│                     │
-│  Deep Implementation│  ← Complex logic hidden
-│                     │
-│                     │
-└─────────────────────┘
-```
+When designing an interface, ask: can I reduce the number of methods? Simplify the params? Hide more complexity inside?
 
-**Shallow module** = large interface + little implementation (avoid)
+## Designing for testability
 
-```
-┌─────────────────────────────────┐
-│       Large Interface           │  ← Many methods, complex params
-├─────────────────────────────────┤
-│  Thin Implementation            │  ← Just passes through
-└─────────────────────────────────┘
-```
+Deep, well-shaped interfaces are also the easy ones to test:
 
-When designing interfaces, ask:
+1. **Accept dependencies, don't create them** — pass a boundary collaborator in so a test can substitute it (see [mocking.md](mocking.md)).
+2. **Return results, don't mutate hidden state** — `calculate_discount(cart) => Discount` is trivial to assert; `apply_discount!(cart)` that mutates in place is not.
+3. **Small surface area** — fewer methods means fewer tests; fewer params means simpler setup.
 
-- Can I reduce the number of methods?
-- Can I simplify the parameters?
-- Can I hide more complexity inside?
+If a behaviour is awkward to test, treat that as feedback about the interface, not a reason to reach into internals.
