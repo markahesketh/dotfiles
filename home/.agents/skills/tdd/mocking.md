@@ -2,58 +2,46 @@
 
 Mock at **system boundaries** only:
 
-- External APIs (payment, email, etc.)
-- Databases (sometimes - prefer test DB)
-- Time/randomness
-- File system (sometimes)
+- External APIs (payment, email, third-party services)
+- Databases (usually prefer a real test DB; transactional fixtures keep it fast)
+- Time / randomness (`Timecop`, `travel_to`, seeded RNG)
+- The file system (sometimes)
 
 Don't mock:
 
-- Your own classes/modules
+- Your own classes/models/contexts
 - Internal collaborators
 - Anything you control
 
-## Designing for Mockability
+Mocking what you own couples the test to today's call graph. The test then passes when the collaboration is wrong and breaks when you refactor — the opposite of what you want.
 
-At system boundaries, design interfaces that are easy to mock:
+## Designing for mockability
 
-**1. Use dependency injection**
+At a boundary, make the dependency easy to substitute.
 
-Pass external dependencies in rather than creating them internally:
+**Inject the dependency** rather than constructing it internally:
 
-```typescript
-// Easy to mock
-function processPayment(order, paymentClient) {
-  return paymentClient.charge(order.total);
-}
+```ruby
+# Easy to substitute the boundary
+class ProcessPayment
+  def initialize(payment_client:)
+    @payment_client = payment_client
+  end
 
-// Hard to mock
-function processPayment(order) {
-  const client = new StripeClient(process.env.STRIPE_KEY);
-  return client.charge(order.total);
-}
+  def call(order) = @payment_client.charge(order.total)
+end
+
+# Hard to substitute: the boundary is hard-wired
+class ProcessPayment
+  def call(order)
+    StripeClient.new(ENV["STRIPE_KEY"]).charge(order.total)
+  end
+end
 ```
 
-**2. Prefer SDK-style interfaces over generic fetchers**
+**Prefer specific operations over one generic caller.** A client with `get_user(id)`, `create_order(data)` is easier to fake than a single `request(endpoint, opts)` — each fake returns one shape, with no conditional logic in the test setup.
 
-Create specific functions for each external operation instead of one generic function with conditional logic:
+Notes for other stacks:
 
-```typescript
-// GOOD: Each function is independently mockable
-const api = {
-  getUser: (id) => fetch(`/users/${id}`),
-  getOrders: (userId) => fetch(`/users/${userId}/orders`),
-  createOrder: (data) => fetch('/orders', { method: 'POST', body: data }),
-};
-
-// BAD: Mocking requires conditional logic inside the mock
-const api = {
-  fetch: (endpoint, options) => fetch(endpoint, options),
-};
-```
-
-The SDK approach means:
-- Each mock returns one specific shape
-- No conditional logic in test setup
-- Easier to see which endpoints a test exercises
-- Type safety per endpoint
+- **Elixir**: inject the boundary module via config or a function arg (`Application.get_env`, or pass the module), and assert against a stub module. `Mox` formalises this with behaviours.
+- **Godot/GUT**: inject collaborators through exported properties or `_init` args so a test can pass a double; avoid reaching for autoloads/singletons inside the unit under test.

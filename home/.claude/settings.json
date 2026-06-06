@@ -102,6 +102,7 @@
       "Bash(git rebase *)"
     ]
   },
+  "model": "opus",
   "hooks": {
     "Notification": [
       {
