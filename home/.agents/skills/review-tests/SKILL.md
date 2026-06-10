@@ -1,6 +1,8 @@
 ---
 name: review-tests
 description: Review the tests added on the current branch and fix them — move over-leveled tests down to the cheapest level that still proves the behaviour, remove coverage that overlaps across levels, tighten vague test names, and add any high-value tests that are missing. Use when the user asks to review tests or specs, check whether tests are at the right level, asks if a Cucumber/system test should be lower down, mentions a bloated or slow test suite, wants test coverage assessed, or says things like "review tests", "review specs", "are these tests in the right place", "lean test suite", "too many system tests", "test coverage", "missing tests".
+context: fork
+model: opus
 ---
 
 # Review Tests
