@@ -3,7 +3,6 @@ name: finalise
 description: Pre-commit quality pass over the current branch's changes — reviews the diff with fresh eyes and strips debug statements, AI slop, false starts, abandoned approaches, and dead code introduced while building.
 context: fork
 model: opus
-disable-model-invocation: true
 ---
 
 # Finalise
