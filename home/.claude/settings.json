@@ -125,6 +125,16 @@
         ]
       }
     ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ~/.config/tmux/pane-flag.sh clear"
+          }
+        ]
+      }
+    ],
     "PreToolUse": [
       {
         "matcher": "Bash",
@@ -137,6 +147,14 @@
             "type": "command",
             "command": "bash ~/.claude/hooks/validate-commit.sh",
             "if": "Bash(git commit *)"
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ~/.config/tmux/pane-flag.sh clear"
           }
         ]
       }
