@@ -20,6 +20,10 @@ except Exception:
 title="Claude: ${repo:-unknown}"
 message="${hook_message:-Requires attention}"
 
+if printf '%s' "$message" | grep -Eiq '(^|[^a-z])(allowed|approved|auto-approv|pre-?approved)([^a-z]|$)'; then
+    exit 0
+fi
+
 # Desktop notification
 osascript \
     -e 'on run argv' \
