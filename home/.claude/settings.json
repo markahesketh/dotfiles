@@ -126,9 +126,23 @@
         ]
       }
     ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ~/.config/tmux/pane-title-from-prompt.sh --reset"
+          }
+        ]
+      }
+    ],
     "UserPromptSubmit": [
       {
         "hooks": [
+          {
+            "type": "command",
+            "command": "bash ~/.config/tmux/pane-title-from-prompt.sh"
+          },
           {
             "type": "command",
             "command": "bash ~/.config/tmux/pane-flag.sh clear"

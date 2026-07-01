@@ -15,6 +15,26 @@
         ]
       }
     ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ~/.codex/hooks/title-from-prompt.sh --reset"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ~/.codex/hooks/title-from-prompt.sh"
+          }
+        ]
+      }
+    ],
     "PermissionRequest": [
       {
         "hooks": [
