@@ -22,6 +22,23 @@ if [ -n "$cwd" ]; then
   branch=$(git -C "$cwd" --no-optional-locks symbolic-ref --short HEAD 2>/dev/null)
 fi
 
+# GitHub CI status for the current branch, read from a cache that a background
+# job refreshes at most every 30s — the statusline never blocks on gh itself.
+ci_token=""
+if [ -n "$cwd" ] && [ -n "$branch" ]; then
+  cache_dir="$HOME/.cache/claude-statusline"
+  mkdir -p "$cache_dir"
+  cache="$cache_dir/ci-$(printf '%s@%s' "$cwd" "$branch" | shasum | cut -c1-12)"
+  now=$(date +%s)
+  mtime=0
+  [ -f "$cache" ] && mtime=$(stat -f %m "$cache" 2>/dev/null || echo 0)
+  if [ $((now - mtime)) -ge 30 ]; then
+    touch "$cache"  # claim the refresh slot; touch preserves any last-known value
+    ( bash "$HOME/.claude/ci-status.sh" "$cwd" "$cache" ) >/dev/null 2>&1 &
+  fi
+  [ -f "$cache" ] && ci_token=$(cat "$cache" 2>/dev/null)
+fi
+
 # Derive model family from model ID
 model=""
 if [ -n "$model_id" ]; then
@@ -50,7 +67,16 @@ if [ -n "$branch" ]; then
   line1="${line1} on ${RED}${branch}${RESET}"
 fi
 
-# Line 2: {yellow:pct% • tokens} • {green:model}
+# CI segment: green tick when passing, yellow when running, red with the
+# failure count when checks are failing; nothing when there's no PR/checks.
+ci=""
+case "$ci_token" in
+  pass)      ci="${GREEN}✓ CI${RESET}" ;;
+  pending:*) ci="${YELLOW}● CI ${ci_token#pending:}${RESET}" ;;
+  fail:*)    ci="${RED}✗ CI ${ci_token#fail:}${RESET}" ;;
+esac
+
+# Line 2: {yellow:pct% • tokens} • {green:model} • {ci}
 line2=""
 if [ -n "$used" ]; then
   if [ "$used" -gt 100 ]; then
@@ -66,6 +92,14 @@ if [ -n "$model" ]; then
     line2="${line2}${SEP}${GREEN}${model}${RESET}"
   else
     line2="${GREEN}${model}${RESET}"
+  fi
+fi
+
+if [ -n "$ci" ]; then
+  if [ -n "$line2" ]; then
+    line2="${line2}${SEP}${ci}"
+  else
+    line2="$ci"
   fi
 fi
 
