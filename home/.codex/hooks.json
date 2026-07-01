@@ -35,16 +35,6 @@
         ]
       }
     ],
-    "PermissionRequest": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash ~/.claude/hooks/notify-attention.sh"
-          }
-        ]
-      }
-    ],
     "Stop": [
       {
         "hooks": [
