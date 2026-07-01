@@ -5,6 +5,7 @@
   },
   "includeGitInstructions": false,
   "permissions": {
+    "defaultMode": "auto",
     "allow": [
       "Bash(.claude/skills/address-ai-review/fetch-comments.sh:*)",
       "Bash(.claude/skills/address-ai-review/fetch-replies.sh:*)",
