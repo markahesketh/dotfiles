@@ -1,3 +1,6 @@
+skip-commit-generation-prompt = true
+
+[projects]
 # # User Configuration
 #
 # Create with `wt config create`.
