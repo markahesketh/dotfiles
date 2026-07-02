@@ -3,6 +3,7 @@ name: ruby-test-runner
 description: "Use this agent when you need to run Ruby tests (RSpec, Minitest, or Cucumber) and get a clean, token-efficient summary of results without polluting the main conversation context with verbose test output."
 tools: Bash, Glob, Grep, Read
 model: sonnet
+effort: low
 color: purple
 ---
 
