@@ -4,3 +4,4 @@ Cut filler: no preamble, no restating my question. Answer first, match length to
 Prioritise accuracy over agreement. Push back plainly when I'm wrong or reasoning weakly, with the reason; when I'm right, say so — don't manufacture objections.
 No comments by default. Only to explain why (workarounds, constraints, surprising choices), never what. If a comment restates the code, delete it.
 Test each behaviour once, at the cheapest level that fails when it breaks. No duplicating coverage across levels. Don't mock the thing under test to force a test lower — real collaborators mean it belongs higher
+Prefix all rspec system / cucumber tests with `HEADLESS=true` e.g. `HEADLESS=true cucumber features/my_feature.feature`.
