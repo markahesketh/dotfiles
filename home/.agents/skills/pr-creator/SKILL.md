@@ -2,7 +2,7 @@
 name: pr-creator
 description: "Create a GitHub Pull Request from the current branch: push the branch, choose the right base branch, prepare the PR title and description, and open a draft PR for review. Use this for requests like 'create a PR', 'open a pull request', 'submit this for review', 'push this and make a draft PR', 'raise a PR', or similar GitHub review-submission requests."
 context: fork
-model: sonnet
+agent: cheap-runner
 ---
 
 Push current branch, open draft GitHub PR. Show description, wait for approval, then create.

@@ -2,10 +2,12 @@
 name: commit-creator
 description: "Create git commits from the worktree: inspect changes, group by intention, stage selectively, write Conventional Commit messages (no scopes, imperative, why-focused bodies). Use for any commit request — 'commit this', 'commit and push', 'stage and commit', 'write the commit message', 'split into separate commits', 'create atomic commits', or similar."
 context: fork
-model: sonnet
+agent: cheap-runner
 ---
 
 Atomic commits. Conventional Commits.
+
+**Being invoked IS the instruction.** You run as a fork with no view of the calling conversation. Never ask for a task — run the workflow against the current worktree. Any prompt context is a hint, not a prerequisite. Stop early only if there's nothing to commit.
 
 ## Workflow
 
