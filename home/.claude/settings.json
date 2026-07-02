@@ -184,7 +184,7 @@
     "dexory@dotfiles": true,
     "code-simplifier@claude-plugins-official": true
   },
-  "effortLevel": "xhigh",
+  "effortLevel": "high",
   "showClearContextOnPlanAccept": true,
   "theme": "light"
 }
