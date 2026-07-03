@@ -27,7 +27,6 @@ DOTFILES=(
     ".config/atuin/config.toml"
     ".config/tmux/is-dark-mode.sh"
     ".config/tmux/on-session-created.sh"
-    ".config/tmux/pane-flag.sh"
     ".config/tmux/pane-title-from-prompt.sh"
     ".config/tmux/run-tests.sh"
     ".config/ghostty/config"

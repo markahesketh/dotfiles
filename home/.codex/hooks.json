@@ -7,10 +7,6 @@
           {
             "type": "command",
             "command": "bash ~/.codex/hooks/validate-commit.sh"
-          },
-          {
-            "type": "command",
-            "command": "bash ~/.config/tmux/pane-flag.sh clear"
           }
         ]
       }
