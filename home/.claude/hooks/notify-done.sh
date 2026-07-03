@@ -64,8 +64,5 @@ osascript \
     -e 'end run' \
     -- "$title" "$message"
 
-# Highlight this pane's border in tmux (works for Claude & Codex)
-bash "$HOME/.config/tmux/pane-flag.sh" yellow 2>/dev/null || true
-
 # Play sound
 afplay ~/.glm/media/done.mp3 &

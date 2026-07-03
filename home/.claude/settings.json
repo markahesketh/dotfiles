@@ -142,10 +142,6 @@
           {
             "type": "command",
             "command": "bash ~/.config/tmux/pane-title-from-prompt.sh"
-          },
-          {
-            "type": "command",
-            "command": "bash ~/.config/tmux/pane-flag.sh clear"
           }
         ]
       }
@@ -162,14 +158,6 @@
             "type": "command",
             "command": "bash ~/.claude/hooks/validate-commit.sh",
             "if": "Bash(git commit *)"
-          }
-        ]
-      },
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash ~/.config/tmux/pane-flag.sh clear"
           }
         ]
       }
