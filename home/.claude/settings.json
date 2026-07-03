@@ -5,7 +5,6 @@
   },
   "includeGitInstructions": false,
   "permissions": {
-    "defaultMode": "auto",
     "allow": [
       "Bash(.claude/skills/address-ai-review/fetch-comments.sh:*)",
       "Bash(.claude/skills/address-ai-review/fetch-replies.sh:*)",
@@ -101,9 +100,10 @@
       "Bash(git push *)",
       "Bash(git pull *)",
       "Bash(git rebase *)"
-    ]
+    ],
+    "defaultMode": "auto"
   },
-  "model": "opus",
+  "model": "sonnet",
   "hooks": {
     "Notification": [
       {
@@ -172,7 +172,7 @@
     "dexory@dotfiles": true,
     "code-simplifier@claude-plugins-official": true
   },
-  "effortLevel": "high",
+  "effortLevel": "xhigh",
   "showClearContextOnPlanAccept": true,
   "theme": "light"
 }
