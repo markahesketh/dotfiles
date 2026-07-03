@@ -9,11 +9,13 @@ model: opus
 
 Prepare this branch's changes for commit. Judge what's actually on the page, not what it was meant to be.
 
-Scope everything below to lines this branch changed. Pre-existing code — even if it looks messy or dead — is out of scope unless the user asks; touching it inflates the diff and buries the real work.
+Scope everything below to the changed lines identified in step 1. Pre-existing code — even if it looks messy or dead — is out of scope unless the user asks; touching it inflates the diff and buries the real work.
 
 ## 1. Survey the diff
 
-Find the base branch (`gh repo view --json defaultBranchRef -q .defaultBranchRef`, falling back to `main`/`master`), then run `git diff <base>` and `git status` so you catch committed, staged, unstaged, and untracked work alike. Read each changed file in full so you see the new code in its real context — but keep your edits to the changed lines.
+Check `git status --porcelain` first. If it reports staged, unstaged, or untracked changes, that's work in progress — scope the review to just that: `git diff HEAD`, plus any untracked files from the status output (they won't appear in the diff). If the tree is clean, there's nothing uncommitted to isolate, so review the whole branch instead: find the base branch (`gh repo view --json defaultBranchRef -q .defaultBranchRef`, falling back to `main`/`master`) and run `git diff <base>`.
+
+Read each changed file in full so you see the new code in its real context — but keep your edits to the changed lines.
 
 ## 2. Strip development artifacts
 
@@ -32,7 +34,6 @@ Abandoned approaches leave residue. Within the changed lines, remove:
 ## 4. Remove AI slop
 
 Patterns that break from the surrounding code and read as machine-authored:
-- Comments that narrate obvious code, or don't match the file's style
 - Defensive checks or try/catch that are abnormal for this codebase, especially on trusted or internally-validated paths
 - `any` casts (or equivalents) papering over a type issue
 - Spacing, naming, or structure that breaks the file's conventions
@@ -41,7 +42,6 @@ Patterns that break from the surrounding code and read as machine-authored:
 
 Exploration leaves things bigger than they need to be:
 - Premature abstractions or helpers used only once — inline them
-- Parameters added "just in case"
 - Convoluted flows worth straightening now the shape is settled
 
 Leave code that's genuinely clean alone. A comment that explains *why* (a non-obvious constraint, a gotcha) earns its place — don't strip it just because it's a comment.
