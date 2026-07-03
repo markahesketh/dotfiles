@@ -11,10 +11,41 @@ Atomic commits. Conventional Commits.
 
 ## Workflow
 
-1. `git status`
-2. `git diff --staged` + `git diff`
-3. Group by intention → one commit per intention
-4. Stage only that intention's files, commit. Never `git add .` when splitting.
+Two bundled scripts (in this skill's `scripts/` dir — you're given the base
+directory at launch) make the mechanical steps deterministic, so spend your
+attention on grouping and messages, not on git plumbing.
+
+1. **Inspect.** `bash <skill-dir>/scripts/inspect.sh` — one read-only snapshot:
+   branch, status, per-file changes (including untracked files, which `git diff`
+   alone hides), diffstat, and the full diffs. Read it to decide the grouping.
+2. **Group by intention** → one commit per intention (see Splitting).
+3. **Commit each intention.** Write the message to a file (Write tool — subject
+   on line 1, blank line, then body), then run:
+   `bash <skill-dir>/scripts/commit.sh <message-file> <pathspec>... [--patch <patch-file>]...`
+   It stages exactly what you pass (never the whole tree), commits via the file
+   so quotes/newlines/`$`/`!` in the message can't be mangled by the shell,
+   rejects a subject that isn't a scope-less Conventional Commit, and prints the
+   result. Pass every pathspec that belongs to the intention. If inspect shows
+   already-staged files that don't belong to this commit, unstage them first
+   with `git restore --staged -- <path>`.
+
+### Hunk-level splits (one file, two intentions)
+
+When a single file mixes two intentions, commit them separately by staging only
+the relevant hunks — the deterministic, non-interactive alternative to
+`git add -p`:
+
+1. Slice the file's hunks out of inspect's FULL DIFF into a `.patch` file (keep
+   the `diff --git`/`---`/`+++` header plus the `@@` hunks you want) and pass it
+   as `--patch`. `commit.sh` applies it to the index with `git apply --cached`;
+   the other hunks stay unstaged for the next commit.
+2. If the two changes sit within ~3 lines of each other, `git diff` merges them
+   into one hunk. Regenerate with less context to separate them:
+   `git diff -U1 -- <file>`, or `git diff -U0 -- <file>` for adjacent lines.
+   `commit.sh` detects a zero-context patch and applies it by position.
+3. A clean 2-way split often needs just one patch: `--patch` the first
+   intention and commit, then the leftover changes are simply
+   `commit.sh <msg> <file>` for the second.
 
 ## Subject
 
