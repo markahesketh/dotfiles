@@ -1,0 +1,285 @@
+#!/usr/bin/env bash
+#
+# paneutil — deterministic tmux pane operations for agents.
+#
+# The whole point: turn vague human references ("pane 3", "the parent pane",
+# "reply back to me") into an exact pane id and one correct command, with no
+# guessing and no exploratory probing.
+#
+# Three facts this script encodes so callers never get them wrong:
+#   * SELF is $TMUX_PANE — the pane this process runs in. It is NOT the pane
+#     with active=1 (that is wherever the human happens to be looking) and NOT
+#     what bare `tmux display-message` returns.
+#   * "pane N" means pane_index N in the CURRENT window (the window of $TMUX_PANE),
+#     independent of pane-base-index.
+#   * Pasting into a live TUI (Claude Code, a REPL, an editor) must use a tmux
+#     buffer + bracketed paste, then a separate Enter, or multi-line text and
+#     special characters get mangled or submitted early.
+#
+set -euo pipefail
+
+PARENT_OPT="@dv_parent_pane"   # per-pane user option holding the parent pane id
+HOOK_MARKER="tmux-panes parent tracking"
+
+die() { printf 'paneutil: %s\n' "$*" >&2; exit 1; }
+
+require_tmux() {
+  [ -n "${TMUX:-}" ] || die "not inside tmux (\$TMUX is empty)."
+  [ -n "${TMUX_PANE:-}" ] || die "\$TMUX_PANE is empty — cannot determine self."
+}
+
+self_id() { printf '%s' "$TMUX_PANE"; }
+
+current_window() { tmux display-message -pt "$TMUX_PANE" '#{window_id}'; }
+
+pane_exists() { tmux list-panes -a -F '#{pane_id}' | grep -qx "$1"; }
+
+# Resolve a human selector to a pane id. Understood selectors:
+#   self | me        -> $TMUX_PANE
+#   parent           -> recorded parent of self (errors if none)
+#   parent-of:<sel>  -> recorded parent of another pane
+#   last             -> previously-active pane in this session ({last})
+#   %<n>             -> a literal pane id (validated)
+#   <n>              -> pane_index <n> in the current window
+#   <w>.<n>          -> window index <w>, pane index <n> (current session)
+#   <s>:<w>.<n>      -> fully-qualified tmux target
+resolve() {
+  local sel="$1"
+  case "$sel" in
+    self|me)   self_id ;;
+    last)      tmux display-message -pt '{last}' '#{pane_id}' ;;
+    parent)    parent_of "$(self_id)" ;;
+    parent-of:*) parent_of "$(resolve "${sel#parent-of:}")" ;;
+    %[0-9]*)
+      pane_exists "$sel" || die "no such pane: $sel"
+      printf '%s' "$sel" ;;
+    [0-9]*)
+      # bare index -> current window; w.n or s:w.n -> let tmux target it
+      if [[ "$sel" == *.* || "$sel" == *:* ]]; then
+        tmux display-message -pt "$sel" '#{pane_id}' 2>/dev/null \
+          || die "cannot resolve target: $sel"
+      else
+        local win; win="$(current_window)"
+        tmux list-panes -t "$win" -F '#{pane_index} #{pane_id}' \
+          | awk -v n="$sel" '$1==n{print $2; f=1} END{exit !f}' \
+          || die "no pane with index $sel in the current window (try: paneutil info)"
+      fi ;;
+    *) die "unrecognised selector: '$sel' (see: paneutil help)" ;;
+  esac
+}
+
+parent_of() {
+  local p; p="$(tmux show-options -pqv -t "$1" "$PARENT_OPT" 2>/dev/null || true)"
+  [ -n "$p" ] || die "pane $1 has no recorded parent (created before tracking, or a root pane). Install tracking with: paneutil install-hook"
+  pane_exists "$p" || die "recorded parent $p no longer exists."
+  printf '%s' "$p"
+}
+
+cmd_self() { require_tmux; self_id; echo; }
+
+cmd_resolve() { require_tmux; [ $# -ge 1 ] || die "usage: paneutil resolve <selector>"; resolve "$1"; echo; }
+
+cmd_info() {
+  require_tmux
+  local self win; self="$(self_id)"; win="$(current_window)"
+  printf 'session=%s  current-window=%s  self=%s\n\n' \
+    "$(tmux display -pt "$TMUX_PANE" '#{session_name}')" \
+    "$(tmux display -pt "$TMUX_PANE" '#{window_index}')" "$self"
+  printf '%-9s %-6s %-16s %-8s %s\n' 'WIN.IDX' 'ID' 'PARENT' 'CMD' 'TITLE'
+  # Use a non-whitespace separator (US, \x1f): `read` with a whitespace IFS
+  # collapses runs of tabs, so an empty @dv_parent_pane would shift columns.
+  local US=$'\x1f'
+  tmux list-panes -s -F "#{window_index}.#{pane_index}${US}#{pane_id}${US}#{@dv_parent_pane}${US}#{pane_current_command}${US}#{window_id}${US}#{pane_title}" \
+  | while IFS="$US" read -r loc pid parent cmd winid title; do
+      local mark=''
+      [ "$pid" = "$self" ] && mark='  <<< SELF ($TMUX_PANE)'
+      [ "$winid" = "$win" ] && loc="*$loc" || loc=" $loc"
+      printf '%-9s %-6s %-16s %-8s %s%s\n' "$loc" "$pid" "${parent:-—}" "$cmd" "$title" "$mark"
+    done
+  echo
+  echo '(* = current window. "pane N" resolves within the current window.)'
+}
+
+cmd_read() {
+  require_tmux
+  [ $# -ge 1 ] || die "usage: paneutil read <selector> [lines]"
+  local target lines; target="$(resolve "$1")"; lines="${2:-40}"
+  tmux capture-pane -p -t "$target" -S "-${lines}"
+}
+
+# send <selector> [--text S | --file P | --stdin] [--no-enter] [--delay MS] [--literal] [--allow-self]
+cmd_send() {
+  require_tmux
+  [ $# -ge 1 ] || die "usage: paneutil send <selector> [--text S|--file P|--stdin] [--no-enter] [--delay MS]"
+  local sel="$1"; shift
+  local text='' file='' use_stdin=0 enter=1 delay_ms=150 literal=0 allow_self=0
+  while [ $# -gt 0 ]; do
+    case "$1" in
+      --text)   text="$2"; shift 2 ;;
+      --file)   file="$2"; shift 2 ;;
+      --stdin)  use_stdin=1; shift ;;
+      --no-enter) enter=0; shift ;;
+      --delay)  delay_ms="$2"; shift 2 ;;
+      --literal) literal=1; shift ;;
+      --allow-self) allow_self=1; shift ;;
+      *) die "send: unknown option '$1'" ;;
+    esac
+  done
+
+  local target; target="$(resolve "$sel")"
+  if [ "$target" = "$(self_id)" ] && [ "$allow_self" -eq 0 ]; then
+    die "refusing to send to self ($target). This is almost always a mistake (self is \$TMUX_PANE, not the focused pane). Pass --allow-self if you really mean it."
+  fi
+
+  local buf="dvpane_$$"
+  if [ -n "$file" ]; then
+    [ -f "$file" ] || die "no such file: $file"
+    tmux load-buffer -b "$buf" "$file"
+  elif [ "$use_stdin" -eq 1 ]; then
+    tmux load-buffer -b "$buf" -
+  elif [ -n "$text" ]; then
+    printf '%s' "$text" | tmux load-buffer -b "$buf" -
+  else
+    die "send: provide one of --text, --file, or --stdin"
+  fi
+
+  if [ "$literal" -eq 1 ]; then
+    tmux send-keys -t "$target" -l "$(tmux show-buffer -b "$buf")"
+    tmux delete-buffer -b "$buf"
+  else
+    # -p = bracketed paste (TUI treats it as pasted text, not keystrokes);
+    # -d = delete the buffer afterwards so we don't clobber the paste stack.
+    tmux paste-buffer -p -d -b "$buf" -t "$target"
+  fi
+
+  if [ "$enter" -eq 1 ]; then
+    # Let the receiving app finish ingesting the paste before submitting,
+    # otherwise Enter can land mid-paste and insert a newline instead. Build the
+    # fractional-second string with shell arithmetic rather than awk: awk emits a
+    # comma decimal under an LC_NUMERIC comma locale (breaking `sleep`), and its
+    # output depends on whichever awk binary is first in PATH. 10# forces base-10
+    # so a zero-padded delay isn't read as octal.
+    [[ "$delay_ms" =~ ^[0-9]+$ ]] || die "send: --delay must be whole milliseconds (got '$delay_ms')."
+    sleep "$(printf '%d.%03d' $((10#$delay_ms / 1000)) $((10#$delay_ms % 1000)))"
+    tmux send-keys -t "$target" Enter
+  fi
+  printf 'sent to %s\n' "$target" >&2
+}
+
+# spawn [--from SEL] [--dir h|v] [--command CMD] [--title T] [--no-focus]
+# Splits a pane, records the source as the new pane's parent, prints new id.
+cmd_spawn() {
+  require_tmux
+  local from='self' dir='h' command='' title='' focus=1
+  while [ $# -gt 0 ]; do
+    case "$1" in
+      --from) from="$2"; shift 2 ;;
+      --dir)  dir="$2"; shift 2 ;;
+      --command) command="$2"; shift 2 ;;
+      --title) title="$2"; shift 2 ;;
+      --no-focus) focus=0; shift ;;
+      *) die "spawn: unknown option '$1'" ;;
+    esac
+  done
+  local src; src="$(resolve "$from")"
+  local split_dir='-h'; [ "$dir" = v ] && split_dir='-v'
+  local detach=''; [ "$focus" -eq 0 ] && detach='-d'
+  local new
+  new="$(tmux split-window $detach -P -F '#{pane_id}' -t "$src" ${command:+"$command"})"
+  tmux set-option -p -t "$new" "$PARENT_OPT" "$src"
+  [ -n "$title" ] && tmux select-pane -t "$new" -T "$title"
+  printf '%s\n' "$new"
+}
+
+hook_cmd() {
+  # On every split, stamp the new (now-active) pane with the pane it came from.
+  # {last} is the previously-active pane = the source of the split.
+  printf '%s' 'run-shell "tmux set-option -p -t #{pane_id} @dv_parent_pane \"$(tmux display-message -pt {last} \"##{pane_id}\")\""'
+}
+
+cmd_install_hook() {
+  require_tmux
+  local conf="${TMUX_CONF:-$HOME/.tmux.conf}"
+  tmux set-hook -g after-split-window "$(hook_cmd)"   # live server, effective now
+  if [ -f "$conf" ] && grep -q "$HOOK_MARKER" "$conf"; then
+    echo "hook already present in $conf (also refreshed the live session)."
+    return
+  fi
+  {
+    printf '\n# >>> %s >>>\n' "$HOOK_MARKER"
+    printf 'set-hook -g after-split-window %s\n' "'$(hook_cmd)'"
+    printf '# <<< %s <<<\n' "$HOOK_MARKER"
+  } >> "$conf"
+  echo "installed parent-tracking hook into $conf and the live session."
+  echo "new splits now record @dv_parent_pane automatically."
+}
+
+cmd_uninstall_hook() {
+  require_tmux
+  local conf="${TMUX_CONF:-$HOME/.tmux.conf}"
+  tmux set-hook -gu after-split-window 2>/dev/null || true
+  if [ -f "$conf" ] && grep -q "$HOOK_MARKER" "$conf"; then
+    # delete the marked block
+    awk -v m="$HOOK_MARKER" '
+      $0 ~ ">>> "m" >>>" {skip=1; next}
+      $0 ~ "<<< "m" <<<" {skip=0; next}
+      !skip {print}
+    ' "$conf" > "$conf.tmp" && mv "$conf.tmp" "$conf"
+    echo "removed parent-tracking hook from $conf and the live session."
+  else
+    echo "removed hook from the live session (nothing in $conf)."
+  fi
+}
+
+usage() {
+  cat <<'EOF'
+paneutil — deterministic tmux pane operations
+
+  paneutil info                       Show every pane: win.idx, id, parent, cmd, title; marks SELF and current window.
+  paneutil self                       Print this pane's id ($TMUX_PANE).
+  paneutil resolve <selector>         Print the pane id a selector points to.
+  paneutil read <selector> [lines]    Print the last [lines] (default 40) of a pane.
+  paneutil send <selector> [opts]     Paste text into a pane and submit it.
+  paneutil spawn [opts]               Split a pane, record its parent, print the new pane id.
+  paneutil install-hook               Auto-record parent on every future split (edits ~/.tmux.conf).
+  paneutil uninstall-hook             Undo install-hook.
+
+Selectors:
+  3            pane_index 3 in the current window
+  %41          a literal pane id
+  self | me    this pane ($TMUX_PANE)
+  parent       the pane this one was split from
+  last         the previously-active pane
+  2.1          window 2, pane 1        (current session)
+  work:2.1     session 'work', window 2, pane 1
+
+send options:
+  --text "..."   inline text          --file PATH    read body from a file (best for multi-line)
+  --stdin        read body from stdin  --no-enter     paste without submitting
+  --delay MS     paste→Enter gap (default 150)        --literal   send-keys -l instead of bracketed paste
+  --allow-self   permit sending to your own pane (guarded off by default)
+
+spawn options:
+  --from SEL     pane to split (default self)         --dir h|v   split left/right (h) or top/bottom (v)
+  --command CMD  run CMD in the new pane              --title T   set the new pane's title
+  --no-focus     leave focus on the source pane
+EOF
+}
+
+main() {
+  local sub="${1:-help}"; shift || true
+  case "$sub" in
+    info) cmd_info "$@" ;;
+    self) cmd_self "$@" ;;
+    resolve) cmd_resolve "$@" ;;
+    read) cmd_read "$@" ;;
+    send) cmd_send "$@" ;;
+    spawn) cmd_spawn "$@" ;;
+    install-hook) cmd_install_hook "$@" ;;
+    uninstall-hook) cmd_uninstall_hook "$@" ;;
+    help|-h|--help) usage ;;
+    *) die "unknown subcommand '$sub' (see: paneutil help)" ;;
+  esac
+}
+
+main "$@"
