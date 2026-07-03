@@ -15,9 +15,18 @@ cmd = json.load(sys.stdin).get("tool_input", {}).get("command", "")
 if re.search(r"--(amend|fixup|squash|no-edit)\b", cmd) or not re.search(r"-m\b|--message\b", cmd):
     sys.exit(0)
 
+# Only look at the actual git-commit invocation onward. A multi-line Bash
+# call often writes unrelated files with heredocs before the commit line;
+# matching "any heredoc in the whole command" mistook an earlier file body
+# for the commit message.
+commit_matches = list(re.finditer(r"\bgit\s+commit\b", cmd))
+if not commit_matches:
+    sys.exit(0)
+tail = cmd[commit_matches[-1].start():]
+
 # Subject = first line of a heredoc body or a quoted -m message.
-m = (re.search(r"<<-?\s*[\"\x27]?(\w+)[\"\x27]?\s*\n(.*?)\n\s*\1", cmd, re.S)
-     or re.search(r"(?:-m|--message)\s+(\"|\x27)(.*?)\1", cmd, re.S))
+m = (re.search(r"<<-?\s*[\"\x27]?(\w+)[\"\x27]?\s*\n(.*?)\n\s*\1", tail, re.S)
+     or re.search(r"(?:-m|--message)\s+(\"|\x27)(.*?)\1", tail, re.S))
 subject = m.group(2).strip().splitlines()[0].strip() if m and m.group(2).strip() else ""
 if not subject or re.match(r"(Merge|Revert)\b", subject):
     sys.exit(0)
