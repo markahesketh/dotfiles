@@ -74,3 +74,5 @@
     navigate = true
     hunk-header-style = syntax
     hunk-header-decoration-style = "dim ul"
+[coderabbit]
+	machineId = cli/eda34fcc5b89447c908329e48a67607f
