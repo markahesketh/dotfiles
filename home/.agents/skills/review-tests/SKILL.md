@@ -7,7 +7,7 @@ model: opus
 
 # Review Tests
 
-Fresh-eyes pass over the tests **added/modified on this branch** (`git diff $(git merge-base HEAD origin/<default>)..HEAD`). Just the branch's tests — don't audit the whole suite. **Act, don't report**: make the changes, then summarise. A bare "review the tests" still means *do the work*.
+Fresh-eyes pass over the tests in scope. Check `git status --porcelain` first: if it reports staged, unstaged, or untracked changes, that's work in progress — scope to just that (`git diff HEAD`, plus any untracked files from the status output, since they won't show in the diff). If the tree is clean, there's nothing uncommitted to isolate, so review the whole branch instead (`git diff $(git merge-base HEAD origin/<default>)..HEAD`). Either way, just the tests in scope — don't audit the whole suite. **Act, don't report**: make the changes, then summarise. A bare "review the tests" still means *do the work*.
 
 Read the impl too — you can't judge a test's level without knowing what it exercises. Match the project's frameworks and conventions.
 
