@@ -4,3 +4,5 @@
 /home/.codex/config.toml
 /home/.ignored/*
 /home/.claude/plugins/
+__pycache__/
+*.skill
