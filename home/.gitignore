@@ -61,4 +61,5 @@ CLAUDE.local.md
 # Private files
 # ------------------------------------------------------------------------------
 .mark
-polyscope.json
+.scratch
+docs/agents
