@@ -1,13 +1,13 @@
 ---
 name: review-tests
-description: Review the tests added on the current branch and fix them — move over-leveled tests down to the cheapest level that still proves the behaviour, remove coverage that overlaps across levels, tighten vague test names, and add any high-value tests that are missing. Use when the user asks to review tests or specs, check whether tests are at the right level, asks if a Cucumber/system test should be lower down, mentions a bloated or slow test suite, wants test coverage assessed, or says things like "review tests", "review specs", "are these tests in the right place", "lean test suite", "too many system tests", "test coverage", "missing tests".
+description: Review the tests added on the current branch and fix them.
 context: fork
 model: opus
 ---
 
 # Review Tests
 
-Fresh-eyes pass over the tests in scope. Check `git status --porcelain` first: if it reports staged, unstaged, or untracked changes, that's work in progress — scope to just that (`git diff HEAD`, plus any untracked files from the status output, since they won't show in the diff). If the tree is clean, there's nothing uncommitted to isolate, so review the whole branch instead (`git diff $(git merge-base HEAD origin/<default>)..HEAD`). Either way, just the tests in scope — don't audit the whole suite. **Act, don't report**: make the changes, then summarise. A bare "review the tests" still means *do the work*.
+Fresh-eyes pass over the tests in scope. Scope is decided by whoever invoked you: if a caller (e.g. the `land` skill, or the user's prompt) gave you a diff range or base branch, review exactly that (`git diff <range>`, or `git diff <base>...HEAD`). Otherwise default to the working-tree changes — `git diff HEAD` plus untracked files (`git ls-files --others --exclude-standard`); if that's empty, say so and ask for a base rather than auditing the whole suite. Either way, just the tests in that scope. **Act, don't report**: make the changes, then summarise. A bare "review the tests" still means *do the work*.
 
 Read the impl too — you can't judge a test's level without knowing what it exercises. Match the project's frameworks and conventions.
 

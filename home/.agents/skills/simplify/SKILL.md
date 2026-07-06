@@ -9,7 +9,7 @@ Review all changed files for reuse, quality, and efficiency. Fix any issues foun
 
 ## Phase 1: Identify Changes
 
-Run \`git diff\` (or \`git diff HEAD\` if there are staged changes) to see what changed. If there are no git changes, review the most recently modified files that the user mentioned or that you edited earlier in this conversation.
+Scope is decided by whoever invoked you: if a caller (e.g. the `land` skill, or the user's prompt) gave you a diff range or base branch, review exactly that (`git diff <range>`, or `git diff <base>...HEAD`). Otherwise default to the working-tree changes — `git diff HEAD` plus untracked files (`git ls-files --others --exclude-standard`). If there are no git changes at all, fall back to the most recently modified files that the user mentioned or that you edited earlier in this conversation.
 
 ## Phase 2: Launch Three Review Agents in Parallel
 
