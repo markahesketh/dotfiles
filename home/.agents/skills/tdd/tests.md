@@ -1,63 +1,77 @@
 # Good and Bad Tests
 
-Don't add tests that simply restate the implementation — they give zero confidence.
-
 ## Good Tests
 
-Test through the real public interface, not mocks of internal parts.
+**Integration-style**: Test through real interfaces, not mocks of internal parts.
 
-```ruby
-# GOOD: observable behaviour through the public interface
-it "confirms an order when the cart has a valid payment method" do
-  cart = Cart.new
-  cart.add(product)
-
-  result = Checkout.new(cart, payment_method).call
-
-  expect(result).to be_confirmed
-end
+```typescript
+// GOOD: Tests observable behavior
+test("user can checkout with valid cart", async () => {
+  const cart = createCart();
+  cart.add(product);
+  const result = await checkout(cart, paymentMethod);
+  expect(result.status).toBe("confirmed");
+});
 ```
 
 Characteristics:
 
-- Tests behaviour callers care about
-- Uses the public API only
+- Tests behavior users/callers care about
+- Uses public API only
 - Survives internal refactors
 - Describes WHAT, not HOW
 - One logical assertion per test
 
 ## Bad Tests
 
-Coupled to internal structure — they break on refactor though behaviour is unchanged.
+**Implementation-detail tests**: Coupled to internal structure.
 
-```ruby
-# BAD: asserts on an internal collaborator and call shape
-it "calls PaymentService#process with the total" do
-  payment = instance_double(PaymentService)
-  expect(payment).to receive(:process).with(cart.total)
-  Checkout.new(cart, payment).call
-end
+```typescript
+// BAD: Tests implementation details
+test("checkout calls paymentService.process", async () => {
+  const mockPayment = jest.mock(paymentService);
+  await checkout(cart, payment);
+  expect(mockPayment.process).toHaveBeenCalledWith(cart.total);
+});
 ```
 
 Red flags:
 
-- Mocking collaborators you own (vs. real system boundaries)
+- Mocking internal collaborators
 - Testing private methods
 - Asserting on call counts/order
-- Test name describes HOW, not WHAT
+- Test breaks when refactoring without behavior change
+- Test name describes HOW not WHAT
+- Verifying through external means instead of interface
 
-## Verifying through the interface
+```typescript
+// BAD: Bypasses interface to verify
+test("createUser saves to database", async () => {
+  await createUser({ name: "Alice" });
+  const row = await db.query("SELECT * FROM users WHERE name = ?", ["Alice"]);
+  expect(row).toBeDefined();
+});
 
-The anti-pattern is reaching _around_ the interface to assert on internal state when the public interface could tell you the same thing. In Rails the model **is** the public interface, so asserting through the model (or a query) is fine — that's not "bypassing" anything:
-
-```ruby
-# GOOD: the model is the interface; verifying persistence through it is correct
-it "persists the user so it can be retrieved" do
-  user = Users.create(name: "Alice")
-  expect(User.find(user.id).name).to eq("Alice")
-end
+// GOOD: Verifies through interface
+test("createUser makes user retrievable", async () => {
+  const user = await createUser({ name: "Alice" });
+  const retrieved = await getUser(user.id);
+  expect(retrieved.name).toBe("Alice");
+});
 ```
 
-What to avoid is bypassing a meaningful public method to poke at private state it was supposed to encapsulate — e.g. reading an instance variable via `instance_variable_get` instead of calling the method that exposes the behaviour. If the only way to verify a behaviour is to reach into internals, that's a signal the interface is missing something.
+**Tautological tests**: Expected value restates the implementation, so the test passes by construction.
 
-Other stacks follow the same rule through their own idioms — ExUnit asserting on the return of a public function, GUT asserting through a node's public methods and watched signals.
+```typescript
+// BAD: Expected value is recomputed the way the code computes it
+test("calculateTotal sums line items", () => {
+  const items = [{ price: 10 }, { price: 5 }];
+  const expected = items.reduce((sum, i) => sum + i.price, 0);
+  expect(calculateTotal(items)).toBe(expected);
+});
+
+// GOOD: Expected value is an independent, known literal
+test("calculateTotal sums line items", () => {
+  expect(calculateTotal([{ price: 10 }, { price: 5 }])).toBe(15);
+});
+```
