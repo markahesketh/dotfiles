@@ -1,6 +1,6 @@
 ---
 name: finalise
-description: Pre-commit quality pass over the current branch's changes — reviews the diff with fresh eyes and strips debug statements, AI slop, false starts, abandoned approaches, and dead code introduced while building.
+description: Pre-commit detritus pass — strips debug statements, dead code, false starts, and AI slop from the current branch's diff.
 context: fork
 model: opus
 ---
@@ -13,7 +13,7 @@ Scope everything below to the changed lines identified in step 1. Pre-existing c
 
 ## 1. Survey the diff
 
-Check `git status --porcelain` first. If it reports staged, unstaged, or untracked changes, that's work in progress — scope the review to just that: `git diff HEAD`, plus any untracked files from the status output (they won't appear in the diff). If the tree is clean, there's nothing uncommitted to isolate, so review the whole branch instead: find the base branch (`gh repo view --json defaultBranchRef -q .defaultBranchRef`, falling back to `main`/`master`) and run `git diff <base>`.
+Scope is decided by whoever invoked you: if a caller (e.g. the `land` skill, or the user's prompt) gave you a diff range or base branch, review exactly that (`git diff <range>`, or `git diff <base>...HEAD`). Otherwise default to the working-tree changes — `git diff HEAD` plus untracked files (`git ls-files --others --exclude-standard`); if that's empty, say so and ask for a base.
 
 Read each changed file in full so you see the new code in its real context — but keep your edits to the changed lines.
 
@@ -36,16 +36,7 @@ Abandoned approaches leave residue. Within the changed lines, remove:
 Patterns that break from the surrounding code and read as machine-authored:
 - Defensive checks or try/catch that are abnormal for this codebase, especially on trusted or internally-validated paths
 - `any` casts (or equivalents) papering over a type issue
-- Spacing, naming, or structure that breaks the file's conventions
 
-## 5. Simplify what you over-built
-
-Exploration leaves things bigger than they need to be:
-- Premature abstractions or helpers used only once — inline them
-- Convoluted flows worth straightening now the shape is settled
-
-Leave code that's genuinely clean alone. A comment that explains *why* (a non-obvious constraint, a gotcha) earns its place — don't strip it just because it's a comment.
-
-## 6. Verify and report
+## 5. Verify and report
 
 Run the project's build and tests; confirm behaviour is unchanged. Then summarise in 3–5 sentences what you removed and why.
