@@ -3,7 +3,6 @@
     "commit": "",
     "pr": ""
   },
-  "includeGitInstructions": false,
   "permissions": {
     "ask": [
       "Bash(git commit *)",
@@ -82,11 +81,6 @@
           {
             "type": "command",
             "command": "bash ~/.claude/hooks/route-commit-to-skill.sh"
-          },
-          {
-            "type": "command",
-            "command": "bash ~/.claude/hooks/validate-commit.sh",
-            "if": "Bash(git commit *)"
           }
         ]
       }
@@ -98,10 +92,9 @@
     "refreshInterval": 60
   },
   "enabledPlugins": {
-    "ruby-lsp@claude-plugins-official": true,
     "dexory@dotfiles": true,
-    "code-simplifier@claude-plugins-official": true,
-    "frontend-design@claude-plugins-official": true
+    "frontend-design@claude-plugins-official": true,
+    "ruby-lsp@claude-plugins-official": true
   },
   "effortLevel": "high",
   "showClearContextOnPlanAccept": true,
@@ -112,5 +105,8 @@
   "disableClaudeAiConnectors": true,
   "disableArtifact": true,
   "disableDeepLinkRegistration": "disable",
-  "disableSideloadFlags": true
+  "disableSideloadFlags": true,
+  "includeGitInstructions": false,
+  "awaySummaryEnabled": false,
+  "autoMemoryEnabled": false
 }
