@@ -39,6 +39,36 @@ if [ -n "$cwd" ] && [ -n "$branch" ]; then
   [ -f "$cache" ] && ci_token=$(cat "$cache" 2>/dev/null)
 fi
 
+# Cache warmth: how long until this conversation's prompt cache goes cold.
+# Prompt caching is a sliding window refreshed on every access, so the metric
+# is "time since last message" vs the cache TTL. The TTL (5m or 1h) is read
+# per-session from the last turn's usage.cache_creation breakdown, so it is
+# accurate regardless of subscription/API/overage billing.
+cache=""
+tp=$(echo "$input" | jq -r '.transcript_path // empty')
+if [ -n "$tp" ] && [ -f "$tp" ]; then
+  info=$(tail -n 40 "$tp" | jq -rs '
+    (map(select(.timestamp)) | last | .timestamp | sub("\\.[0-9]+Z$";"Z") | fromdateiso8601) as $last
+    | (now - $last) as $elapsed
+    | ([ .[]
+         | select(.type=="assistant")
+         | (.message.usage.cache_creation // {})
+         | if   (.ephemeral_1h_input_tokens // 0) > 0 then "1h"
+           elif (.ephemeral_5m_input_tokens // 0) > 0 then "5m"
+           else empty end ] | last // "") as $ttl
+    | "\($ttl) \($elapsed | floor)"' 2>/dev/null)
+  ttl=${info%% *}
+  elapsed=${info##* }
+  case "$ttl" in
+    1h) win=3600 ;;
+    5m) win=300 ;;
+    *)  win=0 ;;
+  esac
+  case "$elapsed" in
+    ''|*[!0-9]*) win=0 ;;
+  esac
+fi
+
 # Derive model family from model ID
 model=""
 if [ -n "$model_id" ]; then
@@ -76,7 +106,28 @@ case "$ci_token" in
   fail:*)    ci="${RED}✗ CI ${ci_token#fail:}${RESET}" ;;
 esac
 
-# Line 2: {yellow:pct% • tokens} • {green:model} • {ci}
+# Cache segment: green when comfortably warm, yellow in the last 2 min, red
+# when cold. Empty on a brand-new session (no cache-creation record yet).
+cache_seg=""
+if [ "${win:-0}" -gt 0 ]; then
+  remaining=$((win - elapsed))
+  if [ "$remaining" -le 0 ]; then
+    cache_seg="${RED}cache cold${RESET}"
+  else
+    if [ "$remaining" -ge 60 ]; then
+      label="$(( (remaining + 59) / 60 ))m left"
+    else
+      label="${remaining}s left"
+    fi
+    if [ "$remaining" -le 120 ]; then
+      cache_seg="${YELLOW}cache ${label}${RESET}"
+    else
+      cache_seg="${GREEN}cache ${label}${RESET}"
+    fi
+  fi
+fi
+
+# Line 2: {yellow:pct% • tokens} • {cache} • {green:model} • {ci}
 line2=""
 if [ -n "$used" ]; then
   if [ "$used" -gt 100 ]; then
@@ -85,6 +136,14 @@ if [ -n "$used" ]; then
     color="$YELLOW"
   fi
   line2="${color}${tokens} (${used}%)${RESET}"
+fi
+
+if [ -n "$cache_seg" ]; then
+  if [ -n "$line2" ]; then
+    line2="${line2}${SEP}${cache_seg}"
+  else
+    line2="$cache_seg"
+  fi
 fi
 
 if [ -n "$model" ]; then
