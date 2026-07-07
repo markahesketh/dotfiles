@@ -65,6 +65,11 @@ for file in "${IGNORED_FILES[@]}"; do
 
     [[ -f "$src" ]] || continue
 
+    if [[ -f "$dst" ]] && cmp -s "$src" "$dst"; then
+        echo "  $file (skipped, identical)"
+        continue
+    fi
+
     dst_dir="$(dirname "$dst")"
     [[ -d "$dst_dir" ]] || mkdir -p "$dst_dir"
 
