@@ -19,7 +19,6 @@
       "PushNotification",
       "RemoteTrigger",
       "ReportFindings",
-      "ScheduleWakeup",
       "EnterWorktree",
       "ExitWorktree",
       "ShareOnboardingGuide",
