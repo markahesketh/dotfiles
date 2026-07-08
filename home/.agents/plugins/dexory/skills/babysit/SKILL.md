@@ -41,7 +41,7 @@ Prioritise review comments — pending code changes will invalidate the CI run a
 
 ## Commit gate
 
-**Prepare fixes in the working tree, then stop and ask before committing or pushing.** Don't run `git commit` or `git push` on your own initiative during the loop — surface what you've changed and get the user's go-ahead first. Once they approve, commit via the `commit-creator` skill (so work is split into atomic, conventional-commit-style changes) and push. Pushing is what triggers the next CI run, so the loop only advances past a fix once the user has approved it.
+**Prepare fixes in the working tree, then stop and ask before committing or pushing.** Don't run `git commit` or `git push` on your own initiative during the loop — surface what you've changed and get the user's go-ahead first. Once they approve, commit via the `commit` skill (so work is split into atomic, conventional-commit-style changes) and push. Pushing is what triggers the next CI run, so the loop only advances past a fix once the user has approved it.
 
 ## Rebasing
 
