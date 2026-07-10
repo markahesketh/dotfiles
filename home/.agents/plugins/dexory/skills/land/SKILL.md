@@ -59,33 +59,33 @@ Announce: "**[2/5] Skipped: react-best-practices (no React code in diff)**"
 
 ---
 
-### Stage 3 — Simplify
+### Stage 3 — Ponytail review
 
-Announce: "**[3/5] Starting: simplify**"
+Announce: "**[3/5] Starting: ponytail review**"
+
+Use the Skill tool to invoke `ponytail:ponytail-review`, passing the scope directive in `args` and instructing it to use that scope exactly and not re-detect.
+
+When complete, announce: "**[3/5] Done: ponytail review**"
+
+---
+
+### Stage 4 — Simplify
+
+Announce: "**[4/5] Starting: simplify**"
 
 Use the Skill tool to invoke `simplify`, passing the scope directive in `args` and instructing it to use that scope exactly and not re-detect.
 
-When complete, announce: "**[3/5] Done: simplify**"
+When complete, announce: "**[4/5] Done: simplify**"
 
 ---
 
-### Stage 4 — Finalise
+### Stage 5 — Finalise
 
-Announce: "**[4/5] Starting: finalise**"
+Announce: "**[5/5] Starting: finalise**"
 
 Use the Skill tool to invoke `finalise`, passing the scope directive in `args` and instructing it to use that scope exactly and not re-detect.
 
-When complete, announce: "**[4/5] Done: finalise**"
-
----
-
-### Stage 5 — Lint
-
-Announce: "**[5/5] Starting: dexory:lint**"
-
-Use the Skill tool to invoke `dexory:lint`. **Do not pass the scope directive** — lint runs on the whole tree by design.
-
-When complete, announce: "**[5/5] Done: dexory:lint**"
+When complete, announce: "**[5/5] Done: finalise**"
 
 ---
 
