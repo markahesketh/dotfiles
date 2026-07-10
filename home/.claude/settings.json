@@ -3,19 +3,13 @@
     "commit": "",
     "pr": ""
   },
+  "includeGitInstructions": false,
   "permissions": {
-    "ask": [
-      "Bash(git commit *)",
-      "Bash(git push *)",
-      "Bash(git pull *)",
-      "Bash(git rebase *)"
-    ],
     "deny": [
       "EnterPlanMode",
       "ExitPlanMode",
       "DesignSync",
       "NotebookEdit",
-      "SendMessage",
       "PushNotification",
       "RemoteTrigger",
       "ReportFindings",
@@ -24,9 +18,17 @@
       "ShareOnboardingGuide",
       "AskUserQuestion"
     ],
+    "ask": [
+      "Bash(git commit *)",
+      "Bash(git push *)",
+      "Bash(git pull *)",
+      "Bash(git rebase *)"
+    ],
     "defaultMode": "auto"
   },
   "model": "opus",
+  "disableClaudeAiConnectors": true,
+  "disableBundledSkills": true,
   "hooks": {
     "Notification": [
       {
@@ -85,6 +87,9 @@
       }
     ]
   },
+  "disableRemoteControl": true,
+  "disableWorkflows": true,
+  "disableArtifact": true,
   "statusLine": {
     "type": "command",
     "command": "bash ~/.claude/statusline-command.sh",
@@ -93,19 +98,23 @@
   "enabledPlugins": {
     "dexory@dotfiles": true,
     "frontend-design@claude-plugins-official": true,
-    "ruby-lsp@claude-plugins-official": true
+    "ruby-lsp@claude-plugins-official": true,
+    "figma@claude-plugins-official": true,
+    "ponytail@ponytail": true
   },
-  "effortLevel": "high",
-  "showClearContextOnPlanAccept": true,
-  "theme": "light",
-  "disableBundledSkills": true,
-  "disableWorkflows": true,
-  "disableRemoteControl": true,
-  "disableClaudeAiConnectors": true,
-  "disableArtifact": true,
-  "disableDeepLinkRegistration": "disable",
+  "extraKnownMarketplaces": {
+    "ponytail": {
+      "source": {
+        "source": "github",
+        "repo": "DietrichGebert/ponytail"
+      }
+    }
+  },
   "disableSideloadFlags": true,
-  "includeGitInstructions": false,
+  "effortLevel": "high",
   "awaySummaryEnabled": false,
-  "autoMemoryEnabled": false
+  "showClearContextOnPlanAccept": true,
+  "autoMemoryEnabled": false,
+  "theme": "light",
+  "disableDeepLinkRegistration": "disable"
 }
