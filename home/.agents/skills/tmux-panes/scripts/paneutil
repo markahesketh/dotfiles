@@ -185,7 +185,7 @@ cmd_spawn() {
   local split_dir='-h'; [ "$dir" = v ] && split_dir='-v'
   local detach=''; [ "$focus" -eq 0 ] && detach='-d'
   local new
-  new="$(tmux split-window $detach -P -F '#{pane_id}' -t "$src" ${command:+"$command"})"
+  new="$(tmux split-window $split_dir $detach -P -F '#{pane_id}' -t "$src" ${command:+"$command"})"
   tmux set-option -p -t "$new" "$PARENT_OPT" "$src"
   [ -n "$title" ] && tmux select-pane -t "$new" -T "$title"
   printf '%s\n' "$new"
