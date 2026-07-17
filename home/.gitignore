@@ -62,4 +62,5 @@ CLAUDE.local.md
 # ------------------------------------------------------------------------------
 .mark
 .scratch
+.sandcastle
 docs/agents
