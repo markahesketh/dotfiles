@@ -1,12 +1,12 @@
 ---
 name: land
-description: "Landing sequence — runs review-tests, finalise, simplify, and dexory:lint in order. Use when finishing a task and wanting to run the full quality pipeline: review and tighten the branch's tests, clean up code, simplify, and fix lint. Trigger phrases: land, landing sequence, finish up, wrap up, run the pipeline."
+description: "Landing sequence."
 disable-model-invocation: true
 ---
 
 # Land
 
-Runs the full task completion pipeline in sequence: tests → react best practices (if applicable) → finalise → simplify → lint.
+Runs the full task completion pipeline in sequence: tests → react best practices (if applicable) → simplify → finalise.
 
 ## Instructions
 
@@ -33,11 +33,11 @@ Hold the mode + range as the **scope directive**. The stages run in forked conte
 
 ### Stage 1 — Review Tests
 
-Announce: "**[1/5] Starting: review-tests**"
+Announce: "**[1/4] Starting: review-tests**"
 
 Use the Skill tool to invoke `review-tests`, passing the scope directive in `args` (e.g. "Scope: branch mode, base = origin/staging — review only `git diff origin/staging...HEAD`. Use this exactly; do not re-detect scope.").
 
-When complete, announce: "**[1/5] Done: review-tests**"
+When complete, announce: "**[1/4] Done: review-tests**"
 
 ---
 
@@ -47,45 +47,35 @@ This stage applies only if the scoped diff touches React. The resolver already c
 
 **If React code is present (`react=true`):**
 
-Announce: "**[2/5] Starting: react-best-practices**"
+Announce: "**[2/4] Starting: react-best-practices**"
 
 Use the Skill tool to invoke `react-best-practices`, passing the scope directive in `args` and instructing it to apply only to the files in that scoped diff.
 
-When complete, announce: "**[2/5] Done: react-best-practices**"
+When complete, announce: "**[2/4] Done: react-best-practices**"
 
 **If no React code is present:**
 
-Announce: "**[2/5] Skipped: react-best-practices (no React code in diff)**"
+Announce: "**[2/4] Skipped: react-best-practices (no React code in diff)**"
 
 ---
 
-### Stage 3 — Ponytail review
+### Stage 3 — Simplify
 
-Announce: "**[3/5] Starting: ponytail review**"
-
-Use the Skill tool to invoke `ponytail:ponytail-review`, passing the scope directive in `args` and instructing it to use that scope exactly and not re-detect.
-
-When complete, announce: "**[3/5] Done: ponytail review**"
-
----
-
-### Stage 4 — Simplify
-
-Announce: "**[4/5] Starting: simplify**"
+Announce: "**[3/4] Starting: simplify**"
 
 Use the Skill tool to invoke `simplify`, passing the scope directive in `args` and instructing it to use that scope exactly and not re-detect.
 
-When complete, announce: "**[4/5] Done: simplify**"
+When complete, announce: "**[3/4] Done: simplify**"
 
 ---
 
-### Stage 5 — Finalise
+### Stage 4 — Finalise
 
-Announce: "**[5/5] Starting: finalise**"
+Announce: "**[4/4] Starting: finalise**"
 
 Use the Skill tool to invoke `finalise`, passing the scope directive in `args` and instructing it to use that scope exactly and not re-detect.
 
-When complete, announce: "**[5/5] Done: finalise**"
+When complete, announce: "**[4/4] Done: finalise**"
 
 ---
 
