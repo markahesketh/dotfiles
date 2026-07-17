@@ -26,7 +26,7 @@
     ],
     "defaultMode": "auto"
   },
-  "model": "opus",
+  "model": "opus[1m]",
   "disableClaudeAiConnectors": true,
   "disableBundledSkills": true,
   "hooks": {
@@ -99,16 +99,7 @@
     "dexory@dotfiles": true,
     "frontend-design@claude-plugins-official": true,
     "ruby-lsp@claude-plugins-official": true,
-    "figma@claude-plugins-official": true,
-    "ponytail@ponytail": true
-  },
-  "extraKnownMarketplaces": {
-    "ponytail": {
-      "source": {
-        "source": "github",
-        "repo": "DietrichGebert/ponytail"
-      }
-    }
+    "figma@claude-plugins-official": true
   },
   "disableSideloadFlags": true,
   "effortLevel": "high",
