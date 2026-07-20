@@ -5,8 +5,8 @@
 #   .scratch/bin/implement <issue.md>       # run one file, full pipeline
 #   .scratch/bin/implement <issues-dir>     # run every ready-for-agent file, one at a time
 #
-# Per issue: branch off the current branch, run a pipeline (implement -> five
-# parallel Thermo reviews (two `claude` + three `copilot`) -> fresh fixer ->
+# Per issue: branch off the current branch, run a pipeline (implement -> four
+# parallel Thermo reviews (two `claude` + two `copilot`) -> fresh fixer ->
 # land), each stage in its own tmux pane, then merge back into base and mark
 # the issue Status: done. Fail-stop: any stage that errors or times out halts
 # the whole run with the worktree and panes left open for inspection.
@@ -17,12 +17,11 @@ WT_BIN="${WORKTRUNK_BIN:-wt}"                       # bash sees the binary, not 
 PANEUTIL="${PANEUTIL:-$HOME/.claude/skills/tmux-panes/scripts/paneutil}"
 STAGE_TIMEOUT="${IMPLEMENT_STAGE_TIMEOUT:-1800}"    # max IDLE seconds (resets on output), not total duration
 CLAUDE_EXTRA="${IMPLEMENT_CLAUDE_FLAGS:---permission-mode auto}"
-COPILOT_EXTRA="${IMPLEMENT_COPILOT_FLAGS:---allow-all-tools --no-ask-user}"   # --allow-all-tools is required for non-interactive mode; --no-ask-user mirrors claude's autonomous-turn prompting. Deliberately NOT --allow-all(-paths/-urls) — path access is scoped per-stage via --add-dir instead
+COPILOT_EXTRA="${IMPLEMENT_COPILOT_FLAGS:---allow-all-tools --no-ask-user --excluded-tools skill}"   # --allow-all-tools is required for non-interactive mode; --no-ask-user mirrors claude's autonomous-turn prompting. Deliberately NOT --allow-all(-paths/-urls) — path access is scoped per-stage via --add-dir instead. --excluded-tools skill drops the "skill" tool (and the <available_skills> block from its system prompt) while leaving every other tool available — it never learns personal/project skills (e.g. implementation-review, thermo-nuclear-code-quality-review) exist, so it can't be steered into delegating to one instead of reviewing the diff itself
 OPUS="claude-opus-4-8"
 SONNET="claude-sonnet-5"
 GPT_SOL="gpt-5.6-sol"
 GPT_LUNA="gpt-5.6-luna"
-GEMINI_PRO="gemini-3.1-pro-preview"
 SELF="${TMUX_PANE:-}"   # this orchestrator's own pane — must NEVER be killed
 
 log()   { printf '\033[36m[implement]\033[0m %s\n' "$*" >&2; }  # stderr: keeps spawn_stage's captured stdout (pane id) clean
@@ -74,6 +73,9 @@ spawn_stage() { # id title model wtpath donebase prompt
   # Pin a stable label in the pane border: claude overwrites pane_title with its
   # own activity, but it cannot touch our @stage user option.
   tmux set-option -p -t "$pane" @stage "${id} ${title}" 2>/dev/null || true
+  # Re-tile so panes stay evenly sized as they accumulate, instead of the
+  # lopsided widths repeated horizontal splits produce.
+  tmux select-layout -t "$pane" main-horizontal 2>/dev/null || true
   log "[${id}] ${title} running (pane ${pane})..."
   printf '%s' "$pane"
 }
@@ -85,14 +87,26 @@ copilot_stage() { # id title model effort wtpath donebase prompt
   local id="$1" title="$2" model="$3" effort="$4" wtpath="$5" donebase="$6" prompt="$7"
   local pf="${donebase}.prompt" done="${donebase}.done"
   local run_dir; run_dir="$(dirname "$donebase")"   # where the review file lives — outside wtpath, so grant it explicitly
+  # .scratch is a symlink out of the worktree to wherever the issue files
+  # actually live (see setup_worktree). /review's Spec check reads through it
+  # to find the originating issue, but copilot's path allowlist doesn't follow
+  # symlinks the way claude's --permission-mode auto does — without granting
+  # the real target, every read through .scratch 403s.
+  local scratch_dir=""
+  [ -e "${wtpath}/.scratch" ] && scratch_dir="$(cd "${wtpath}/.scratch" 2>/dev/null && pwd -P || true)"
   rm -f "$done"
   printf '%s' "$prompt" > "$pf"
-  local cmd="cd \"$wtpath\" && copilot -p \"\$(cat '$pf')\" --model '$model' --effort '$effort' --add-dir '$run_dir' $COPILOT_EXTRA; echo 0 > '$done'"
+  local add_dirs="--add-dir '$run_dir'"
+  [ -n "$scratch_dir" ] && add_dirs="$add_dirs --add-dir '$scratch_dir'"
+  local cmd="cd \"$wtpath\" && copilot -p \"\$(cat '$pf')\" --model '$model' --effort '$effort' $add_dirs $COPILOT_EXTRA; echo 0 > '$done'"
   local pane; pane="$("$PANEUTIL" spawn --no-focus --dir h --title "${id} ${title}" --command "$cmd")"
   [ -n "$pane" ] || fatal "[${id}] ${title}: paneutil spawn returned no pane id"
   [ "$pane" != "$SELF" ] || fatal "[${id}] ${title}: spawn resolved to the orchestrator's own pane ${pane}"
   tmux set-option -p -t "$pane" remain-on-exit on 2>/dev/null || true
   tmux set-option -p -t "$pane" @stage "${id} ${title}" 2>/dev/null || true
+  # Re-tile so panes stay evenly sized as they accumulate, instead of the
+  # lopsided widths repeated horizontal splits produce.
+  tmux select-layout -t "$pane" main-horizontal 2>/dev/null || true
   log "[${id}] ${title} running (pane ${pane})..."
   printf '%s' "$pane"
 }
@@ -204,7 +218,6 @@ run_issue() {
   local rev_sonnet="${run}/thermo-review-sonnet.md"
   local rev_sol="${run}/thermo-review-sol.md"
   local rev_luna="${run}/thermo-review-luna.md"
-  local rev_gemini="${run}/thermo-review-gemini.md"
   # Completion is signalled by the Stop hook (end of turn), so the agent must do
   # everything in one turn and not pause — otherwise it signals done too early.
   local autonomy="Work autonomously in a single turn: do not pause to ask questions or wait for confirmation, and only end your turn once the task above is fully complete."
@@ -216,8 +229,8 @@ Invoke /commit when done.
 Do not edit ${rel} or change its Status — the orchestrator owns that.
 ${autonomy}"
 
-  # 2-6. five reviewers in parallel, each writing its review to a file
-  local p_opus p_sonnet p_sol p_luna p_gemini
+  # 2-5. four reviewers in parallel, each writing its review to a file
+  local p_opus p_sonnet p_sol p_luna
   p_opus="$(spawn_stage "$id" "Thermo Opus Reviewer" "$OPUS" "$wt_path" "${run}/review-opus" \
 "Invoke the /thermo-nuclear-code-quality-review skill to review the changes on this branch compared to ${BASE}.
 Write your complete review verbatim to ${rev_opus}.
@@ -228,40 +241,36 @@ ${autonomy}")"
 Write your complete review verbatim to ${rev_sonnet}.
 Do not edit any code and do not edit ${rel}.
 ${autonomy}")"
-  p_sol="$(copilot_stage "$id" "Thermo Sol Reviewer" "$GPT_SOL" "high" "$wt_path" "${run}/review-sol" \
-"Invoke /review to review the changes on this branch compared to ${BASE}.
+  p_sol="$(copilot_stage "$id" "Copilot Sol Reviewer" "$GPT_SOL" "high" "$wt_path" "${run}/review-sol" \
+"/review the changes on this branch compared to ${BASE}.
+This is a plain code-quality review only — do not check against any issue, spec, or PRD; that has already happened elsewhere.
 Write your complete review verbatim to ${rev_sol}.
 Do not edit any code and do not edit ${rel}.
 ${autonomy}")"
-  p_luna="$(copilot_stage "$id" "Thermo Luna Reviewer" "$GPT_LUNA" "max" "$wt_path" "${run}/review-luna" \
-"Invoke /review to review the changes on this branch compared to ${BASE}.
+  p_luna="$(copilot_stage "$id" "Copilot Luna Reviewer" "$GPT_LUNA" "max" "$wt_path" "${run}/review-luna" \
+"/review the changes on this branch compared to ${BASE}.
+This is a plain code-quality review only — do not check against any issue, spec, or PRD; that has already happened elsewhere.
 Write your complete review verbatim to ${rev_luna}.
-Do not edit any code and do not edit ${rel}.
-${autonomy}")"
-  p_gemini="$(copilot_stage "$id" "Thermo Gemini Reviewer" "$GEMINI_PRO" "high" "$wt_path" "${run}/review-gemini" \
-"Invoke /review to review the changes on this branch compared to ${BASE}.
-Write your complete review verbatim to ${rev_gemini}.
 Do not edit any code and do not edit ${rel}.
 ${autonomy}")"
   # Paste into the two interactive (claude) reviewers — the copilot reviewers
   # already got their prompt as a -p argument at spawn time. Then wait on all
-  # five — the reviews run concurrently.
+  # four — the reviews run concurrently.
   send_prompt "$p_opus"   "${run}/review-opus"
   send_prompt "$p_sonnet" "${run}/review-sonnet"
   wait_stage "$id" "Thermo Opus Reviewer"   "${run}/review-opus"   "$p_opus"
   wait_stage "$id" "Thermo Sonnet Reviewer" "${run}/review-sonnet" "$p_sonnet"
-  wait_stage "$id" "Thermo Sol Reviewer"    "${run}/review-sol"    "$p_sol"
-  wait_stage "$id" "Thermo Luna Reviewer"   "${run}/review-luna"   "$p_luna"
-  wait_stage "$id" "Thermo Gemini Reviewer" "${run}/review-gemini" "$p_gemini"
+  wait_stage "$id" "Copilot Sol Reviewer"   "${run}/review-sol"    "$p_sol"
+  wait_stage "$id" "Copilot Luna Reviewer"  "${run}/review-luna"   "$p_luna"
 
-  # 7. fresh fixer applies every review (fresh session = small context window)
+  # 6. fresh fixer applies every review (fresh session = small context window)
   stage "$id" "Thermo Fixer" "$OPUS" "$wt_path" "${run}/fix" \
-"Read ${ref} for context, then read the five code reviews at ${rev_opus}, ${rev_sonnet}, ${rev_sol}, ${rev_luna} and ${rev_gemini}.
+"Read ${ref} for context, then read the four code reviews at ${rev_opus}, ${rev_sonnet}, ${rev_sol} and ${rev_luna}.
 Apply every valid fix they raise. Where reviews conflict or a suggestion is wrong, use your judgement and note what you skipped and why.
 Invoke /commit when done. Do not edit ${rel}.
 ${autonomy}"
 
-  # 8. land
+  # 7. land
   stage "$id" "Land" "$OPUS" "$wt_path" "${run}/land" \
 "Invoke the /dexory:land skill against ${BASE}.
 Invoke /commit when done. Do not edit ${rel}.
@@ -329,12 +338,11 @@ final_review() {
   local rev_sonnet="${run}/thermo-review-sonnet.md"
   local rev_sol="${run}/thermo-review-sol.md"
   local rev_luna="${run}/thermo-review-luna.md"
-  local rev_gemini="${run}/thermo-review-gemini.md"
   local autonomy="Work autonomously in a single turn: do not pause to ask questions or wait for confirmation, and only end your turn once the task above is fully complete."
   local id="final"
 
-  # five reviewers in parallel, each writing its review to a file, diffing vs compare
-  local p_opus p_sonnet p_sol p_luna p_gemini
+  # four reviewers in parallel, each writing its review to a file, diffing vs compare
+  local p_opus p_sonnet p_sol p_luna
   p_opus="$(spawn_stage "$id" "Thermo Opus Reviewer" "$OPUS" "$wt_path" "${run}/review-opus" \
 "Invoke the /thermo-nuclear-code-quality-review skill to review all changes on this branch compared to ${compare}.
 Write your complete review verbatim to ${rev_opus}.
@@ -345,32 +353,28 @@ ${autonomy}")"
 Write your complete review verbatim to ${rev_sonnet}.
 Do not edit any code.
 ${autonomy}")"
-  p_sol="$(copilot_stage "$id" "Thermo Sol Reviewer" "$GPT_SOL" "high" "$wt_path" "${run}/review-sol" \
-"Invoke /review to review all changes on this branch compared to ${compare}.
+  p_sol="$(copilot_stage "$id" "Copilot Sol Reviewer" "$GPT_SOL" "high" "$wt_path" "${run}/review-sol" \
+"/review all changes on this branch compared to ${compare}.
+This is a plain code-quality review only — do not check against any issue, spec, or PRD; that has already happened elsewhere.
 Write your complete review verbatim to ${rev_sol}.
 Do not edit any code.
 ${autonomy}")"
-  p_luna="$(copilot_stage "$id" "Thermo Luna Reviewer" "$GPT_LUNA" "max" "$wt_path" "${run}/review-luna" \
-"Invoke /review to review all changes on this branch compared to ${compare}.
+  p_luna="$(copilot_stage "$id" "Copilot Luna Reviewer" "$GPT_LUNA" "max" "$wt_path" "${run}/review-luna" \
+"/review all changes on this branch compared to ${compare}.
+This is a plain code-quality review only — do not check against any issue, spec, or PRD; that has already happened elsewhere.
 Write your complete review verbatim to ${rev_luna}.
-Do not edit any code.
-${autonomy}")"
-  p_gemini="$(copilot_stage "$id" "Thermo Gemini Reviewer" "$GEMINI_PRO" "high" "$wt_path" "${run}/review-gemini" \
-"Invoke /review to review all changes on this branch compared to ${compare}.
-Write your complete review verbatim to ${rev_gemini}.
 Do not edit any code.
 ${autonomy}")"
   send_prompt "$p_opus"   "${run}/review-opus"
   send_prompt "$p_sonnet" "${run}/review-sonnet"
   wait_stage "$id" "Thermo Opus Reviewer"   "${run}/review-opus"   "$p_opus"
   wait_stage "$id" "Thermo Sonnet Reviewer" "${run}/review-sonnet" "$p_sonnet"
-  wait_stage "$id" "Thermo Sol Reviewer"    "${run}/review-sol"    "$p_sol"
-  wait_stage "$id" "Thermo Luna Reviewer"   "${run}/review-luna"   "$p_luna"
-  wait_stage "$id" "Thermo Gemini Reviewer" "${run}/review-gemini" "$p_gemini"
+  wait_stage "$id" "Copilot Sol Reviewer"   "${run}/review-sol"    "$p_sol"
+  wait_stage "$id" "Copilot Luna Reviewer"  "${run}/review-luna"   "$p_luna"
 
   # fresh fixer applies every review
   stage "$id" "Thermo Fixer" "$OPUS" "$wt_path" "${run}/fix" \
-"Read the five code reviews at ${rev_opus}, ${rev_sonnet}, ${rev_sol}, ${rev_luna} and ${rev_gemini}.
+"Read the four code reviews at ${rev_opus}, ${rev_sonnet}, ${rev_sol} and ${rev_luna}.
 Apply every valid fix they raise. Where reviews conflict or a suggestion is wrong, use your judgement and note what you skipped and why.
 Invoke /commit when done.
 ${autonomy}"
