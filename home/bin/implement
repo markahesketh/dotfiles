@@ -5,20 +5,24 @@
 #   .scratch/bin/implement <issue.md>       # run one file, full pipeline
 #   .scratch/bin/implement <issues-dir>     # run every ready-for-agent file, one at a time
 #
-# Per issue: branch off the current branch, run a 5-stage pipeline (implement ->
-# two parallel Thermo reviews -> fresh fixer -> land) as headless `claude -p`
-# sessions each in its own tmux pane, then merge back into base and mark the
-# issue Status: done. Fail-stop: any stage that errors or times out halts the
-# whole run with the worktree and panes left open for inspection. Re-running
-# resumes, because Status: done is the progress ledger.
+# Per issue: branch off the current branch, run a pipeline (implement -> five
+# parallel Thermo reviews (two `claude` + three `copilot`) -> fresh fixer ->
+# land), each stage in its own tmux pane, then merge back into base and mark
+# the issue Status: done. Fail-stop: any stage that errors or times out halts
+# the whole run with the worktree and panes left open for inspection.
+# Re-running resumes, because Status: done is the progress ledger.
 set -euo pipefail
 
 WT_BIN="${WORKTRUNK_BIN:-wt}"                       # bash sees the binary, not the zsh function
 PANEUTIL="${PANEUTIL:-$HOME/.claude/skills/tmux-panes/scripts/paneutil}"
 STAGE_TIMEOUT="${IMPLEMENT_STAGE_TIMEOUT:-1800}"    # max IDLE seconds (resets on output), not total duration
 CLAUDE_EXTRA="${IMPLEMENT_CLAUDE_FLAGS:---permission-mode auto}"
+COPILOT_EXTRA="${IMPLEMENT_COPILOT_FLAGS:---allow-all-tools --no-ask-user}"   # --allow-all-tools is required for non-interactive mode; --no-ask-user mirrors claude's autonomous-turn prompting. Deliberately NOT --allow-all(-paths/-urls) — path access is scoped per-stage via --add-dir instead
 OPUS="claude-opus-4-8"
 SONNET="claude-sonnet-5"
+GPT_SOL="gpt-5.6-sol"
+GPT_LUNA="gpt-5.6-luna"
+GEMINI_PRO="gemini-3.1-pro-preview"
 SELF="${TMUX_PANE:-}"   # this orchestrator's own pane — must NEVER be killed
 
 log()   { printf '\033[36m[implement]\033[0m %s\n' "$*" >&2; }  # stderr: keeps spawn_stage's captured stdout (pane id) clean
@@ -28,6 +32,7 @@ fatal() { printf '\n\033[31mFATAL:\033[0m %s\n' "$*" >&2; exit 1; }
 [ -n "${TMUX:-}" ]        || fatal "run this inside tmux (needs sibling panes for visibility)"
 [ -x "$PANEUTIL" ]        || fatal "paneutil not found/executable at $PANEUTIL (set PANEUTIL=...)"
 command -v claude >/dev/null || fatal "claude CLI not on PATH"
+command -v copilot >/dev/null || fatal "copilot CLI not on PATH"
 command -v "$WT_BIN" >/dev/null || fatal "wt binary not on PATH"
 
 [ $# -ge 1 ] || fatal "usage: implement <issue.md | issues-dir> | --final [compare-branch]"
@@ -68,6 +73,25 @@ spawn_stage() { # id title model wtpath donebase prompt
   tmux set-option -p -t "$pane" remain-on-exit on 2>/dev/null || true
   # Pin a stable label in the pane border: claude overwrites pane_title with its
   # own activity, but it cannot touch our @stage user option.
+  tmux set-option -p -t "$pane" @stage "${id} ${title}" 2>/dev/null || true
+  log "[${id}] ${title} running (pane ${pane})..."
+  printf '%s' "$pane"
+}
+
+# copilot has no interactive TUI/hook to wait on: -p runs non-interactively and
+# exits on completion, so spawn it directly with the prompt as an argument and
+# have the pane's shell drop the done-file itself once it exits.
+copilot_stage() { # id title model effort wtpath donebase prompt
+  local id="$1" title="$2" model="$3" effort="$4" wtpath="$5" donebase="$6" prompt="$7"
+  local pf="${donebase}.prompt" done="${donebase}.done"
+  local run_dir; run_dir="$(dirname "$donebase")"   # where the review file lives — outside wtpath, so grant it explicitly
+  rm -f "$done"
+  printf '%s' "$prompt" > "$pf"
+  local cmd="cd \"$wtpath\" && copilot -p \"\$(cat '$pf')\" --model '$model' --effort '$effort' --add-dir '$run_dir' $COPILOT_EXTRA; echo 0 > '$done'"
+  local pane; pane="$("$PANEUTIL" spawn --no-focus --dir h --title "${id} ${title}" --command "$cmd")"
+  [ -n "$pane" ] || fatal "[${id}] ${title}: paneutil spawn returned no pane id"
+  [ "$pane" != "$SELF" ] || fatal "[${id}] ${title}: spawn resolved to the orchestrator's own pane ${pane}"
+  tmux set-option -p -t "$pane" remain-on-exit on 2>/dev/null || true
   tmux set-option -p -t "$pane" @stage "${id} ${title}" 2>/dev/null || true
   log "[${id}] ${title} running (pane ${pane})..."
   printf '%s' "$pane"
@@ -178,6 +202,9 @@ run_issue() {
   mkdir -p "$run"
   local rev_opus="${run}/thermo-review-opus.md"
   local rev_sonnet="${run}/thermo-review-sonnet.md"
+  local rev_sol="${run}/thermo-review-sol.md"
+  local rev_luna="${run}/thermo-review-luna.md"
+  local rev_gemini="${run}/thermo-review-gemini.md"
   # Completion is signalled by the Stop hook (end of turn), so the agent must do
   # everything in one turn and not pause — otherwise it signals done too early.
   local autonomy="Work autonomously in a single turn: do not pause to ask questions or wait for confirmation, and only end your turn once the task above is fully complete."
@@ -189,8 +216,8 @@ Invoke /commit when done.
 Do not edit ${rel} or change its Status — the orchestrator owns that.
 ${autonomy}"
 
-  # 2 + 3. two reviewers in parallel, each writing its review to a file
-  local p_opus p_sonnet
+  # 2-6. five reviewers in parallel, each writing its review to a file
+  local p_opus p_sonnet p_sol p_luna p_gemini
   p_opus="$(spawn_stage "$id" "Thermo Opus Reviewer" "$OPUS" "$wt_path" "${run}/review-opus" \
 "Invoke the /thermo-nuclear-code-quality-review skill to review the changes on this branch compared to ${BASE}.
 Write your complete review verbatim to ${rev_opus}.
@@ -201,20 +228,40 @@ ${autonomy}")"
 Write your complete review verbatim to ${rev_sonnet}.
 Do not edit any code and do not edit ${rel}.
 ${autonomy}")"
-  # Paste into both, then wait both — the reviews run concurrently.
+  p_sol="$(copilot_stage "$id" "Thermo Sol Reviewer" "$GPT_SOL" "high" "$wt_path" "${run}/review-sol" \
+"Invoke /review to review the changes on this branch compared to ${BASE}.
+Write your complete review verbatim to ${rev_sol}.
+Do not edit any code and do not edit ${rel}.
+${autonomy}")"
+  p_luna="$(copilot_stage "$id" "Thermo Luna Reviewer" "$GPT_LUNA" "max" "$wt_path" "${run}/review-luna" \
+"Invoke /review to review the changes on this branch compared to ${BASE}.
+Write your complete review verbatim to ${rev_luna}.
+Do not edit any code and do not edit ${rel}.
+${autonomy}")"
+  p_gemini="$(copilot_stage "$id" "Thermo Gemini Reviewer" "$GEMINI_PRO" "high" "$wt_path" "${run}/review-gemini" \
+"Invoke /review to review the changes on this branch compared to ${BASE}.
+Write your complete review verbatim to ${rev_gemini}.
+Do not edit any code and do not edit ${rel}.
+${autonomy}")"
+  # Paste into the two interactive (claude) reviewers — the copilot reviewers
+  # already got their prompt as a -p argument at spawn time. Then wait on all
+  # five — the reviews run concurrently.
   send_prompt "$p_opus"   "${run}/review-opus"
   send_prompt "$p_sonnet" "${run}/review-sonnet"
   wait_stage "$id" "Thermo Opus Reviewer"   "${run}/review-opus"   "$p_opus"
   wait_stage "$id" "Thermo Sonnet Reviewer" "${run}/review-sonnet" "$p_sonnet"
+  wait_stage "$id" "Thermo Sol Reviewer"    "${run}/review-sol"    "$p_sol"
+  wait_stage "$id" "Thermo Luna Reviewer"   "${run}/review-luna"   "$p_luna"
+  wait_stage "$id" "Thermo Gemini Reviewer" "${run}/review-gemini" "$p_gemini"
 
-  # 4. fresh fixer applies both reviews (fresh session = small context window)
+  # 7. fresh fixer applies every review (fresh session = small context window)
   stage "$id" "Thermo Fixer" "$OPUS" "$wt_path" "${run}/fix" \
-"Read ${ref} for context, then read the two code reviews at ${rev_opus} and ${rev_sonnet}.
-Apply every valid fix they raise. Where the two reviews conflict or a suggestion is wrong, use your judgement and note what you skipped and why.
+"Read ${ref} for context, then read the five code reviews at ${rev_opus}, ${rev_sonnet}, ${rev_sol}, ${rev_luna} and ${rev_gemini}.
+Apply every valid fix they raise. Where reviews conflict or a suggestion is wrong, use your judgement and note what you skipped and why.
 Invoke /commit when done. Do not edit ${rel}.
 ${autonomy}"
 
-  # 5. land
+  # 8. land
   stage "$id" "Land" "$OPUS" "$wt_path" "${run}/land" \
 "Invoke the /dexory:land skill against ${BASE}.
 Invoke /commit when done. Do not edit ${rel}.
@@ -280,11 +327,14 @@ final_review() {
   mkdir -p "$run"
   local rev_opus="${run}/thermo-review-opus.md"
   local rev_sonnet="${run}/thermo-review-sonnet.md"
+  local rev_sol="${run}/thermo-review-sol.md"
+  local rev_luna="${run}/thermo-review-luna.md"
+  local rev_gemini="${run}/thermo-review-gemini.md"
   local autonomy="Work autonomously in a single turn: do not pause to ask questions or wait for confirmation, and only end your turn once the task above is fully complete."
   local id="final"
 
-  # reviewers in parallel, each writing its review to a file, diffing vs compare
-  local p_opus p_sonnet
+  # five reviewers in parallel, each writing its review to a file, diffing vs compare
+  local p_opus p_sonnet p_sol p_luna p_gemini
   p_opus="$(spawn_stage "$id" "Thermo Opus Reviewer" "$OPUS" "$wt_path" "${run}/review-opus" \
 "Invoke the /thermo-nuclear-code-quality-review skill to review all changes on this branch compared to ${compare}.
 Write your complete review verbatim to ${rev_opus}.
@@ -295,15 +345,33 @@ ${autonomy}")"
 Write your complete review verbatim to ${rev_sonnet}.
 Do not edit any code.
 ${autonomy}")"
+  p_sol="$(copilot_stage "$id" "Thermo Sol Reviewer" "$GPT_SOL" "high" "$wt_path" "${run}/review-sol" \
+"Invoke /review to review all changes on this branch compared to ${compare}.
+Write your complete review verbatim to ${rev_sol}.
+Do not edit any code.
+${autonomy}")"
+  p_luna="$(copilot_stage "$id" "Thermo Luna Reviewer" "$GPT_LUNA" "max" "$wt_path" "${run}/review-luna" \
+"Invoke /review to review all changes on this branch compared to ${compare}.
+Write your complete review verbatim to ${rev_luna}.
+Do not edit any code.
+${autonomy}")"
+  p_gemini="$(copilot_stage "$id" "Thermo Gemini Reviewer" "$GEMINI_PRO" "high" "$wt_path" "${run}/review-gemini" \
+"Invoke /review to review all changes on this branch compared to ${compare}.
+Write your complete review verbatim to ${rev_gemini}.
+Do not edit any code.
+${autonomy}")"
   send_prompt "$p_opus"   "${run}/review-opus"
   send_prompt "$p_sonnet" "${run}/review-sonnet"
   wait_stage "$id" "Thermo Opus Reviewer"   "${run}/review-opus"   "$p_opus"
   wait_stage "$id" "Thermo Sonnet Reviewer" "${run}/review-sonnet" "$p_sonnet"
+  wait_stage "$id" "Thermo Sol Reviewer"    "${run}/review-sol"    "$p_sol"
+  wait_stage "$id" "Thermo Luna Reviewer"   "${run}/review-luna"   "$p_luna"
+  wait_stage "$id" "Thermo Gemini Reviewer" "${run}/review-gemini" "$p_gemini"
 
-  # fresh fixer applies both reviews
+  # fresh fixer applies every review
   stage "$id" "Thermo Fixer" "$OPUS" "$wt_path" "${run}/fix" \
-"Read the two code reviews at ${rev_opus} and ${rev_sonnet}.
-Apply every valid fix they raise. Where the two reviews conflict or a suggestion is wrong, use your judgement and note what you skipped and why.
+"Read the five code reviews at ${rev_opus}, ${rev_sonnet}, ${rev_sol}, ${rev_luna} and ${rev_gemini}.
+Apply every valid fix they raise. Where reviews conflict or a suggestion is wrong, use your judgement and note what you skipped and why.
 Invoke /commit when done.
 ${autonomy}"
 
@@ -332,12 +400,17 @@ elif [ -d "$TARGET" ]; then
     run_issue "$next"
     processed=$((processed + 1))
   done
-  # A directory run is the only mode that accumulates multiple issues onto BASE,
-  # so it's the only one where a whole-branch final review earns its keep. Skip
-  # it when nothing was processed (e.g. re-running an all-done directory).
-  if [ "$processed" -gt 0 ]; then
-    log "no more ready-for-agent issues in ${TARGET} — running final review."
+  # The final review's whole point is reviewing multiple issues' *combined*
+  # changes at once. It only earns its keep when 2+ issues landed on BASE in
+  # this run — one issue already got the full 5-reviewer pipeline to itself
+  # (same reviews, same diff), so a "final" review of just that one issue
+  # would be pure duplication. Also skip when nothing was processed at all
+  # (e.g. re-running an all-done directory).
+  if [ "$processed" -gt 1 ]; then
+    log "no more ready-for-agent issues in ${TARGET} — running final review (${processed} issues combined)."
     final_review "origin/staging"
+  elif [ "$processed" -eq 1 ]; then
+    log "only one issue processed in ${TARGET} — its own review pipeline already covered this; skipping final review."
   else
     log "no ready-for-agent issues in ${TARGET} — nothing to do (skipping final review)."
   fi
