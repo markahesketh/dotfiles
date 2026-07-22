@@ -6,11 +6,24 @@
 #   .scratch/bin/implement <issues-dir>     # run every ready-for-agent file, one at a time
 #
 # Per issue: branch off the current branch, run a pipeline (implement -> four
-# parallel Thermo reviews (two `claude` + two `copilot`) -> fresh fixer ->
-# land), each stage in its own tmux pane, then merge back into base and mark
-# the issue Status: done. Fail-stop: any stage that errors or times out halts
-# the whole run with the worktree and panes left open for inspection.
-# Re-running resumes, because Status: done is the progress ledger.
+# parallel Thermo reviews (two `claude` + two `copilot`) -> fixer -> land),
+# then merge back into base and mark the issue Status: done. The four reviews
+# each get their own tmux pane, but fixer and land continue the implementer's
+# pane/session rather than starting fresh, so applying reviews and landing
+# keep the implementation context and a warm cache. Fail-stop: any stage that
+# errors or times out halts the whole run with the worktree and panes left
+# open for inspection.
+#
+# Resumable: re-running the same issue file (or its containing directory)
+# picks up where it left off. An existing branch/worktree is reused instead
+# of recreated; each stage's completion is tracked under
+# $TMPDIR/dv-implement/<branch>/ and already-done stages are skipped; a still
+# -alive pane is reattached rather than respawned; and if the implementer's
+# pane itself is gone, its claude conversation is reopened with --resume (a
+# session id pinned at first spawn) so fixer/land still pick up its context.
+# Pass --from STAGE (implement|review|fix|land|merge, single-file/--final
+# targets only) to force redoing that stage onward instead of trusting what's
+# recorded as done.
 set -euo pipefail
 
 WT_BIN="${WORKTRUNK_BIN:-wt}"                       # bash sees the binary, not the zsh function
@@ -33,9 +46,22 @@ fatal() { printf '\n\033[31mFATAL:\033[0m %s\n' "$*" >&2; exit 1; }
 command -v claude >/dev/null || fatal "claude CLI not on PATH"
 command -v copilot >/dev/null || fatal "copilot CLI not on PATH"
 command -v "$WT_BIN" >/dev/null || fatal "wt binary not on PATH"
+command -v uuidgen >/dev/null || fatal "uuidgen not on PATH"
 
-[ $# -ge 1 ] || fatal "usage: implement <issue.md | issues-dir> | --final [compare-branch]"
-TARGET="$1"
+[ $# -ge 1 ] || fatal "usage: implement <issue.md | issues-dir> [--from STAGE] | --final [compare-branch] [--from STAGE]"
+TARGET="$1"; shift
+COMPARE="staging"
+if [ "$TARGET" = "--final" ] && [ $# -ge 1 ] && [ "$1" != "--from" ]; then
+  COMPARE="$1"; shift
+fi
+FROM_STAGE=""
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --from) [ $# -ge 2 ] || fatal "--from needs a STAGE argument"
+            FROM_STAGE="$2"; shift 2 ;;
+    *)      fatal "unrecognized argument: $1" ;;
+  esac
+done
 
 REPO="$(git rev-parse --show-toplevel)"
 BASE="$(git -C "$REPO" branch --show-current)"
@@ -47,12 +73,27 @@ tmux set-option -w -t "$SELF" pane-border-format ' #{?@stage,#{@stage},#{pane_ti
 tmux set-option -p -t "$SELF" @stage "orchestrator" 2>/dev/null || true
 
 # --- one pipeline stage ----------------------------------------------------
+# Drop any stale done/sent markers and (re)write the prompt file a pane's
+# command or send_prompt will read — shared by spawn (first prompt) and reuse
+# (follow-up prompt into an already-running session).
+write_prompt() { # donebase prompt
+  local donebase="$1" prompt="$2"
+  rm -f "${donebase}.done" "${donebase}.sent"
+  printf '%s' "$prompt" > "${donebase}.prompt"
+}
+
+# Relabel a reused pane's border once it moves on to a new logical stage —
+# @stage is only set at spawn time otherwise, so it would still show whichever
+# stage first created the pane.
+retitle_pane() { # pane label
+  tmux set-option -p -t "$1" @stage "$2" 2>/dev/null || true
+}
+
 # spawn_stage prints ONLY the new pane id on stdout (so callers can capture it).
-spawn_stage() { # id title model wtpath donebase prompt
-  local id="$1" title="$2" model="$3" wtpath="$4" donebase="$5" prompt="$6"
-  local pf="${donebase}.prompt" done="${donebase}.done"
-  rm -f "$done"
-  printf '%s' "$prompt" > "$pf"
+spawn_stage() { # id title model wtpath donebase prompt [extra_claude_args] [hookdone]
+  local id="$1" title="$2" model="$3" wtpath="$4" donebase="$5" prompt="$6" extra="${7:-}"
+  local done="${8:-${donebase}.done}"
+  write_prompt "$donebase" "$prompt"
   # Interactive claude in the pane (full live TUI). A per-session Stop hook,
   # injected via --settings, writes the done-file when the agent ends its turn —
   # that is the completion signal. The prompt is pasted in later (send_prompt),
@@ -60,8 +101,18 @@ spawn_stage() { # id title model wtpath donebase prompt
   # ponytail: Stop fires on ANY turn end, so an agent that splits work across
   # turns could signal early — mitigated by "one turn, finish before stopping"
   # prompting; swap to an explicit agent-run sentinel if that proves flaky.
+  # extra carries --session-id/--resume for stages resumed across orchestrator
+  # restarts (see run_chain_stage) — plain spawns leave it empty. hookdone
+  # defaults to this stage's own done-file (fine for a standalone reviewer,
+  # spawned and waited on once) but run_chain_stage overrides it to a
+  # chain-wide file: --settings is only read at process startup, so a pane
+  # reused across several logical stages (fixer/land continuing the
+  # implementer's session) keeps firing whatever hook it started with —
+  # pointed at a per-stage file, every later stage's turn would silently
+  # write to the FIRST stage's done-file instead of its own, and that stage
+  # would never appear to finish.
   local hook="{\"hooks\":{\"Stop\":[{\"hooks\":[{\"type\":\"command\",\"command\":\"echo 0 > $done\"}]}]}}"
-  local cmd="cd \"$wtpath\" && claude --model \"$model\" $CLAUDE_EXTRA --settings '$hook'"
+  local cmd="cd \"$wtpath\" && claude --model \"$model\" $CLAUDE_EXTRA $extra --settings '$hook'"
   local pane; pane="$("$PANEUTIL" spawn --no-focus --dir h --title "${id} ${title}" --command "$cmd")"
   # A blank capture would make every downstream tmux target ambiguous, and a
   # match against SELF means spawn misfired into this pane — refuse either.
@@ -85,7 +136,7 @@ spawn_stage() { # id title model wtpath donebase prompt
 # have the pane's shell drop the done-file itself once it exits.
 copilot_stage() { # id title model effort wtpath donebase prompt
   local id="$1" title="$2" model="$3" effort="$4" wtpath="$5" donebase="$6" prompt="$7"
-  local pf="${donebase}.prompt" done="${donebase}.done"
+  local pf="${donebase}.prompt"
   local run_dir; run_dir="$(dirname "$donebase")"   # where the review file lives — outside wtpath, so grant it explicitly
   # .scratch is a symlink out of the worktree to wherever the issue files
   # actually live (see setup_worktree). /review's Spec check reads through it
@@ -94,11 +145,10 @@ copilot_stage() { # id title model effort wtpath donebase prompt
   # the real target, every read through .scratch 403s.
   local scratch_dir=""
   [ -e "${wtpath}/.scratch" ] && scratch_dir="$(cd "${wtpath}/.scratch" 2>/dev/null && pwd -P || true)"
-  rm -f "$done"
-  printf '%s' "$prompt" > "$pf"
+  write_prompt "$donebase" "$prompt"
   local add_dirs="--add-dir '$run_dir'"
   [ -n "$scratch_dir" ] && add_dirs="$add_dirs --add-dir '$scratch_dir'"
-  local cmd="cd \"$wtpath\" && copilot -p \"\$(cat '$pf')\" --model '$model' --effort '$effort' $add_dirs $COPILOT_EXTRA; echo 0 > '$done'"
+  local cmd="cd \"$wtpath\" && copilot -p \"\$(cat '$pf')\" --model '$model' --effort '$effort' $add_dirs $COPILOT_EXTRA; echo 0 > '${donebase}.done'"
   local pane; pane="$("$PANEUTIL" spawn --no-focus --dir h --title "${id} ${title}" --command "$cmd")"
   [ -n "$pane" ] || fatal "[${id}] ${title}: paneutil spawn returned no pane id"
   [ "$pane" != "$SELF" ] || fatal "[${id}] ${title}: spawn resolved to the orchestrator's own pane ${pane}"
@@ -129,26 +179,214 @@ send_prompt() { # pane donebase
   "$PANEUTIL" send "$1" --file "${2}.prompt" >/dev/null 2>&1
 }
 
-wait_stage() { # id title donebase paneid
-  local id="$1" title="$2" donebase="$3" pane="$4"
-  local done="${donebase}.done" idle=0 last=""
-  # Completion = the Stop hook wrote the done-file. A pane that dies WITHOUT a
-  # done-file crashed. The idle timeout resets on any pane output, so a slow but
-  # working agent never trips it — only a genuinely stuck one does.
-  while [ ! -f "$done" ]; do
+# A worktree with no pending changes and (for the implementer) HEAD moved
+# past its starting point. These back wait_stage's `verify` argument below —
+# checking git state, not just the Stop hook, because Stop fires when the
+# agent's turn ends, and a turn can end while it's still waiting on a
+# backgrounded sub-agent (a Task/Agent call it didn't block on) that hasn't
+# committed yet. The done-file alone can't tell those two cases apart.
+commit_settled() { # wtpath
+  [ -z "$(git -C "$1" status --porcelain 2>/dev/null)" ]
+}
+commit_landed() { # wtpath before_sha
+  local head; head="$(git -C "$1" rev-parse HEAD 2>/dev/null)"
+  [ -n "$head" ] && [ "$head" != "$2" ] && commit_settled "$1"
+}
+
+# Is this pane id still a live pane in this tmux server? False for an empty,
+# stale (server restarted / pane closed), or never-recorded id — any of which
+# means the stage needs to be (re)started rather than reattached to.
+pane_alive() { # pane
+  [ -n "$1" ] && [ "$(tmux display-message -p -t "$1" '#{pane_dead}' 2>/dev/null || echo 1)" = "0" ]
+}
+
+# A stage already finished in this or a prior run: the Stop hook (or the
+# copilot shell) wrote its done-file, and — where given — verify confirms the
+# actual side effect landed (see commit_settled/commit_landed above). This is
+# the same predicate wait_stage blocks on, reused here so a resumed run can
+# skip straight past whatever already completed.
+stage_complete() { # donebase [verify]
+  [ -f "${1}.done" ] && { [ -z "${2:-}" ] || eval "$2"; }
+}
+
+STAGE_ORDER="implement review fix land merge"
+
+# Force a resume to redo STAGE onward instead of trusting it as already done —
+# e.g. re-running with --from land after a bad landing, without recreating
+# the worktree or the earlier stages. Clears the done/sent/pane bookkeeping;
+# resetting the chain's first stage also drops its session id, since redoing
+# from there means abandoning that claude conversation entirely.
+reset_from() { # run stage chainbase
+  local run="$1" stage="$2" chainbase="$3" hit=0 s
+  for s in $STAGE_ORDER; do
+    if [ "$s" = "$stage" ]; then hit=1; fi
+    [ "$hit" = 1 ] || continue
+    case "$s" in
+      implement) rm -f "${run}/implement.done" "${run}/implement.sent" "${run}/implement.pane" \
+                       "${chainbase}.session" "${chainbase}.pane" "${chainbase}.turn-done" ;;
+      review)    rm -f "${run}/review-"*.done "${run}/review-"*.sent "${run}/review-"*.pane ;;
+      fix)       rm -f "${run}/fix.done" "${run}/fix.sent" ;;
+      land)      rm -f "${run}/land.done" "${run}/land.sent" ;;
+      merge)     rm -f "${run}/merged.done" ;;
+      *)         fatal "--from: unknown stage '${stage}' (expected one of: ${STAGE_ORDER})" ;;
+    esac
+  done
+  [ "$hit" = 1 ] || fatal "--from: unknown stage '${stage}' (expected one of: ${STAGE_ORDER})"
+  log "--from ${stage}: cleared recorded progress from '${stage}' onward."
+}
+
+wait_stage() { # id title donebase paneid [verify] [keep] [donefile]
+  local id="$1" title="$2" donebase="$3" pane="$4" verify="${5:-}" keep="${6:-}"
+  # Empty pane = the caller's ensure_*/run_chain_stage wrapper already found
+  # this stage stage_complete and skipped starting anything — nothing to wait on.
+  [ -n "$pane" ] || return 0
+  # donefile overrides what's polled below (run_chain_stage passes its
+  # chain-wide turn-done file instead of donebase.done — see spawn_stage).
+  local done="${7:-${donebase}.done}" idle=0 last=""
+  # Completion = the Stop hook wrote the done-file AND (when given) verify
+  # confirms the actual side effect landed — see commit_settled/commit_landed
+  # above. The idle timeout resets on any pane output, so a slow but working
+  # agent never trips it — only a genuinely stuck (or falsely-signalled-done)
+  # one does.
+  while :; do
+    if [ -f "$done" ] && { [ -z "$verify" ] || eval "$verify"; }; then
+      break
+    fi
     local dead; dead="$(tmux display-message -p -t "$pane" '#{pane_dead}' 2>/dev/null || echo 1)"
     if [ -z "$dead" ] || [ "$dead" = "1" ]; then
-      [ -f "$done" ] && break
-      fatal "[${id}] ${title} pane exited before completing (crashed?) — pane ${pane} left open"
+      fatal "[${id}] ${title} pane exited before completing (crashed, or stopped early while work was still unfinished?) — pane ${pane} left open"
     fi
     local snap; snap="$(tmux capture-pane -p -J -t "$pane" 2>/dev/null | cksum)"
     if [ "$snap" != "$last" ]; then idle=0; last="$snap"; else idle=$((idle + 5)); fi
     [ "$idle" -ge "$STAGE_TIMEOUT" ] && \
-      fatal "[${id}] ${title} produced no output for ${STAGE_TIMEOUT}s (stuck?) — pane ${pane} left open"
+      fatal "[${id}] ${title} produced no output for ${STAGE_TIMEOUT}s (stuck, or signalled done early with nothing landed?) — pane ${pane} left open"
     sleep 5
   done
   log "[${id}] ${title} done."
-  kill_pane "$pane"
+  # keep=1 for a stage whose session gets reused by a later stage (fixer/land
+  # continuing the implementer's context) — only the last stage in that chain
+  # actually kills the pane.
+  [ -n "$keep" ] || kill_pane "$pane"
+}
+
+# Get (or start) the pane for one stage of the continued implement -> fixer ->
+# land conversation, resumable across orchestrator restarts, and print its
+# pane id (or nothing, if the stage was already stage_complete). A still-alive
+# persisted pane is reattached to; a still-alive pane can be either mid-stage
+# already (crash after send_prompt, before done — .sent marks that) or idle
+# right after the previous chain stage finished (needs this stage's prompt
+# sent now), so that's resolved via the .sent marker rather than guessed from
+# pane-aliveness alone. If the pane itself is gone, the claude conversation is
+# reopened with --resume (a session id pinned at first spawn, in
+# chainbase.session) so fixer/land still see the implementer's context even
+# after a crash closed its pane.
+#
+# The Stop hook is wired to a single chain-wide turn-done file (chainbase
+# .turn-done), not this stage's own donebase.done — --settings is only read
+# when claude starts, so a pane reused across several logical stages keeps
+# firing whatever hook it was spawned with. Pointed at a per-stage file, every
+# later stage's turn would silently signal the FIRST stage's completion
+# instead of its own, and that stage's wait_stage would never see its done-
+# file appear (this is exactly what made land look stalled after finishing —
+# its hook was still writing to fix's done-file, not land's). The turn-done
+# file is cleared right before every send so a stale signal left over from
+# the previous stage in this pane can't be mistaken for this one's; once
+# wait_stage confirms it (and verify passes), this stage's own donebase.done
+# is written explicitly, for stage_complete/resumability bookkeeping.
+run_chain_stage() { # id title model wtpath donebase prompt chainbase [verify] [keep]
+  local id="$1" title="$2" model="$3" wtpath="$4" donebase="$5" prompt="$6"
+  local chainbase="$7" verify="${8:-}" keep="${9:-}"
+  local sid_file="${chainbase}.session" pane_file="${chainbase}.pane" turn_done="${chainbase}.turn-done"
+
+  if stage_complete "$donebase" "$verify"; then
+    log "[${id}] ${title} already done — skipping."
+    return 0
+  fi
+
+  local pane=""
+  [ -f "$pane_file" ] && { pane="$(cat "$pane_file")"; pane_alive "$pane" || pane=""; }
+
+  if [ -z "$pane" ]; then
+    if [ -f "$sid_file" ]; then
+      local sid; sid="$(cat "$sid_file")"
+      log "[${id}] ${title}: pane gone — reopening session ${sid}."
+      pane="$(spawn_stage "$id" "$title" "$model" "$wtpath" "$donebase" "$prompt" "--resume $sid" "$turn_done")"
+    else
+      local sid; sid="$(uuidgen)"
+      printf '%s' "$sid" > "$sid_file"
+      pane="$(spawn_stage "$id" "$title" "$model" "$wtpath" "$donebase" "$prompt" "--session-id $sid" "$turn_done")"
+    fi
+    printf '%s' "$pane" > "$pane_file"
+  else
+    log "[${id}] ${title}: reattached to still-running pane ${pane}."
+    write_prompt "$donebase" "$prompt"
+  fi
+
+  if [ ! -f "${donebase}.sent" ]; then
+    rm -f "$turn_done"
+    send_prompt "$pane" "$donebase"
+    touch "${donebase}.sent"
+  fi
+
+  wait_stage "$id" "$title" "$donebase" "$pane" "$verify" "$keep" "$turn_done"
+  touch "${donebase}.done"
+  printf '%s' "$pane"
+}
+
+# Same resumability as run_chain_stage but for a standalone reviewer pane: no
+# conversation continuity needed since a review is one-shot, so a from-scratch
+# respawn after a crash just redoes it. Prints the pane id to wait on, or
+# nothing if already stage_complete — callers must still call wait_stage
+# themselves afterward, so the four reviewers keep spawning in parallel rather
+# than each blocking on its own completion in turn.
+ensure_claude_review() { # id title model wtpath donebase prompt
+  local id="$1" title="$2" model="$3" wtpath="$4" donebase="$5" prompt="$6"
+  local pane_file="${donebase}.pane"
+
+  if stage_complete "$donebase"; then
+    log "[${id}] ${title} already done — skipping."
+    return 0
+  fi
+
+  local pane=""
+  [ -f "$pane_file" ] && { pane="$(cat "$pane_file")"; pane_alive "$pane" || pane=""; }
+
+  if [ -z "$pane" ]; then
+    pane="$(spawn_stage "$id" "$title" "$model" "$wtpath" "$donebase" "$prompt")"
+    printf '%s' "$pane" > "$pane_file"
+  else
+    log "[${id}] ${title}: reattached to still-running pane ${pane}."
+    write_prompt "$donebase" "$prompt"
+  fi
+
+  if [ ! -f "${donebase}.sent" ]; then
+    send_prompt "$pane" "$donebase"
+    touch "${donebase}.sent"
+  fi
+
+  printf '%s' "$pane"
+}
+
+ensure_copilot_review() { # id title model effort wtpath donebase prompt
+  local id="$1" title="$2" model="$3" effort="$4" wtpath="$5" donebase="$6" prompt="$7"
+  local pane_file="${donebase}.pane"
+
+  if stage_complete "$donebase"; then
+    log "[${id}] ${title} already done — skipping."
+    return 0
+  fi
+
+  local pane=""
+  [ -f "$pane_file" ] && { pane="$(cat "$pane_file")"; pane_alive "$pane" || pane=""; }
+
+  if [ -z "$pane" ]; then
+    pane="$(copilot_stage "$id" "$title" "$model" "$effort" "$wtpath" "$donebase" "$prompt")"
+    printf '%s' "$pane" > "$pane_file"
+  else
+    log "[${id}] ${title}: reattached to still-running pane ${pane}."
+  fi
+
+  printf '%s' "$pane"
 }
 
 # Never kill an empty target or this orchestrator's own pane — a mis-captured id
@@ -158,12 +396,6 @@ kill_pane() {
   [ -n "$pane" ]        || { log "refusing to kill empty pane id"; return; }
   [ "$pane" != "$SELF" ] || { log "refusing to kill own pane ${pane}"; return; }
   tmux kill-pane -t "$pane" 2>/dev/null || true
-}
-
-stage() { # id title model wtpath donebase prompt  (spawn + send + wait, sequential)
-  local pane; pane="$(spawn_stage "$1" "$2" "$3" "$4" "$5" "$6")"
-  send_prompt "$pane" "$5"
-  wait_stage "$1" "$2" "$5" "$pane"
 }
 
 # --- mark an issue done, preserving the (symlinked) file --------------------
@@ -177,27 +409,59 @@ mark_done() {
 }
 
 # --- one issue -------------------------------------------------------------
-run_issue() {
-  local md="$1"
+run_issue() { # md [from_stage]
+  local md="$1" from_stage="${2:-}"
   local md_abs; md_abs="$(cd "$(dirname "$md")" && pwd)/$(basename "$md")"
   local rel="${md_abs#"$REPO"/}"; local ref="@${rel}"   # @-ref resolves inside the worktree via the .scratch symlink
   local nn; nn="$(basename "$md" | grep -oE '^[0-9]+' || true)"
   local id="${nn:-$(basename "$md" .md)}"
   local branch="${BASE}-issue-${id}"
+  local run="${TMPDIR:-/tmp}/dv-implement/${branch//\//-}"
+  local chainbase="${run}/impl-chain"
+  mkdir -p "$run"
+
+  [ -z "$from_stage" ] || reset_from "$run" "$from_stage" "$chainbase"
+
+  if [ -z "$from_stage" ] && [ -f "${run}/merged.done" ]; then
+    log "issue ${id} already merged in a prior run — marking done."
+    mark_done "$md_abs"
+    return 0
+  fi
+  if [ -z "$from_stage" ] && grep -qE '^Status:[[:space:]]*done' "$md_abs" 2>/dev/null; then
+    log "issue ${id} already Status: done — skipping."
+    return 0
+  fi
 
   log "=== issue ${id}: ${md_abs} ==="
 
-  git -C "$REPO" show-ref --verify --quiet "refs/heads/${branch}" && \
-    fatal "branch ${branch} already exists — remove it (wt remove) or mark the issue done, then re-run"
-
-  log "creating worktree ${branch} off ${BASE} (wt runs setup_worktree)..."
-  local cdfile; cdfile="$(mktemp)"
-  WORKTRUNK_DIRECTIVE_CD_FILE="$cdfile" "$WT_BIN" switch -y -c "$branch" -b "$BASE" \
-    || fatal "wt switch failed for ${branch} (worktree setup?)"
-  local wt_path; wt_path="$(cat "$cdfile" 2>/dev/null)"; rm -f "$cdfile"
-  if [ -z "$wt_path" ]; then
+  local wt_path
+  if git -C "$REPO" show-ref --verify --quiet "refs/heads/${branch}"; then
+    log "branch ${branch} already exists — resuming in its worktree."
     wt_path="$(git -C "$REPO" worktree list --porcelain \
       | awk -v b="refs/heads/${branch}" '/^worktree /{w=$2} $0=="branch "b{print w; exit}')"
+    [ -d "$wt_path" ] || fatal "branch ${branch} exists but has no worktree — remove the branch (git branch -D) or restore its worktree, then re-run"
+  else
+    log "creating worktree ${branch} off ${BASE} (wt runs setup_worktree)..."
+    local cdfile; cdfile="$(mktemp)"
+    WORKTRUNK_DIRECTIVE_CD_FILE="$cdfile" "$WT_BIN" switch -y -c "$branch" -b "$BASE" \
+      || fatal "wt switch failed for ${branch} (worktree setup?)"
+    wt_path="$(cat "$cdfile" 2>/dev/null)"; rm -f "$cdfile"
+    if [ -z "$wt_path" ]; then
+      wt_path="$(git -C "$REPO" worktree list --porcelain \
+        | awk -v b="refs/heads/${branch}" '/^worktree /{w=$2} $0=="branch "b{print w; exit}')"
+    fi
+    # This worktree is brand new, so any recorded implement/fix/land/merge
+    # progress under $run describes a *previous* worktree that's gone (e.g.
+    # already merged and cleaned up, or manually removed) — those stages
+    # produced commits that only ever existed there, so trusting their
+    # done-markers here would skip real work against an empty tree. Review
+    # markers are left alone: their output is a plain text file under $run,
+    # independent of the worktree, and stays valid as long as BASE hasn't moved.
+    rm -f "${run}/implement.done" "${run}/implement.sent" "${run}/implement.pane" \
+          "${run}/fix.done" "${run}/fix.sent" \
+          "${run}/land.done" "${run}/land.sent" \
+          "${run}/merged.done" \
+          "${chainbase}.session" "${chainbase}.pane" "${chainbase}.turn-done"
   fi
   [ -d "$wt_path" ] || fatal "could not resolve worktree path for ${branch}"
 
@@ -212,73 +476,96 @@ run_issue() {
   done
   log "worktree ready: ${wt_path}"
 
-  local run="${TMPDIR:-/tmp}/dv-implement/${branch//\//-}"
-  mkdir -p "$run"
   local rev_opus="${run}/thermo-review-opus.md"
   local rev_sonnet="${run}/thermo-review-sonnet.md"
   local rev_sol="${run}/thermo-review-sol.md"
   local rev_luna="${run}/thermo-review-luna.md"
   # Completion is signalled by the Stop hook (end of turn), so the agent must do
   # everything in one turn and not pause — otherwise it signals done too early.
-  local autonomy="Work autonomously in a single turn: do not pause to ask questions or wait for confirmation, and only end your turn once the task above is fully complete."
+  # That also covers backgrounded sub-agents: a Task/Agent call left running
+  # asynchronously ends the current turn (Stop fires) before it reports back,
+  # so anything delegated must be waited on in the foreground.
+  local autonomy="Work autonomously in a single turn: do not pause to ask questions or wait for confirmation, and only end your turn once the task above is fully complete. If you delegate to sub-agents, run them in the foreground and wait for their results — never end your turn with a sub-agent still running in the background."
 
-  # 1. implement
-  stage "$id" "Implementer" "$OPUS" "$wt_path" "${run}/implement" \
+  # 1. implement — session stays alive for stages 6-7 (fixer, land) below, so
+  # applying reviews and landing keep the implementation context and a warm
+  # cache instead of restarting cold in a fresh session each time. before_impl
+  # is the branch's fork point from BASE, not "current HEAD" — HEAD may
+  # already sit at the post-implement commit by the time this runs (e.g. a
+  # resumed run), and current HEAD would then equal before_impl, making
+  # commit_landed's "did HEAD move" check below always false and wrongly
+  # re-run an already-finished implement stage. The fork point stays correct
+  # for the branch's whole life (nothing rebases it), so it needs no caching.
+  local before_impl; before_impl="$(git -C "$wt_path" merge-base HEAD "$BASE")"
+  # verify = HEAD actually moved and the tree is clean — the Stop hook alone
+  # can't distinguish "really done" from "turn ended early, sub-agent still
+  # committing" (see the bug this guards against, in commit_landed above).
+  local p_impl; p_impl="$(run_chain_stage "$id" "Implementer" "$OPUS" "$wt_path" "${run}/implement" \
 "Read ${ref} and invoke the /implement skill to implement it.
 Invoke /commit when done.
 Do not edit ${rel} or change its Status — the orchestrator owns that.
-${autonomy}"
+${autonomy}" \
+    "$chainbase" "commit_landed '$wt_path' '$before_impl'" keep)"
 
   # 2-5. four reviewers in parallel, each writing its review to a file
   local p_opus p_sonnet p_sol p_luna
-  p_opus="$(spawn_stage "$id" "Thermo Opus Reviewer" "$OPUS" "$wt_path" "${run}/review-opus" \
+  p_opus="$(ensure_claude_review "$id" "Thermo Opus Reviewer" "$OPUS" "$wt_path" "${run}/review-opus" \
 "Invoke the /thermo-nuclear-code-quality-review skill to review the changes on this branch compared to ${BASE}.
 Write your complete review verbatim to ${rev_opus}.
 Do not edit any code and do not edit ${rel}.
 ${autonomy}")"
-  p_sonnet="$(spawn_stage "$id" "Thermo Sonnet Reviewer" "$SONNET" "$wt_path" "${run}/review-sonnet" \
+  p_sonnet="$(ensure_claude_review "$id" "Thermo Sonnet Reviewer" "$SONNET" "$wt_path" "${run}/review-sonnet" \
 "Invoke the /thermo-nuclear-code-quality-review skill to review the changes on this branch compared to ${BASE}.
 Write your complete review verbatim to ${rev_sonnet}.
 Do not edit any code and do not edit ${rel}.
 ${autonomy}")"
-  p_sol="$(copilot_stage "$id" "Copilot Sol Reviewer" "$GPT_SOL" "high" "$wt_path" "${run}/review-sol" \
+  p_sol="$(ensure_copilot_review "$id" "Copilot Sol Reviewer" "$GPT_SOL" "high" "$wt_path" "${run}/review-sol" \
 "/review the changes on this branch compared to ${BASE}.
 This is a plain code-quality review only — do not check against any issue, spec, or PRD; that has already happened elsewhere.
 Write your complete review verbatim to ${rev_sol}.
 Do not edit any code and do not edit ${rel}.
 ${autonomy}")"
-  p_luna="$(copilot_stage "$id" "Copilot Luna Reviewer" "$GPT_LUNA" "max" "$wt_path" "${run}/review-luna" \
+  p_luna="$(ensure_copilot_review "$id" "Copilot Luna Reviewer" "$GPT_LUNA" "max" "$wt_path" "${run}/review-luna" \
 "/review the changes on this branch compared to ${BASE}.
 This is a plain code-quality review only — do not check against any issue, spec, or PRD; that has already happened elsewhere.
 Write your complete review verbatim to ${rev_luna}.
 Do not edit any code and do not edit ${rel}.
 ${autonomy}")"
-  # Paste into the two interactive (claude) reviewers — the copilot reviewers
-  # already got their prompt as a -p argument at spawn time. Then wait on all
-  # four — the reviews run concurrently.
-  send_prompt "$p_opus"   "${run}/review-opus"
-  send_prompt "$p_sonnet" "${run}/review-sonnet"
+  # All four were spawned (or skipped/reattached) above without blocking, so
+  # they run concurrently; wait on them in turn now.
   wait_stage "$id" "Thermo Opus Reviewer"   "${run}/review-opus"   "$p_opus"
   wait_stage "$id" "Thermo Sonnet Reviewer" "${run}/review-sonnet" "$p_sonnet"
   wait_stage "$id" "Copilot Sol Reviewer"   "${run}/review-sol"    "$p_sol"
   wait_stage "$id" "Copilot Luna Reviewer"  "${run}/review-luna"   "$p_luna"
 
-  # 6. fresh fixer applies every review (fresh session = small context window)
-  stage "$id" "Thermo Fixer" "$OPUS" "$wt_path" "${run}/fix" \
-"Read ${ref} for context, then read the four code reviews at ${rev_opus}, ${rev_sonnet}, ${rev_sol} and ${rev_luna}.
-Apply every valid fix they raise. Where reviews conflict or a suggestion is wrong, use your judgement and note what you skipped and why.
+  # 6. fixer applies every review, continuing the implementer's session
+  retitle_pane "$p_impl" "${id} Thermo Fixer"
+  # Fixer may legitimately have nothing to commit (no valid review findings),
+  # so only require a settled tree, not that HEAD moved.
+  p_impl="$(run_chain_stage "$id" "Thermo Fixer" "$OPUS" "$wt_path" "${run}/fix" \
+"Read the four code reviews at ${rev_opus}, ${rev_sonnet}, ${rev_sol} and ${rev_luna}.
+Strongly consider every suggestion — including low-fidelity nits, minor refactors, naming tweaks, and small structural improvements. We are looking at this code now; we might as well get it right now. The amount of effort a change takes is irrelevant — aim for the best code possible.
+Apply every suggestion unless it is actually wrong or the reviews genuinely conflict. In those cases use your judgement and note what you skipped and why.
 Invoke /commit when done. Do not edit ${rel}.
-${autonomy}"
+${autonomy}" \
+    "$chainbase" "commit_settled '$wt_path'" keep)"
 
-  # 7. land
-  stage "$id" "Land" "$OPUS" "$wt_path" "${run}/land" \
+  # 7. land, same session again
+  retitle_pane "$p_impl" "${id} Land"
+  p_impl="$(run_chain_stage "$id" "Land" "$OPUS" "$wt_path" "${run}/land" \
 "Invoke the /dexory:land skill against ${BASE}.
 Invoke /commit when done. Do not edit ${rel}.
-${autonomy}"
+${autonomy}" \
+    "$chainbase" "commit_settled '$wt_path'")"
 
-  log "merging ${branch} into ${BASE} (--no-squash)..."
-  "$WT_BIN" -C "$wt_path" merge "$BASE" --no-squash -y \
-    || fatal "wt merge failed for ${branch} (conflict?) — worktree left at ${wt_path}"
+  if [ ! -f "${run}/merged.done" ]; then
+    log "merging ${branch} into ${BASE}..."
+    "$WT_BIN" -C "$wt_path" merge "$BASE" --no-squash -y \
+      || fatal "wt merge failed for ${branch} (conflict?) — worktree left at ${wt_path}"
+    touch "${run}/merged.done"
+  else
+    log "${branch} already merged into ${BASE} — skipping."
+  fi
 
   mark_done "$md_abs"
   log "issue ${id} merged into ${BASE} and marked done."
@@ -297,9 +584,21 @@ next_ready() {
 # Same review -> fix -> land pipeline as an issue, minus the implement stage:
 # branch off BASE, review all of BASE's changes against <compare> (default
 # staging), apply fixes, land against <compare>, then merge the fixes back into
-# BASE (--no-squash). No issue file, no Status.
-final_review() {
-  local compare="$1"
+# BASE. No issue file, no Status.
+final_review() { # compare [from_stage]
+  local compare="$1" from_stage="${2:-}"
+  local branch="${BASE}-final-review"
+  local run="${TMPDIR:-/tmp}/dv-implement/${branch//\//-}"
+  local chainbase="${run}/fix-chain"
+  mkdir -p "$run"
+
+  [ -z "$from_stage" ] || reset_from "$run" "$from_stage" "$chainbase"
+
+  if [ -z "$from_stage" ] && [ -f "${run}/merged.done" ]; then
+    log "final review already merged in a prior run — nothing to do."
+    return 0
+  fi
+
   # Freshen a remote-tracking compare (e.g. origin/staging) so the review diffs
   # against the current default branch, not a stale local copy — a hours-long
   # directory run can easily predate staging moving. Local-branch compares skip.
@@ -308,20 +607,33 @@ final_review() {
   esac
   git -C "$REPO" rev-parse --verify --quiet "${compare}^{commit}" >/dev/null \
     || fatal "compare ref ${compare} does not resolve to a commit"
-  local branch="${BASE}-final-review"
 
   log "=== final review: ${BASE} vs ${compare} ==="
-  git -C "$REPO" show-ref --verify --quiet "refs/heads/${branch}" && \
-    fatal "branch ${branch} already exists — remove it (wt remove) then re-run"
 
-  log "creating worktree ${branch} off ${BASE} (wt runs setup_worktree)..."
-  local cdfile; cdfile="$(mktemp)"
-  WORKTRUNK_DIRECTIVE_CD_FILE="$cdfile" "$WT_BIN" switch -y -c "$branch" -b "$BASE" \
-    || fatal "wt switch failed for ${branch} (worktree setup?)"
-  local wt_path; wt_path="$(cat "$cdfile" 2>/dev/null)"; rm -f "$cdfile"
-  if [ -z "$wt_path" ]; then
+  local wt_path
+  if git -C "$REPO" show-ref --verify --quiet "refs/heads/${branch}"; then
+    log "branch ${branch} already exists — resuming in its worktree."
     wt_path="$(git -C "$REPO" worktree list --porcelain \
       | awk -v b="refs/heads/${branch}" '/^worktree /{w=$2} $0=="branch "b{print w; exit}')"
+    [ -d "$wt_path" ] || fatal "branch ${branch} exists but has no worktree — remove the branch (git branch -D) or restore its worktree, then re-run"
+  else
+    log "creating worktree ${branch} off ${BASE} (wt runs setup_worktree)..."
+    local cdfile; cdfile="$(mktemp)"
+    WORKTRUNK_DIRECTIVE_CD_FILE="$cdfile" "$WT_BIN" switch -y -c "$branch" -b "$BASE" \
+      || fatal "wt switch failed for ${branch} (worktree setup?)"
+    wt_path="$(cat "$cdfile" 2>/dev/null)"; rm -f "$cdfile"
+    if [ -z "$wt_path" ]; then
+      wt_path="$(git -C "$REPO" worktree list --porcelain \
+        | awk -v b="refs/heads/${branch}" '/^worktree /{w=$2} $0=="branch "b{print w; exit}')"
+    fi
+    # This worktree is brand new, so any recorded fix/land/merge progress
+    # under $run describes a *previous* worktree that's gone — see the same
+    # cleanup in run_issue for the full reasoning. Review markers are left
+    # alone since their output is a plain text file, independent of the worktree.
+    rm -f "${run}/fix.done" "${run}/fix.sent" \
+          "${run}/land.done" "${run}/land.sent" \
+          "${run}/merged.done" \
+          "${chainbase}.session" "${chainbase}.pane" "${chainbase}.turn-done"
   fi
   [ -d "$wt_path" ] || fatal "could not resolve worktree path for ${branch}"
   local waited=0
@@ -332,76 +644,84 @@ final_review() {
   done
   log "worktree ready: ${wt_path}"
 
-  local run="${TMPDIR:-/tmp}/dv-implement/${branch//\//-}"
-  mkdir -p "$run"
   local rev_opus="${run}/thermo-review-opus.md"
   local rev_sonnet="${run}/thermo-review-sonnet.md"
   local rev_sol="${run}/thermo-review-sol.md"
   local rev_luna="${run}/thermo-review-luna.md"
-  local autonomy="Work autonomously in a single turn: do not pause to ask questions or wait for confirmation, and only end your turn once the task above is fully complete."
+  local autonomy="Work autonomously in a single turn: do not pause to ask questions or wait for confirmation, and only end your turn once the task above is fully complete. If you delegate to sub-agents, run them in the foreground and wait for their results — never end your turn with a sub-agent still running in the background."
   local id="final"
 
   # four reviewers in parallel, each writing its review to a file, diffing vs compare
   local p_opus p_sonnet p_sol p_luna
-  p_opus="$(spawn_stage "$id" "Thermo Opus Reviewer" "$OPUS" "$wt_path" "${run}/review-opus" \
+  p_opus="$(ensure_claude_review "$id" "Thermo Opus Reviewer" "$OPUS" "$wt_path" "${run}/review-opus" \
 "Invoke the /thermo-nuclear-code-quality-review skill to review all changes on this branch compared to ${compare}.
 Write your complete review verbatim to ${rev_opus}.
 Do not edit any code.
 ${autonomy}")"
-  p_sonnet="$(spawn_stage "$id" "Thermo Sonnet Reviewer" "$SONNET" "$wt_path" "${run}/review-sonnet" \
+  p_sonnet="$(ensure_claude_review "$id" "Thermo Sonnet Reviewer" "$SONNET" "$wt_path" "${run}/review-sonnet" \
 "Invoke the /thermo-nuclear-code-quality-review skill to review all changes on this branch compared to ${compare}.
 Write your complete review verbatim to ${rev_sonnet}.
 Do not edit any code.
 ${autonomy}")"
-  p_sol="$(copilot_stage "$id" "Copilot Sol Reviewer" "$GPT_SOL" "high" "$wt_path" "${run}/review-sol" \
+  p_sol="$(ensure_copilot_review "$id" "Copilot Sol Reviewer" "$GPT_SOL" "high" "$wt_path" "${run}/review-sol" \
 "/review all changes on this branch compared to ${compare}.
 This is a plain code-quality review only — do not check against any issue, spec, or PRD; that has already happened elsewhere.
 Write your complete review verbatim to ${rev_sol}.
 Do not edit any code.
 ${autonomy}")"
-  p_luna="$(copilot_stage "$id" "Copilot Luna Reviewer" "$GPT_LUNA" "max" "$wt_path" "${run}/review-luna" \
+  p_luna="$(ensure_copilot_review "$id" "Copilot Luna Reviewer" "$GPT_LUNA" "max" "$wt_path" "${run}/review-luna" \
 "/review all changes on this branch compared to ${compare}.
 This is a plain code-quality review only — do not check against any issue, spec, or PRD; that has already happened elsewhere.
 Write your complete review verbatim to ${rev_luna}.
 Do not edit any code.
 ${autonomy}")"
-  send_prompt "$p_opus"   "${run}/review-opus"
-  send_prompt "$p_sonnet" "${run}/review-sonnet"
   wait_stage "$id" "Thermo Opus Reviewer"   "${run}/review-opus"   "$p_opus"
   wait_stage "$id" "Thermo Sonnet Reviewer" "${run}/review-sonnet" "$p_sonnet"
   wait_stage "$id" "Copilot Sol Reviewer"   "${run}/review-sol"    "$p_sol"
   wait_stage "$id" "Copilot Luna Reviewer"  "${run}/review-luna"   "$p_luna"
 
-  # fresh fixer applies every review
-  stage "$id" "Thermo Fixer" "$OPUS" "$wt_path" "${run}/fix" \
+  # fixer applies every review — session stays alive for land below
+  local p_fix; p_fix="$(run_chain_stage "$id" "Thermo Fixer" "$OPUS" "$wt_path" "${run}/fix" \
 "Read the four code reviews at ${rev_opus}, ${rev_sonnet}, ${rev_sol} and ${rev_luna}.
-Apply every valid fix they raise. Where reviews conflict or a suggestion is wrong, use your judgement and note what you skipped and why.
+Strongly consider every suggestion — including low-fidelity nits, minor refactors, naming tweaks, and small structural improvements. We are looking at this code now; we might as well get it right now. The amount of effort a change takes is irrelevant — aim for the best code possible.
+Apply every suggestion unless it is actually wrong or the reviews genuinely conflict. In those cases use your judgement and note what you skipped and why.
 Invoke /commit when done.
-${autonomy}"
+${autonomy}" \
+    "$chainbase" "commit_settled '$wt_path'" keep)"
 
-  # land against compare
-  stage "$id" "Land" "$OPUS" "$wt_path" "${run}/land" \
+  # land against compare, same session
+  retitle_pane "$p_fix" "${id} Land"
+  p_fix="$(run_chain_stage "$id" "Land" "$OPUS" "$wt_path" "${run}/land" \
 "Invoke the /dexory:land skill against ${compare}.
 Invoke /commit when done.
-${autonomy}"
+${autonomy}" \
+    "$chainbase" "commit_settled '$wt_path'")"
 
-  log "merging ${branch} into ${BASE} (--no-squash)..."
-  "$WT_BIN" -C "$wt_path" merge "$BASE" --no-squash -y \
-    || fatal "wt merge failed for ${branch} (conflict?) — worktree left at ${wt_path}"
+  if [ ! -f "${run}/merged.done" ]; then
+    log "merging ${branch} into ${BASE}..."
+    "$WT_BIN" -C "$wt_path" merge "$BASE" --no-squash -y \
+      || fatal "wt merge failed for ${branch} (conflict?) — worktree left at ${wt_path}"
+    touch "${run}/merged.done"
+  fi
   log "final review merged into ${BASE} — complete."
 }
 
 # --- main ------------------------------------------------------------------
 if [ "$TARGET" = "--final" ]; then
-  final_review "${2:-staging}"
+  final_review "$COMPARE" "$FROM_STAGE"
 elif [ -d "$TARGET" ]; then
+  # Each issue tracks its own stage progress under its own branch/run dir (see
+  # run_issue), so --from isn't actually ambiguous here: it's forwarded to
+  # every issue processed in this pass, forcing each to redo that stage
+  # onward. An issue that hasn't reached it yet is unaffected — reset_from is
+  # a no-op against stages that were never marked done in the first place.
   processed=0
   while :; do
     # pipefail makes next_ready exit non-zero once nothing is ready (last grep -q
     # misses); || true keeps set -e from killing the loop before the log below.
     next="$(next_ready "$TARGET")" || true
     [ -n "$next" ] || break
-    run_issue "$next"
+    run_issue "$next" "$FROM_STAGE"
     processed=$((processed + 1))
   done
   # The final review's whole point is reviewing multiple issues' *combined*
@@ -419,7 +739,7 @@ elif [ -d "$TARGET" ]; then
     log "no ready-for-agent issues in ${TARGET} — nothing to do (skipping final review)."
   fi
 elif [ -f "$TARGET" ]; then
-  run_issue "$TARGET"   # single file: no accumulation, so no final review
+  run_issue "$TARGET" "$FROM_STAGE"   # single file: no accumulation, so no final review
   log "complete."
 else
   fatal "not a file or directory: ${TARGET}"
