@@ -37,6 +37,8 @@ DOTFILES=(
     ".gitignore"
     ".hushlogin"
     ".ignored"
+    ".pi/agent/extensions"
+    ".pi/agent/keybindings.json"
     ".pi/settings.json"
     ".pi/status-line.json"
     ".tmux.conf"
