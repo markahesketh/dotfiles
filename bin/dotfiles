@@ -37,6 +37,8 @@ DOTFILES=(
     ".gitignore"
     ".hushlogin"
     ".ignored"
+    ".pi/settings.json"
+    ".pi/status-line.json"
     ".tmux.conf"
     ".vimrc"
     ".zprofile"
