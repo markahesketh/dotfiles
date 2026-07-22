@@ -1,0 +1,50 @@
+{
+  "skill_name": "open-dexoryview",
+  "evals": [
+    {
+      "id": 0,
+      "eval_name": "local-default-visual-check",
+      "prompt": "I just tweaked the sidebar collapse animation on DexoryView, can you open it up and confirm it looks right?",
+      "expected_output": "Generates a magic link for the current local worktree (using the wt port alias, not a guessed/default port), with default customer=dexory, site=wallingford, role=admin. Opens the link via the agent-browser skill and reports back on how the sidebar collapse animation actually looks.",
+      "files": [],
+      "expectations": [
+        "Used --local (not --pr) in the dv-cli magic-link command",
+        "Obtained the port via the wt port alias rather than guessing or defaulting to 3000",
+        "Used the default --customer dexory, --site wallingford, --role admin since none were requested",
+        "Extracted only the magic-link URL from the command output, not the trailing Playwright note",
+        "Invoked the agent-browser skill/CLI to actually open the link in a browser",
+        "Reported a concrete visual verdict on the sidebar animation, not just that a link was generated"
+      ]
+    },
+    {
+      "id": 1,
+      "eval_name": "pr-review-app-role-override",
+      "prompt": "Can you check the review app for PR 5581 -- I want to confirm the Locations Overview page actually loads now, for a site_admin?",
+      "expected_output": "Generates a magic link against the PR 5581 review app (--pr, not --local), with --role overridden to site_admin and customer/site left at defaults. Opens the link via agent-browser and reports on whether the Locations Overview page loads.",
+      "files": [],
+      "expectations": [
+        "Used --pr 5581 (not --local) since this is a review app, not a local worktree",
+        "Overrode --role to site_admin rather than leaving it at the admin default",
+        "Left --customer and --site at their defaults (dexory / wallingford) since neither was specified",
+        "Did not attempt to fetch a local port for this target",
+        "Invoked the agent-browser skill/CLI to open the review app link",
+        "Reported on whether the Locations Overview page loads, not just that a link was generated"
+      ]
+    },
+    {
+      "id": 2,
+      "eval_name": "customer-site-override",
+      "prompt": "Pull up DexoryView for the Alloga AP8 site as a super_user and check that the new alert banner shows up on the dashboard",
+      "expected_output": "Generates a magic link for the local worktree (no PR mentioned) with --customer alloga, --site ap8, --role super_user overridden from the defaults. Opens the link via agent-browser and reports on the alert banner.",
+      "files": [],
+      "expectations": [
+        "Overrode --customer to alloga (not the dexory default)",
+        "Overrode --site to ap8 (not the wallingford default)",
+        "Overrode --role to super_user (not the admin default)",
+        "Used --local with a port from wt port (not --pr), since no PR was mentioned",
+        "Invoked the agent-browser skill/CLI to open the link",
+        "Reported on whether the alert banner appears on the dashboard, not just that a link was generated"
+      ]
+    }
+  ]
+}
