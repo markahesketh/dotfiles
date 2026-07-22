@@ -1,18 +1,18 @@
 ---
 name: land
-description: "Landing sequence."
+description: User-invoked only via `/land` or `/dexory:land`. Do not trigger autonomously — no keyword or intent match should invoke this.
 disable-model-invocation: true
 ---
 
 # Land
 
-Runs the full task completion pipeline in sequence: tests → react best practices (if applicable) → simplify → finalise.
+Runs the full task-completion pipeline. Each stage runs in an isolated sub-agent and returns recommendations; you then apply them in this main context.
 
-## Instructions
+```
+resolve scope → [ review-tests | react-best-practices? | simplify | finalise ]  (parallel)  →  apply  →  summarise
+```
 
-Run these skills in order, announcing the start and end of each stage clearly. Do not skip a stage if a previous one had warnings — only stop if a stage produces a hard failure that would block the next stage from running meaningfully.
-
-### Stage 0 — Resolve review scope (do this first)
+## Step 1 — Resolve the review scope
 
 Resolve the scope **once**, up front, by running the bundled resolver. Pass the base the user gave `/land` (e.g. `/land staging` → `staging`); pass nothing if they didn't:
 
@@ -24,61 +24,61 @@ It prints `key=value` lines. Act on `mode`:
 
 - **`uncommitted`** → scope is `git diff HEAD` plus the files in `untracked=` (they're not in the diff).
 - **`branch`** → scope is `git diff <range>` using the printed `range=` (e.g. `origin/staging...HEAD`).
-- **`ambiguous`** → the parent branch can't be inferred; ask the user which of `candidates=` to use **now**, before any stage runs, then re-run the resolver with that base.
+- **`ambiguous`** → the parent branch can't be inferred; ask the user which of `candidates=` to use **now**, before any stage runs, then re-run the resolver as `resolve-scope.sh <base>` with their answer.
 - **`empty`** → the branch adds nothing over any base and the tree is clean; there's nothing to review. Report that and stop.
 
 Announce the resolved scope, e.g. `**Scope: branch vs origin/staging** (git diff origin/staging...HEAD)`.
 
-Hold the mode + range as the **scope directive**. The stages run in forked contexts and can't see this one, so pass the directive in each stage's Skill `args` and tell it to use that exactly and not re-detect. Keep the `react=` value for Stage 2. Lint is the exception — it always runs on the whole tree.
+Also read `react=` from the resolver output. If `react=false`, Stage 2 (react-best-practices) is skipped entirely.
 
-### Stage 1 — Review Tests
+## Step 2 — Dispatch all applicable stages in parallel
 
-Announce: "**[1/4] Starting: review-tests**"
+Every stage runs in its own sub-agent — that's the point of `land`. Use the harness's sub-agent primitive (`Agent` in Claude Code, `~/.codex/agents/` in Codex CLI). **Do not invoke stage skills via the `Skill` tool directly from this context** — that loads the skill body inline and defeats the isolation.
 
-Use the Skill tool to invoke `review-tests`, passing the scope directive in `args` (e.g. "Scope: branch mode, base = origin/staging — review only `git diff origin/staging...HEAD`. Use this exactly; do not re-detect scope.").
+The applicable stages are:
 
-When complete, announce: "**[1/4] Done: review-tests**"
+- **Stage 1**: `review-tests`
+- **Stage 2**: `react-best-practices` — only if `react=true`. Skip entirely otherwise.
+- **Stage 3**: `simplify`
+- **Stage 4**: `finalise`
 
----
+In a single message, dispatch a sub-agent per applicable stage. Announce the parallel dispatch, e.g. "**Dispatching review-tests, simplify, finalise in parallel** (react-best-practices skipped: no React in diff)."
 
-### Stage 2 — React Best Practices (conditional)
+### What every sub-agent prompt must contain
 
-This stage applies only if the scoped diff touches React. The resolver already computed this — use the `react=` value from Stage 0. (`react=true` → apply; `react=false` → skip.)
+**Report, don't act.** This is the most important override. The stage skills all say "act, don't report" — you are explicitly reversing that for the `land` pipeline, because four sub-agents editing the same files in parallel would collide, and because you want to reconcile overlapping suggestions before applying. The sub-agent must **not** modify files. It returns a structured list of concrete, actionable recommendations — each with file path, line reference where applicable, and a clear description of the suggested change and why. If the stage skill would normally rewrite something, the sub-agent describes the rewrite instead of performing it. Say this in the prompt in words the sub-agent cannot misread.
 
-**If React code is present (`react=true`):**
+**The scope directive, verbatim.** Sub-agents run in fresh contexts and can't see Step 1. Paste the resolved scope into every prompt so all stages review the same thing without re-detecting. Use one of these shapes:
 
-Announce: "**[2/4] Starting: react-best-practices**"
+Branch mode:
+```
+Scope: branch mode, base=<base>, range=<range>.
+Use `git diff <range>` exactly. Do not re-run scope detection.
+```
 
-Use the Skill tool to invoke `react-best-practices`, passing the scope directive in `args` and instructing it to apply only to the files in that scoped diff.
+Uncommitted mode:
+```
+Scope: uncommitted. Review `git diff HEAD` plus these untracked files: <list>.
+Do not re-run scope detection.
+```
 
-When complete, announce: "**[2/4] Done: react-best-practices**"
+**Which stage skill to invoke.** Tell the sub-agent to invoke the named stage skill (`review-tests`, `react-best-practices`, `simplify`, or `finalise`) via its own `Skill` tool and follow its analysis end-to-end.
 
-**If no React code is present:**
+Wait for all sub-agents to return before moving on. Do not apply any changes until you have every report.
 
-Announce: "**[2/4] Skipped: react-best-practices (no React code in diff)**"
+## Step 3 — Apply the recommendations
 
----
+Once every sub-agent has returned, review the collected recommendations as a set and apply them yourself in this main context.
 
-### Stage 3 — Simplify
+**Posture:** treat every suggestion as worth taking — nits, naming, small refactors included. The code is open now; get it right now. Effort isn't the constraint. Apply everything unless a suggestion is actually wrong or two reports genuinely conflict. Note any skips with the reason.
 
-Announce: "**[3/4] Starting: simplify**"
+When reports overlap (e.g. simplify and review-tests both flag the same file), reconcile before editing — don't apply the same change twice.
 
-Use the Skill tool to invoke `simplify`, passing the scope directive in `args` and instructing it to use that scope exactly and not re-detect.
+## Step 4 — Summarise
 
-When complete, announce: "**[3/4] Done: simplify**"
+Print a brief summary:
 
----
-
-### Stage 4 — Finalise
-
-Announce: "**[4/4] Starting: finalise**"
-
-Use the Skill tool to invoke `finalise`, passing the scope directive in `args` and instructing it to use that scope exactly and not re-detect.
-
-When complete, announce: "**[4/4] Done: finalise**"
-
----
-
-### Final summary
-
-After all stages, print a brief summary of what each stage did or changed. If any stage found nothing to do or was skipped, say so. If any stage failed, surface the error clearly.
+- Per stage: what it recommended (headline count is fine — e.g. "5 suggestions, 5 applied") and any skips with reasons.
+- A short list of what actually changed in the working tree.
+- Anything you deliberately did not apply, and why.
+- Any hard failures from sub-agents surfaced clearly.
