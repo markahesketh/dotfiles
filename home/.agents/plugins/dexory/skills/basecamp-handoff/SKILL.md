@@ -56,7 +56,7 @@ If the user picks "Create one", invoke the `pr-creator` skill. The `pr-creator` 
 **PR exists.** Construct the review-app link:
 
 ```
-https://pr-{number}-dexory.fly.dev/
+https://{number}.review.dexoryview.com/
 ```
 
 ### 3. Generate acceptance criteria from the changes
@@ -94,7 +94,7 @@ Follow the `basecamp-comment` style closely. Audience is product managers and de
 - PR link and review-app link at the end, formatted identically so they read as a matched pair. Use a bold label followed by the link, one per line:
   ```html
   <strong>GitHub PR:</strong> <a href="https://github.com/dexory/.../pull/1234">https://github.com/dexory/.../pull/1234</a><br>
-  <strong>Review app:</strong> <a href="https://pr-1234-dexory.fly.dev/">https://pr-1234-dexory.fly.dev/</a>
+  <strong>Review app:</strong> <a href="https://1234.review.dexoryview.com/">https://1234.review.dexoryview.com/</a>
   ```
   Same label style, same line shape, same order every time (PR first, review app second). Do not vary the phrasing — consistency makes the links easier to scan and matches the rest of the team's style.
 
@@ -147,7 +147,7 @@ Fixed. Also gave the empty state a proper message for when there's nothing in th
 </ul>
 <br>
 <strong>GitHub PR:</strong> <a href="https://github.com/dexory/.../pull/1234">https://github.com/dexory/.../pull/1234</a><br>
-<strong>Review app:</strong> <a href="https://pr-1234-dexory.fly.dev/">https://pr-1234-dexory.fly.dev/</a>
+<strong>Review app:</strong> <a href="https://1234.review.dexoryview.com/">https://1234.review.dexoryview.com/</a>
 ```
 
 Note how the opening doesn't repeat "the items list was showing archived items by default" — the card title already says that. The comment just says it's done and flags the one extra thing (the empty state) that wasn't on the original card. Note also the standalone `<br>` lines: one after the opening paragraph, one after the verify list, so each block has visible breathing room before the next.
@@ -179,7 +179,7 @@ A few things on the items page, all sorted now:<br>
 </ul>
 <br>
 <strong>GitHub PR:</strong> <a href="https://github.com/dexory/.../pull/1234">https://github.com/dexory/.../pull/1234</a><br>
-<strong>Review app:</strong> <a href="https://pr-1234-dexory.fly.dev/">https://pr-1234-dexory.fly.dev/</a>
+<strong>Review app:</strong> <a href="https://1234.review.dexoryview.com/">https://1234.review.dexoryview.com/</a>
 ```
 
 A list at the top is fine here because the bundle covers things beyond the original card's scope — listing them is genuinely informative, not parroting.
