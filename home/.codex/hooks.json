@@ -2,31 +2,30 @@
   "hooks": {
     "PreToolUse": [
       {
-        "matcher": "Bash",
         "hooks": [
           {
-            "type": "command",
-            "command": "bash ~/.codex/hooks/validate-commit.sh"
+            "command": "bash ~/.codex/hooks/validate-commit.sh",
+            "type": "command"
           }
-        ]
+        ],
+        "matcher": "Bash"
       }
     ],
     "SessionStart": [
       {
         "hooks": [
           {
-            "type": "command",
-            "command": "bash ~/.codex/hooks/title-from-prompt.sh --reset"
+            "command": "bash ~/.codex/hooks/title-from-prompt.sh --reset",
+            "type": "command"
           }
         ]
-      }
-    ],
-    "UserPromptSubmit": [
+      },
       {
         "hooks": [
           {
-            "type": "command",
-            "command": "bash ~/.codex/hooks/title-from-prompt.sh"
+            "command": "bash '/Users/markhesketh/.codex/herdr-agent-state.sh' session",
+            "timeout": 10,
+            "type": "command"
           }
         ]
       }
@@ -35,8 +34,18 @@
       {
         "hooks": [
           {
-            "type": "command",
-            "command": "bash ~/.claude/hooks/notify-done.sh"
+            "command": "bash ~/.claude/hooks/notify-done.sh",
+            "type": "command"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "command": "bash ~/.codex/hooks/title-from-prompt.sh",
+            "type": "command"
           }
         ]
       }
