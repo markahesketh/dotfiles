@@ -1,7 +1,6 @@
 ---
 name: review-tests
 description: Review the tests added on the current branch and fix them.
-context: fork
 model: opus
 ---
 

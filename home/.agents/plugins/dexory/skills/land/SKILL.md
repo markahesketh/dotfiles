@@ -33,7 +33,7 @@ Also read `react=` from the resolver output. If `react=false`, Stage 2 (react-be
 
 ## Step 2 — Dispatch all applicable stages in parallel
 
-Every stage runs in its own `reviewer` sub-agent — that's the point of `land`. Use the harness's sub-agent primitive (`Agent` in Claude Code, `spawn_agent` in Codex). **Do not invoke stage skills via the `Skill` tool directly from this context** — that loads the skill body inline and defeats the isolation.
+Every stage runs in its own `reviewer` sub-agent — that's the point of `land`. Use the harness's sub-agent primitive (`Agent` in Claude Code, `spawn_agent` in Codex). The reviewer invokes the stage skill in its existing thread; the orchestrator, not the stage skill, owns isolation.
 
 ### Review model policy
 
@@ -71,7 +71,7 @@ Scope: uncommitted. Review `git diff HEAD` plus these untracked files: <list>.
 Do not re-run scope detection.
 ```
 
-**Which stage skill to invoke.** Tell the sub-agent to invoke the named stage skill (`review-tests`, `react-best-practices`, `simplify`, or `finalise`) via its own `Skill` tool and follow its analysis end-to-end.
+**Which stage skill to invoke.** Tell the sub-agent to invoke the named stage skill (`review-tests`, `react-best-practices`, `simplify`, or `finalise`) via its own Skill tool and follow its analysis end-to-end in the current reviewer thread. Stage skills do not choose their own isolation, so this does not create a wrapper agent.
 
 If a stage skill requests nested delegation (currently `simplify` does), preserve that fan-out when the harness supports it. Use a purpose-built review agent when one is defined for a lens; otherwise use `reviewer` for every nested review so the model policy propagates. When the harness does not allow nested subagents, tell the stage agent to perform the lenses itself and return one combined report.
 
