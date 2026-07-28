@@ -192,7 +192,8 @@ export default function (pi: ExtensionAPI) {
 						? theme.fg("error", context.label)
 						: theme.fg("text", context.label);
 					const model = theme.fg("success", ctx.model?.id ?? "no model");
-					const left = `${contextText}${theme.fg("dim", " • ")}${model}`;
+					const thinkingLevel = theme.fg("accent", ` (${ctx.thinkingLevel})`);
+					const left = `${contextText}${theme.fg("dim", " • ")}${model}${thinkingLevel}`;
 					const usage = usageWindows
 						.map((window) => usageColor(theme, window, usageWindowLabel(window)))
 						.join(theme.fg("dim", " • "));
@@ -219,6 +220,10 @@ export default function (pi: ExtensionAPI) {
 
 	pi.on("model_select", async (_event, ctx) => {
 		void refreshUsage(ctx);
+	});
+
+	pi.on("thinking_level_select", () => {
+		requestRender?.();
 	});
 
 	pi.on("session_shutdown", () => {
