@@ -1,3 +1,5 @@
 {
+  "tui.input.newLine": ["shift+enter", "ctrl+j", "alt+enter"],
+  "app.message.followUp": [],
   "app.session.rename": "ctrl+shift+r"
 }
