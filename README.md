@@ -58,7 +58,6 @@ For example:
 | `.config/ghostty/` | Ghostty terminal config |
 | `.config/tmux/` | Tmux scripts (dark mode, session hooks, test runner) |
 | `.config/atuin/` | Atuin shell history config |
-| `.config/herdr/` | Herdr terminal multiplexer config |
 | `.config/workmux/` | Workmux workspace config |
 | `.config/zed/` | Zed editor config |
 | `.claude/` | Claude Code settings, hooks, and media |

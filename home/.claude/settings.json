@@ -48,18 +48,6 @@
           }
         ]
       }
-    ],
-    "SessionStart": [
-      {
-        "matcher": "*",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash '/Users/markhesketh/.claude/hooks/herdr-agent-state.sh' session",
-            "timeout": 10
-          }
-        ]
-      }
     ]
   },
   "disableRemoteControl": true,
