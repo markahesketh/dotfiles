@@ -73,7 +73,7 @@ Do not re-run scope detection.
 
 **Which stage skill to invoke.** Tell the sub-agent to invoke the named stage skill (`review-tests`, `react-best-practices`, `simplify`, or `finalise`) via its own `Skill` tool and follow its analysis end-to-end.
 
-Some harnesses do not allow a sub-agent to spawn another sub-agent. If a stage skill requests nested delegation (currently `simplify` does), tell the stage agent to perform those review lenses itself, in sequence, and return one combined report. The stage still runs in isolation; only its internal fan-out is collapsed.
+If a stage skill requests nested delegation (currently `simplify` does), preserve that fan-out when the harness supports it. Use a purpose-built review agent when one is defined for a lens; otherwise use `reviewer` for every nested review so the model policy propagates. When the harness does not allow nested subagents, tell the stage agent to perform the lenses itself and return one combined report.
 
 Wait for all sub-agents to return before moving on. Do not apply any changes until you have every report.
 
