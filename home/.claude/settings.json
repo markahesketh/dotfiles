@@ -3,61 +3,8 @@
     "commit": "",
     "pr": ""
   },
-  "autoMemoryEnabled": false,
-  "awaySummaryEnabled": false,
-  "disableArtifact": true,
-  "disableBundledSkills": true,
-  "disableClaudeAiConnectors": true,
-  "disableDeepLinkRegistration": "disable",
-  "disableRemoteControl": true,
-  "disableSideloadFlags": true,
-  "disableWorkflows": true,
-  "effortLevel": "high",
-  "enabledPlugins": {
-    "dexory@dotfiles": true,
-    "figma@claude-plugins-official": true,
-    "frontend-design@claude-plugins-official": true,
-    "ruby-lsp@claude-plugins-official": true
-  },
-  "hooks": {
-    "PreToolUse": [
-      {
-        "hooks": [
-          {
-            "command": "/Users/markhesketh/.claude/hooks/rtk-rewrite.sh",
-            "type": "command"
-          },
-          {
-            "command": "bash ~/.claude/hooks/route-commit-to-skill.sh",
-            "type": "command"
-          }
-        ],
-        "matcher": "Bash"
-      }
-    ],
-    "SessionStart": [
-      {
-        "hooks": [
-          {
-            "command": "bash '/Users/markhesketh/.claude/hooks/herdr-agent-state.sh' session",
-            "timeout": 10,
-            "type": "command"
-          }
-        ],
-        "matcher": "*"
-      }
-    ]
-  },
   "includeGitInstructions": false,
-  "model": "opus[1m]",
   "permissions": {
-    "ask": [
-      "Bash(git commit *)",
-      "Bash(git push *)",
-      "Bash(git pull *)",
-      "Bash(git rebase *)"
-    ],
-    "defaultMode": "auto",
     "deny": [
       "EnterPlanMode",
       "ExitPlanMode",
@@ -70,13 +17,70 @@
       "ExitWorktree",
       "ShareOnboardingGuide",
       "AskUserQuestion"
+    ],
+    "ask": [
+      "Bash(git commit *)",
+      "Bash(git push *)",
+      "Bash(git pull *)",
+      "Bash(git rebase *)"
+    ],
+    "defaultMode": "auto"
+  },
+  "model": "claude-fable-5[1m]",
+  "disableClaudeAiConnectors": true,
+  "skillOverrides": {
+    "research": "off",
+    "codebase-design": "off"
+  },
+  "disableBundledSkills": true,
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/Users/markhesketh/.claude/hooks/rtk-rewrite.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash ~/.claude/hooks/route-commit-to-skill.sh"
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash '/Users/markhesketh/.claude/hooks/herdr-agent-state.sh' session",
+            "timeout": 10
+          }
+        ]
+      }
     ]
   },
-  "showClearContextOnPlanAccept": true,
+  "disableRemoteControl": true,
+  "disableWorkflows": true,
+  "disableArtifact": true,
   "statusLine": {
+    "type": "command",
     "command": "bash ~/.claude/statusline-command.sh",
-    "refreshInterval": 60,
-    "type": "command"
+    "refreshInterval": 60
   },
-  "theme": "light"
+  "enabledPlugins": {
+    "dexory@dotfiles": true,
+    "figma@claude-plugins-official": false,
+    "frontend-design@claude-plugins-official": false,
+    "ruby-lsp@claude-plugins-official": true
+  },
+  "disableSideloadFlags": true,
+  "effortLevel": "high",
+  "awaySummaryEnabled": false,
+  "showClearContextOnPlanAccept": true,
+  "autoMemoryEnabled": false,
+  "theme": "light",
+  "disableDeepLinkRegistration": "disable"
 }

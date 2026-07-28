@@ -1,19 +1,6 @@
 # RTK - Rust Token Killer (Codex CLI)
 
-**Usage**: Token-optimized CLI proxy for shell commands.
-
-## Rule
-
-Always prefix shell commands with `rtk`.
-
-Examples:
-
-```bash
-rtk git status
-rtk cargo test
-rtk npm run build
-rtk pytest -q
-```
+**Usage**: Token-optimized CLI proxy for shell commands. The `rtk-rewrite.sh` PreToolUse hook prefixes Bash commands with `rtk` automatically, so you don't need to.
 
 ## Meta Commands
 

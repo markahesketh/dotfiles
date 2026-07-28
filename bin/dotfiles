@@ -30,6 +30,7 @@ DOTFILES=(
     ".config/tmux/pane-title-from-prompt.sh"
     ".config/tmux/run-tests.sh"
     ".config/ghostty/config"
+    ".config/herdr/config.toml"
     ".config/workmux/config.yaml"
     ".config/worktrunk/config.toml"
     ".gemini/settings.json"

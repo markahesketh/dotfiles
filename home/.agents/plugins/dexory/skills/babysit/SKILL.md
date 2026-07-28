@@ -4,7 +4,7 @@ description: Babysit a PR till it's green
 disable-model-invocation: true
 ---
 
-Watch the PR on the current branch and drive it to a mergeable state: all tests and lint green, every review thread addressed and resolved. You're the orchestrator — watch, triage, delegate the actual fixing to sub agents (see Delegating the work), judge their results, and apply the winner. Don't do the fix work in this thread, and don't commit on your own (see the commit gate).
+Watch the PR on the current branch and drive it to a mergeable state: all tests and lint green, every review thread addressed and resolved. Triage what's in scope, fix it directly, and don't commit on your own (see the commit gate).
 
 ## Watch loop
 
@@ -23,21 +23,17 @@ Before fixing a failing test, lint error, or build break, work out whether this 
 
 If you can't tell whether this PR caused something, or a genuine decision is needed, ask the user rather than guessing.
 
-## Delegating the work
-
-Don't fix things in this thread — babysit runs on a long-lived cron loop, so doing the work here bloats the context until compaction is forced. Triage scope here; delegate the fixing.
-
-For each in-scope failing test and each review thread that needs a code change, spawn **three sub agents in parallel**, each independently solving the same problem from scratch. Give each its own worktree so they can apply changes and run the relevant tests without colliding. Each returns its proposed diff, a short rationale, and whether it validated (tests/lint pass).
-
-Then judge for consensus:
-- If two or more converge on the same approach, that's your consensus — take the cleanest implementation of it.
-- If they diverge, or picking between them is a genuine judgment call, don't choose arbitrarily — put the options to the user.
-
-Apply the chosen solution to the main working tree, then go to the commit gate. A sub agent never commits or pushes.
-
 ## Review threads
 
-Prioritise review comments — pending code changes will invalidate the CI run anyway, so it's wasteful to chase a green build before the review is settled. For each in-scope thread, either delegate the fix (see Delegating the work) or, if you're not fixing it, reply with the reasoning — then resolve it. `.claude/skills/address-ai-review/SKILL.md` has useful detail here.
+Prioritise review comments — pending code changes will invalidate the CI run anyway, so it's wasteful to chase a green build before the review is settled.
+
+For each in-scope thread, always **reply directly to that comment** with what you did or why — never a standalone PR comment or a silent push. Then, once the point is settled, **resolve the thread**:
+
+- **Fixed** → reply on the thread describing the fix (reference the change), then resolve it.
+- **Won't fix / invalid / out of scope** → reply on the thread with the reasoning, then resolve it.
+- **Needs the user's input** → reply if you have something useful to say, but leave it unresolved and flag it to the user.
+
+Both the reply and the resolve target the specific review thread, not the PR as a whole. `.claude/skills/address-ai-review/SKILL.md` has the `gh`/GraphQL mechanics for replying to and resolving threads.
 
 ## Commit gate
 
