@@ -81,9 +81,23 @@ Wait for all sub-agents to return before moving on. Do not apply any changes unt
 
 Once every sub-agent has returned, review the collected recommendations as a set and apply them yourself in this main context.
 
-**Posture:** treat every suggestion as worth taking — nits, naming, small refactors included. The code is open now; get it right now. Effort isn't the constraint. Apply everything unless a suggestion is actually wrong or two reports genuinely conflict. Note any skips with the reason.
+**You are the decision-maker, not a relay.** Each sub-agent saw only the diff. You know the task intent, what was tried and rejected along the way, and the conventions this change sits in — so a recommendation that looks obviously right to a fresh reviewer can still be wrong here, and only you can tell. Adjudicate every one before it lands.
+
+Bias toward applying: nits, naming, and small refactors included. The code is open now, and volume of feedback is not a reason to start filtering. But reject on evidence where a finding earns it, and name the ground:
+
+- **Wrong on the facts** — the claim doesn't hold when you check it: the helper it cites doesn't exist or doesn't do that, the "duplicate" asserts something different, the code it describes isn't what's there.
+- **Contradicts a deliberate decision** taken in this session or visible in the history. Say what the decision was.
+- **Violates a convention the sub-agent couldn't see** — established elsewhere in the codebase, or an explicit instruction from the user.
+- **Changes behaviour**, where the stage that raised it is behaviour-preserving by mandate.
+- **Conflicts with another report** — pick one and say which.
+
+These are not grounds: "minor" / "a nit", "out of scope for this change", "would take a while", "the existing code reads fine", or bare disagreement with no check performed. If you can't name a ground, apply the finding.
+
+**Verify before anything destructive.** A recommendation that deletes a test, removes a code path, or claims coverage already exists elsewhere is a factual claim — confirm it against the files first. A false positive there removes something whose absence you won't notice.
 
 When reports overlap (e.g. simplify and review-tests both flag the same file), reconcile before editing — don't apply the same change twice.
+
+**Verification is yours.** Every stage ran report-only, so none of them ran the build or the tests as its own skill would normally require. Once you've finished applying, run them and surface any failure in Step 4.
 
 ## Step 4 — Summarise
 
