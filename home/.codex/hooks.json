@@ -35,10 +35,6 @@
       {
         "hooks": [
           {
-            "command": "bash ~/.claude/hooks/notify-done.sh",
-            "type": "command"
-          },
-          {
             "command": "bash ~/.agents/hooks/review-new-comments.sh",
             "timeout": 30,
             "type": "command"
