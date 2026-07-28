@@ -5,12 +5,20 @@ const CONTEXT_LIMIT = 150_000;
 const USAGE_REFRESH_INTERVAL_MS = 60_000;
 const CODEX_USAGE_URL = "https://chatgpt.com/backend-api/wham/usage";
 const CLAUDE_USAGE_URL = "https://api.anthropic.com/api/oauth/usage";
+const SHORT_CACHE_TTL_MS = 5 * 60 * 1_000;
+const LONG_CACHE_TTL_MS = 60 * 60 * 1_000;
 
 type UsageWindow = {
 	label: string;
 	usedPercent: number;
 	windowSeconds: number;
 	resetsAt: number;
+};
+
+type CacheRefresh = {
+	provider: string;
+	model: string;
+	timestamp: number;
 };
 
 function formatTokens(tokens: number): string {
@@ -155,8 +163,33 @@ function usageColor(theme: Theme, window: UsageWindow, text: string): string {
 	return theme.fg("success", text);
 }
 
+function cacheWarmthLabel(ctx: ExtensionContext, cacheRefresh: CacheRefresh | undefined): string | undefined {
+	if (
+		ctx.model?.provider !== "anthropic" ||
+		!cacheRefresh ||
+		cacheRefresh.provider !== ctx.model.provider ||
+		cacheRefresh.model !== ctx.model.id
+	) {
+		return undefined;
+	}
+
+	const ttlMs = process.env.PI_CACHE_RETENTION === "long" ? LONG_CACHE_TTL_MS : SHORT_CACHE_TTL_MS;
+	const remainingMs = cacheRefresh.timestamp + ttlMs - Date.now();
+	return remainingMs > 0 ? ` cache ${formatDuration(Math.ceil(remainingMs / 1_000))}` : undefined;
+}
+
+function latestCacheRefresh(ctx: ExtensionContext): CacheRefresh | undefined {
+	for (const entry of [...ctx.sessionManager.getBranch()].reverse()) {
+		if (entry.type === "compaction") return undefined;
+		if (entry.type !== "message" || entry.message.role !== "assistant") continue;
+		if (entry.message.stopReason === "error" || entry.message.stopReason === "aborted") continue;
+		return { provider: entry.message.provider, model: entry.message.model, timestamp: entry.message.timestamp };
+	}
+}
+
 export default function (pi: ExtensionAPI) {
 	let projectName = "";
+	let cacheRefresh: CacheRefresh | undefined;
 	let usageWindows: UsageWindow[] = [];
 	let usageRefreshTimer: ReturnType<typeof setInterval> | undefined;
 	let requestRender: (() => void) | undefined;
@@ -175,6 +208,7 @@ export default function (pi: ExtensionAPI) {
 
 		const gitRoot = await pi.exec("git", ["rev-parse", "--show-toplevel"], { cwd: ctx.cwd, timeout: 2_000 }).catch(() => undefined);
 		projectName = (gitRoot?.stdout.trim().split("/").pop() || ctx.cwd.split("/").pop() || "project").trim();
+		cacheRefresh = latestCacheRefresh(ctx);
 
 		ctx.ui.setFooter((tui, theme, footerData) => {
 			const unsubscribe = footerData.onBranchChange(() => tui.requestRender());
@@ -193,7 +227,9 @@ export default function (pi: ExtensionAPI) {
 						: theme.fg("text", context.label);
 					const model = theme.fg("success", ctx.model?.id ?? "no model");
 					const thinkingLevel = theme.fg("accent", ` (${ctx.thinkingLevel})`);
-					const left = `${contextText}${theme.fg("dim", " • ")}${model}${thinkingLevel}`;
+					const cacheWarmth = cacheWarmthLabel(ctx, cacheRefresh);
+					const cache = cacheWarmth ? theme.fg("thinkingText", cacheWarmth) : "";
+					const left = `${contextText}${theme.fg("dim", " • ")}${model}${thinkingLevel}${cache}`;
 					const usage = usageWindows
 						.map((window) => usageColor(theme, window, usageWindowLabel(window)))
 						.join(theme.fg("dim", " • "));
@@ -212,6 +248,17 @@ export default function (pi: ExtensionAPI) {
 
 		void refreshUsage(ctx);
 		usageRefreshTimer = setInterval(() => void refreshUsage(ctx), USAGE_REFRESH_INTERVAL_MS);
+	});
+
+	pi.on("message_end", (event) => {
+		if (event.message.role !== "assistant") return;
+		if (event.message.stopReason === "error" || event.message.stopReason === "aborted") return;
+		cacheRefresh = {
+			provider: event.message.provider,
+			model: event.message.model,
+			timestamp: event.message.timestamp,
+		};
+		requestRender?.();
 	});
 
 	pi.on("agent_settled", async (_event, ctx) => {
