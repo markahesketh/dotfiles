@@ -30,12 +30,16 @@ Abandoned approaches leave residue. Within the changed lines, remove:
 - Branches, conditions, imports, variables, or functions belonging to a discarded approach
 - Logic replaced but not fully removed, and the paths it left unreachable
 
-## 4. Remove AI slop
+## 4. Make comments earn their place
+
+Apply the shared [comment policy](../../COMMENT_POLICY.md) to every comment added in the changed lines. For each one, first try to improve the code until the comment is unnecessary; otherwise reduce it to the shortest explanation that preserves essential context.
+
+## 5. Remove AI slop
 
 Patterns that break from the surrounding code and read as machine-authored:
 - Defensive checks or try/catch that are abnormal for this codebase, especially on trusted or internally-validated paths
 - `any` casts (or equivalents) papering over a type issue
 
-## 5. Verify and report
+## 6. Verify and report
 
 Run the project's build and tests; confirm behaviour is unchanged. Then summarise in 3–5 sentences what you removed and why.

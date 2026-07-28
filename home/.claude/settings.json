@@ -48,6 +48,29 @@
           }
         ]
       }
+    ],
+    "SessionStart": [
+      {
+        "matcher": "startup|resume|clear|compact|fork",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ~/.agents/hooks/review-new-comments.sh",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ~/.agents/hooks/review-new-comments.sh",
+            "timeout": 30
+          }
+        ]
+      }
     ]
   },
   "disableRemoteControl": true,
