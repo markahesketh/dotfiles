@@ -1,6 +1,6 @@
 {
   "name": "dexory",
-  "version": "1.0.1",
+  "version": "1.0.1+codex.20260728093342",
   "description": "Dexory-specific skills for the DexoryView project",
   "author": {
     "name": "Mark Hesketh"

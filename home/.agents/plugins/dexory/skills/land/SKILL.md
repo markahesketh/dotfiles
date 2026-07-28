@@ -33,7 +33,16 @@ Also read `react=` from the resolver output. If `react=false`, Stage 2 (react-be
 
 ## Step 2 — Dispatch all applicable stages in parallel
 
-Every stage runs in its own sub-agent — that's the point of `land`. Use the harness's sub-agent primitive (`Agent` in Claude Code, `~/.codex/agents/` in Codex CLI). **Do not invoke stage skills via the `Skill` tool directly from this context** — that loads the skill body inline and defeats the isolation.
+Every stage runs in its own `reviewer` sub-agent — that's the point of `land`. Use the harness's sub-agent primitive (`Agent` in Claude Code, `spawn_agent` in Codex). **Do not invoke stage skills via the `Skill` tool directly from this context** — that loads the skill body inline and defeats the isolation.
+
+### Review model policy
+
+`reviewer` is the shared review-calibre profile used by this pipeline and other review workflows. It deliberately does not inherit the parent session's model:
+
+- **Claude Code:** the `reviewer` agent pins the rolling `opus` alias at `high` effort.
+- **Codex:** the `reviewer` agent pins `gpt-5.6-sol` at `medium` reasoning.
+
+Select the named agent for every stage; do not choose models stage by stage. The profile is a ceiling on review spend while preserving enough judgment for all four passes. If the named agent is unavailable, use explicit per-spawn values matching the policy above. If the harness cannot pin both model and effort, stop before dispatch and ask the user to reload or install the agent definition — never silently inherit an expensive parent model.
 
 The applicable stages are:
 
@@ -63,6 +72,8 @@ Do not re-run scope detection.
 ```
 
 **Which stage skill to invoke.** Tell the sub-agent to invoke the named stage skill (`review-tests`, `react-best-practices`, `simplify`, or `finalise`) via its own `Skill` tool and follow its analysis end-to-end.
+
+Some harnesses do not allow a sub-agent to spawn another sub-agent. If a stage skill requests nested delegation (currently `simplify` does), tell the stage agent to perform those review lenses itself, in sequence, and return one combined report. The stage still runs in isolation; only its internal fan-out is collapsed.
 
 Wait for all sub-agents to return before moving on. Do not apply any changes until you have every report.
 
