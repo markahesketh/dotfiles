@@ -74,7 +74,16 @@
     "internal@dotfiles": true,
     "figma@claude-plugins-official": false,
     "frontend-design@claude-plugins-official": false,
-    "ruby-lsp@claude-plugins-official": true
+    "ruby-lsp@claude-plugins-official": true,
+    "i-have-adhd@i-have-adhd": true
+  },
+  "extraKnownMarketplaces": {
+    "i-have-adhd": {
+      "source": {
+        "source": "github",
+        "repo": "ayghri/i-have-adhd"
+      }
+    }
   },
   "disableSideloadFlags": true,
   "effortLevel": "high",
