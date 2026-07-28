@@ -1,7 +1,6 @@
 ---
 name: finalise
 description: Pre-commit detritus pass — strips debug statements, dead code, false starts, and AI slop from the current branch's diff.
-context: fork
 model: opus
 ---
 
