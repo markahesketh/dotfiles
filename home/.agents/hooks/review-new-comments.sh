@@ -133,6 +133,11 @@ fi
 [ "$event" = "Stop" ] || exit 0
 mkdir -p "$state_dir"
 
+if [ -z "$(git -C "$repo" status --porcelain --untracked-files=normal)" ]; then
+  initialize_state
+  exit 0
+fi
+
 if [ ! -f "$base_file" ] || [ ! -f "$baseline_file" ]; then
   initialize_state
   exit 0
