@@ -37,11 +37,11 @@ Check whether the current branch has an open PR:
 gh pr view --json number,url 2>/dev/null
 ```
 
-- If a PR exists, construct the review app link: `https://pr-{number}-dexory.fly.dev/`
+- If a PR exists, construct the review app link: `https://{number}.review.dexoryview.com/`
 - If no PR exists, ask the user:
 
 ```
-AskUserQuestion: "Is there a review app link for this change? (e.g. https://pr-1234-dexory.fly.dev/) — leave blank if there isn't one."
+AskUserQuestion: "Is there a review app link for this change? (e.g. https://1234.review.dexoryview.com/) — leave blank if there isn't one."
 ```
 
 If the user leaves it blank or there is no review app available, omit it from the comment.
