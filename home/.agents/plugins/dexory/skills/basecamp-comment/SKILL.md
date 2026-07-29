@@ -1,7 +1,7 @@
 ---
 name: basecamp-comment
 description: Post a comment on a Basecamp card to say a task or fix has been completed. Uses the Basecamp CLI to add the comment and upload any screenshots. Use when finishing work and wanting to update a Basecamp card, when asked to "comment on basecamp", "update the basecamp card", "post to basecamp", or "let the team know it's done".
-allowed-tools: Bash, AskUserQuestion
+allowed-tools: Bash, AskUserQuestion, Skill
 context: fork
 model: sonnet
 disable-model-invocation: true
@@ -68,7 +68,9 @@ You do not need to ask for screenshots. Only attach them if the user has already
 
 ### 5. Draft the comment
 
-Write the comment in a friendly, conversational tone. The audience is product managers and designers — describe everything from a user's perspective, not a developer's.
+**Before writing a word, invoke the `tone-of-voice` skill and follow it.** The comment goes out under Mark's name, so his register governs the prose: first person, casual but properly written, no ceremony, no em dashes, British spelling, no emoji or exclamation marks. Read it before drafting, not after.
+
+On top of that, this comment has a specific audience: product managers and designers. Describe everything from a user's perspective, not a developer's.
 
 **What to cover (only include what's relevant):**
 
@@ -76,34 +78,32 @@ Write the comment in a friendly, conversational tone. The audience is product ma
 - **How to check it** — if useful, a plain-English step or two explaining how they can verify the changes on the review app. Keep it simple, like you're explaining to a friend.
 - **Anything to be aware of** — only if there are caveats, limitations, or follow-up work. Don't add this section if there's nothing notable.
 
-**Tone guidelines:**
-- Clear and conversational — write like you're sending a Slack message, not a report
+**Audience rules (on top of `tone-of-voice`):**
 - No technical terms: avoid words like "refactor", "PR", "merge", "deploy", "commit", "branch", "API", "bug", "regression", "null", "undefined", etc.
 - Use plain verbs: "fixed", "updated", "added", "changed", "removed", "now shows", "now works"
-- Keep it short — a few sentences is usually enough
-- Do not use em dashes or other punctuation that reads as overly formal or AI-generated. Use plain sentence structure instead.
+- Keep it short. A few sentences is usually enough.
 
-**Format: write the comment as HTML.** Basecamp's editor renders HTML, so use it for structure and emphasis. Keep it simple:
+**Format: write the comment as Markdown.** The Basecamp CLI converts Markdown to rich text when it posts, so write plain Markdown and let it handle the rendering. Never hand-write HTML.
 
-- Use `<br>` for line breaks between blocks of text — do not use `<p>` tags. Basecamp does not add margin between paragraphs, so `<p>` tags produce no visual spacing and text runs together.
-- `<strong>` for emphasis where it helps
-- `<ul>` and `<li>` for the list of changes
-- `<a href="...">` for links
-- Do not use headers or complex markup unless the content genuinely calls for it
+- `**bold**` for emphasis where it helps
+- `-` bullets for the list of changes
+- `[text](url)` for links, or a bare URL
+- Blank line between blocks
+- No headers unless the content genuinely calls for it
 
-**Include the review app link** (if available) as a plain anchor at the end of the comment. Vary the phrasing naturally — don't always use the same phrase. Some options: just the bare link, "Review app:", "Try it out:", "You can check it here:", or a short sentence like "The review app is up at [link] if you want to take a look." Choose whichever feels most natural given the comment's tone.
+**Include the review app link** (if available) at the end of the comment. Vary the phrasing naturally — don't always use the same phrase. Some options: just the bare link, "Review app:", "Try it out:", "You can check it here:", or a short sentence like "The review app is up at [link] if you want to take a look." Choose whichever feels most natural given the comment's tone.
 
-**Example comment (as HTML):**
+**Example comment (as Markdown):**
 
-```html
-This has now been fixed:<br>
-<ul>
-  <li>The filter no longer shows archived items. Only active items appear by default.</li>
-  <li>The empty state now shows a helpful message when there are no active items to display.</li>
-</ul>
-Head to the items list and apply the filter. You should only see active items now.<br>
-<br>
-<a href="https://pr-1234-dexory.fly.dev/">https://pr-1234-dexory.fly.dev/</a>
+```markdown
+This has now been fixed:
+
+- The filter no longer shows archived items. Only active items appear by default.
+- The empty state now shows a helpful message when there are no active items to display.
+
+Head to the items list and apply the filter. You should only see active items now.
+
+https://1234.review.dexoryview.com/
 ```
 
 ### 6. Confirm before posting
@@ -116,10 +116,10 @@ Once confirmed, post it using the Basecamp CLI. Always use `--attach` to include
 
 ```bash
 # No screenshots
-basecamp comment <recording_id> "<comment html>" --in <project_id>
+basecamp comment <recording_id> "<comment markdown>" --in <project_id>
 
 # With screenshots
-basecamp comment <recording_id> "<comment html>" --in <project_id> --attach path/to/screenshot1.png --attach path/to/screenshot2.png
+basecamp comment <recording_id> "<comment markdown>" --in <project_id> --attach path/to/screenshot1.png --attach path/to/screenshot2.png
 ```
 
 ### 8. Confirm completion

@@ -85,104 +85,84 @@ Read the title, body, and existing comments. Use this to:
 
 ### 5. Draft the comment
 
-Follow the `basecamp-comment` style closely. Audience is product managers and designers — plain English, no developer jargon.
+**Before writing a word, invoke the `tone-of-voice` skill and follow it.** The comment goes out under Mark's name, so his register governs the prose: first person, casual but properly written, no ceremony or performed ownership, no em dashes, British spelling, no emoji or exclamation marks. Read it before drafting, not after.
 
-**Structure (HTML — Basecamp's editor renders HTML):**
+Audience is product managers and designers, so plain English and no developer jargon on top of that.
 
-- Opening: a short, natural sentence saying it's done and what to look at — written for people who already read the card. Do **not** restate the original problem; the title and body of the card already say it, and parroting it back ("There was an issue where X was doing Y, this is now fixed") reads like a chatbot summary, not a teammate's update. Skip straight to what's new: what changed, what to check, anything QA should know that isn't already on the card. Plain sentences, no list. Only fall back to a `<ul>` here if there are genuinely multiple distinct issues being addressed in the same handoff and a list makes them clearer than a paragraph would. A single change should always read as a sentence, never a one-item bullet list.
-- A **To verify:** section with the acceptance criteria from step 3, as a `<ul>`.
-- PR link and review-app link at the end, formatted identically so they read as a matched pair. Use a bold label followed by the link, one per line:
-  ```html
-  <strong>GitHub PR:</strong> <a href="https://github.com/dexory/.../pull/1234">https://github.com/dexory/.../pull/1234</a><br>
-  <strong>Review app:</strong> <a href="https://1234.review.dexoryview.com/">https://1234.review.dexoryview.com/</a>
+**Structure:**
+
+- Opening: a short, natural sentence saying it's done and what to look at, written for people who already read the card. Do **not** restate the original problem; the title and body of the card already say it, and parroting it back ("There was an issue where X was doing Y, this is now fixed") reads like a chatbot summary, not a teammate's update. Skip straight to what's new: what changed, what to check, anything QA should know that isn't already on the card. Plain sentences, no list. Only fall back to a bullet list here if there are genuinely multiple distinct issues being addressed in the same handoff and a list makes them clearer than a paragraph would. A single change should always read as a sentence, never a one-item bullet list.
+- A **To verify:** section with the acceptance criteria from step 3, as a bullet list.
+- PR link and review-app link at the end, formatted identically so they read as a matched pair. Use a bold label followed by the link, as a two-item bullet list:
+  ```markdown
+  - **GitHub PR:** https://github.com/dexory/.../pull/1234
+  - **Review app:** https://1234.review.dexoryview.com/
   ```
-  Same label style, same line shape, same order every time (PR first, review app second). Do not vary the phrasing — consistency makes the links easier to scan and matches the rest of the team's style.
+  A list keeps the two on separate lines reliably; two plain lines separated by a single newline would collapse into one paragraph when the Markdown is converted. Same label style, same order every time (PR first, review app second). Do not vary the phrasing — consistency makes the links easier to scan and matches the rest of the team's style.
 
-**Tone rules (from basecamp-comment):**
+**Audience rules (on top of `tone-of-voice`):**
 
-- Conversational, like a Slack message.
 - No technical terms: avoid "PR", "branch", "merge", "deploy", "refactor", "API", "regression", "null", "undefined", etc. Translate them: "PR" → "the change" or omit, "deploy" → "live", "regression" → "issue".
 - Plain verbs: "fixed", "updated", "added", "changed", "now shows".
-- Short — a few sentences plus the verification list.
-- **Vary the opening phrase.** Don't reach for the same stock phrase every time — especially not "ready for a look", which has been overused and now reads as a tell. Pick whatever fits the change: "ready to review", "this is fixed", "this is done", "sorted", "live on the review app now", "give this a go when you get a chance", or just a plain statement of what changed. The opening should sound like a teammate dropping an update, not a template being filled in. Re-read the comment before posting and ask whether the same wording has shown up on the previous handoff — if yes, rewrite.
-- **Avoid AI tells.** Real people don't write like a chatbot, so the comment shouldn't either. Specifically:
-  - No em dashes (`—`) or en dashes (`–`) used as sentence connectors. Use a comma, full stop, or rewrite the sentence.
-  - No "I've gone ahead and…", "Here's what I did:", "I hope this helps!", "Let me know if you have any questions!", "Happy to clarify…" style filler.
-  - No hedging phrases like "essentially", "basically", "simply", "just", "actually" sprinkled through prose.
-  - No emoji unless the existing thread's tone clearly uses them.
-  - No three-part rule-of-three rhetorical flourishes ("clearer, faster, and more reliable") when a single adjective would do.
-  - No starting every sentence with the same structure (avoid the "I … I … I …" or "We … We … We …" cadence).
-  - No bolded mini-headers in the prose body — `<strong>` is fine for the **To verify:** label and for genuine emphasis on a single word, not for decorating every paragraph.
-  - Plain sentence structure. If a sentence reads like marketing copy or a release note, rewrite it as something a teammate would actually type in Basecamp.
+- Short: a few sentences plus the verification list.
+- **Vary the opening phrase.** Don't reach for the same stock phrase every time, especially not "ready for a look", which has been overused and now reads as a tell. Pick whatever fits the change: "ready to review", "this is fixed", "this is done", "sorted", "live on the review app now", "give this a go when you get a chance", or just a plain statement of what changed. Re-read the comment before posting and ask whether the same wording has shown up on the previous handoff. If yes, rewrite.
+- No bolded mini-headers in the prose body. Bold is for the **To verify:** label, the link labels, and genuine emphasis on a single word, not for decorating every paragraph.
 
-**HTML rules:**
+**Format: write the comment as Markdown.** The Basecamp CLI converts Markdown to rich text when it posts, so write plain Markdown and let it handle the rendering. Never hand-write HTML.
 
-- Use `<br>` between blocks of text — not `<p>` (Basecamp adds no margin between `<p>` tags so they read as run-on).
-- **Separate every block-level element with a blank-line `<br>`.** Between a paragraph and a `<ul>`, between a `<ul>` and the next paragraph or label, between a header and the body that follows it, between two paragraphs — there must be a visible gap so the comment doesn't read as a wall of text. The pattern is: end the preceding block with `<br>`, then put a standalone `<br>` on its own line, then start the next block. Example:
-  ```html
-  Some text.<br>
-  <br>
-  <ul><li>A list item</li></ul>
-  <br>
-  More text.<br>
-  ```
-  Treat paragraphs, `<ul>`/`<ol>`, `<strong>` labels that introduce a section (like `<strong>To verify:</strong>`), and headers all as block elements that need this gap. The PR/review-app link pair at the end is the one exception — those two lines stay tight together because they read as a matched pair, but the block before them still needs the gap.
-- `<strong>` for emphasis where it helps.
-- `<ul>` and `<li>` for lists.
-- `<a href="...">` for links.
+- Blank line between blocks (paragraphs, lists, the link pair) so the comment doesn't read as a wall of text.
+- `**bold**` for emphasis where it helps.
+- `-` bullets for lists.
+- `[text](url)` for links, or a bare URL.
 - No headers unless content genuinely calls for it.
 
 **Example — single issue (don't restate the problem; the card title already says it):**
 
 Card title: "Archived items showing in default list view"
 
-```html
-Fixed. Also gave the empty state a proper message for when there's nothing in the list.<br>
-<br>
-<strong>To verify:</strong>
-<ul>
-  <li>Open the items list and confirm only active items appear.</li>
-  <li>Apply the filter and confirm archived items stay hidden.</li>
-  <li>Empty the list and confirm the new empty-state message shows.</li>
-</ul>
-<br>
-<strong>GitHub PR:</strong> <a href="https://github.com/dexory/.../pull/1234">https://github.com/dexory/.../pull/1234</a><br>
-<strong>Review app:</strong> <a href="https://1234.review.dexoryview.com/">https://1234.review.dexoryview.com/</a>
+```markdown
+Fixed. Also gave the empty state a proper message for when there's nothing in the list.
+
+**To verify:**
+
+- Open the items list and confirm only active items appear.
+- Apply the filter and confirm archived items stay hidden.
+- Empty the list and confirm the new empty-state message shows.
+
+- **GitHub PR:** https://github.com/dexory/.../pull/1234
+- **Review app:** https://1234.review.dexoryview.com/
 ```
 
-Note how the opening doesn't repeat "the items list was showing archived items by default" — the card title already says that. The comment just says it's done and flags the one extra thing (the empty state) that wasn't on the original card. Note also the standalone `<br>` lines: one after the opening paragraph, one after the verify list, so each block has visible breathing room before the next.
+Note how the opening doesn't repeat "the items list was showing archived items by default". The card title already says that. The comment just says it's done and flags the one extra thing (the empty state) that wasn't on the original card.
 
 **Anti-example — what not to write:**
 
-```html
-There was an issue where archived items were showing in the default list view, making the page feel cluttered as soon as it loaded. This has now been fixed.<br>
+```markdown
+There was an issue where archived items were showing in the default list view, making the page feel cluttered as soon as it loaded. This has now been fixed.
 ```
 
 This is what the rule above is warning against: the first sentence is just the card title rephrased back at the reader. Cut it.
 
 **Example — multiple distinct issues (list is justified, and the issues weren't all on the original card):**
 
-```html
-A few things on the items page, all sorted now:<br>
-<br>
-<ul>
-  <li>Archived items were showing up in the default view.</li>
-  <li>The empty state was blank instead of explaining what to do next.</li>
-  <li>Sorting by date was reversed.</li>
-</ul>
-<br>
-<strong>To verify:</strong>
-<ul>
-  <li>Open the items list and confirm only active items appear.</li>
-  <li>Empty the list and confirm the new empty-state message shows.</li>
-  <li>Sort by date and confirm newest items appear first.</li>
-</ul>
-<br>
-<strong>GitHub PR:</strong> <a href="https://github.com/dexory/.../pull/1234">https://github.com/dexory/.../pull/1234</a><br>
-<strong>Review app:</strong> <a href="https://1234.review.dexoryview.com/">https://1234.review.dexoryview.com/</a>
+```markdown
+A few things on the items page, all sorted now:
+
+- Archived items were showing up in the default view.
+- The empty state was blank instead of explaining what to do next.
+- Sorting by date was reversed.
+
+**To verify:**
+
+- Open the items list and confirm only active items appear.
+- Empty the list and confirm the new empty-state message shows.
+- Sort by date and confirm newest items appear first.
+
+- **GitHub PR:** https://github.com/dexory/.../pull/1234
+- **Review app:** https://1234.review.dexoryview.com/
 ```
 
-A list at the top is fine here because the bundle covers things beyond the original card's scope — listing them is genuinely informative, not parroting.
+A list at the top is fine here because the bundle covers things beyond the original card's scope, so listing them is genuinely informative rather than parroting.
 
 If the user pasted screenshots in the conversation, note their paths — they'll be attached via `--attach` in step 7.
 
@@ -202,7 +182,7 @@ If no column matches, ask the user to pick from the full list during confirmatio
 
 Print the plan as plain assistant text output. Include:
 
-- **The drafted comment, in full, as a fenced ```html code block** so the user can read the exact HTML that will be posted. Do not summarise, truncate, or paraphrase it — print it verbatim.
+- **The drafted comment, in full, as a fenced ```markdown code block** so the user can read the exact content that will be posted. Do not summarise, truncate, or paraphrase it — print it verbatim.
 - Target column move: current → new
 - Screenshots to attach, if any (list the file paths)
 
@@ -217,19 +197,19 @@ Two separate commands. Run them in this order. Use the exact flag names and stru
 #### 8a. Post the comment
 
 ```bash
-basecamp comment <card_id_or_url> "<html_content>" --in <project_id>
+basecamp comment <card_id_or_url> "<markdown_content>" --in <project_id>
 ```
 
 **With screenshots**, attach them as part of the same `basecamp comment` call by passing `--attach <path>` once per file. There is no separate upload step.
 
 ```bash
-basecamp comment 55510 "<p>Ready for QA…</p>" --in 12345678 \
+basecamp comment 55510 "Ready for QA…" --in 12345678 \
   --attach /Users/me/Desktop/screenshot1.png \
   --attach /Users/me/Desktop/screenshot2.png
 ```
 
 Rules:
-- Pass the comment HTML as a single quoted string in the `<content>` argument. Use single quotes around HTML containing double quotes, or escape as needed.
+- Pass the comment Markdown as a single quoted string in the `<content>` argument. The CLI converts it to rich text on the way in, so never hand-write HTML. Watch the shell quoting: single quotes around content containing double quotes, or escape as needed.
 - Each screenshot is a separate `--attach <path>` flag — the flag is repeatable. Paths must be local files Claude can read; absolute paths are safest.
 - The standalone `basecamp attach` and `basecamp upload` commands are for adding documents to a project's Docs & Files area as separate items — they are **not** for adding screenshots to a comment. Always use the `--attach` flag on `basecamp comment`.
 - Only attach screenshots the user actually pasted in the conversation. Do not invent paths or attach files the user didn't provide.
@@ -247,7 +227,7 @@ basecamp cards move 55510 --to "Ready for QA" --in 12345678
 ```
 
 Critical rules — getting any of these wrong is what caused past failures:
-- The column goes in **`--to`**. Never in the card title, body, or comment HTML. There is no `cards move` flag that takes the column as positional content.
+- The column goes in **`--to`**. Never in the card title, body, or comment content. There is no `cards move` flag that takes the column as positional content.
 - The first positional argument is the **card** ID or URL — not the column. Order matters.
 - `--to` accepts either the column's ID (`col-qa`) from `basecamp cards columns --json` or its display name (`"Ready for QA"`). Quote the name if it contains spaces.
 - This is `basecamp cards move`, not `basecamp cards update`. **Do not** try to "move" by calling `basecamp cards update --body "Ready for QA"` — that overwrites the card body with the literal string "Ready for QA". `update` cannot change a card's column at all.
@@ -266,7 +246,7 @@ Print:
 ## Notes
 
 - **Most questions go through the `AskUserQuestion` tool**, with one exception: the step 7 plan/confirmation, where the drafted comment must be printed inline as assistant text so the user can actually read it before approving. Everywhere else (card URL fallback, no-PR branch, column disambiguation, anything else that comes up), use `AskUserQuestion` with explicit options where the answer is constrained, or a single open-ended question where it isn't.
-- **Don't reuse `basecamp-comment` directly via the Skill tool.** The user is planning to modify that skill; copy its style guidance here rather than depending on it.
+- **Don't reuse `basecamp-comment` directly via the Skill tool.** The user is planning to modify that skill; copy its style guidance here rather than depending on it. The `tone-of-voice` skill is the one exception: always invoke it, never inline a copy of it.
 - **AC is generated, not extracted.** Even if the card body has a list of original AC, derive the verification checklist from the actual changes — what's there to verify now might differ from what was originally scoped.
 - **No PR + user picks "proceed without"** → still post the comment and move the card, just omit the PR/review-app links.
 - **Always derive `--card-table` from the URL.** Don't prompt.
