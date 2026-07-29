@@ -11,7 +11,6 @@ repo=$(git -C "$cwd" rev-parse --show-toplevel 2>/dev/null) || exit 0
 state_root=${COMMENT_REVIEW_STATE_DIR:-${TMPDIR:-/tmp}/agent-comment-review}
 state_key=$(printf '%s\0%s' "$session_id" "$repo" | git hash-object --stdin)
 state_dir="$state_root/$state_key"
-base_file="$state_dir/base"
 baseline_file="$state_dir/baseline"
 approved_file="$state_dir/approved"
 pending_file="$state_dir/pending"
@@ -84,11 +83,11 @@ detect_candidates() {
   '
 }
 
-collect_candidates() {
-  base=$1
-  if [ -n "$base" ] && git -C "$repo" cat-file -e "$base^{commit}" 2>/dev/null; then
+# Committed content is foreign history or already reviewed, so diff HEAD only.
+collect_uncommitted() {
+  if git -C "$repo" rev-parse --verify -q HEAD >/dev/null 2>&1; then
     git -C "$repo" -c core.quotepath=false diff \
-      --no-prefix --no-ext-diff --unified=0 --no-color "$base" --
+      --no-prefix --no-ext-diff --unified=0 --no-color HEAD --
   else
     git -C "$repo" ls-files -c -z |
       while IFS= read -r -d '' relative_path; do
@@ -107,23 +106,19 @@ collect_candidates() {
 }
 
 candidate_snapshot() {
-  collect_candidates "$1" | detect_candidates | LC_ALL=C sort
+  collect_uncommitted | detect_candidates | LC_ALL=C sort -u
 }
 
 initialize_state() {
   mkdir -p "$state_dir"
-  base=$(git -C "$repo" rev-parse HEAD 2>/dev/null || true)
-  printf '%s\n' "$base" > "$base_file"
-  candidate_snapshot "$base" > "$baseline_file"
+  candidate_snapshot > "$baseline_file"
   : > "$approved_file"
   : > "$pending_file"
   printf '0\n' > "$attempts_file"
 }
 
 if [ "$event" = "SessionStart" ]; then
-  if [ "$source" != "startup" ] &&
-     [ -f "$base_file" ] &&
-     [ -f "$baseline_file" ]; then
+  if [ "$source" != "startup" ] && [ -f "$baseline_file" ]; then
     exit 0
   fi
   initialize_state
@@ -133,54 +128,53 @@ fi
 [ "$event" = "Stop" ] || exit 0
 mkdir -p "$state_dir"
 
-if [ -z "$(git -C "$repo" status --porcelain --untracked-files=normal)" ]; then
+if [ ! -f "$baseline_file" ] ||
+   [ -z "$(git -C "$repo" status --porcelain --untracked-files=normal)" ]; then
   initialize_state
   exit 0
 fi
-
-if [ ! -f "$base_file" ] || [ ! -f "$baseline_file" ]; then
-  initialize_state
-  exit 0
-fi
-base=$(sed -n '1p' "$base_file")
+[ -f "$approved_file" ] || : > "$approved_file"
+[ -f "$pending_file" ] || : > "$pending_file"
 
 current_file=$(mktemp "${TMPDIR:-/tmp}/comment-review-current.XXXXXX")
+excluded_file=$(mktemp "${TMPDIR:-/tmp}/comment-review-excluded.XXXXXX")
+unreviewed_file=$(mktemp "${TMPDIR:-/tmp}/comment-review-unreviewed.XXXXXX")
 candidates_file=$(mktemp "${TMPDIR:-/tmp}/comment-review-candidates.XXXXXX")
-trap 'rm -f "$current_file" "$candidates_file"' EXIT
+trap 'rm -f "$current_file" "$excluded_file" "$unreviewed_file" "$candidates_file"' EXIT
 
-candidate_snapshot "$base" > "$current_file"
-comm -23 "$current_file" "${baseline_file:-/dev/null}" > "$candidates_file"
-if [ ! -s "$candidates_file" ]; then
-  : > "$approved_file"
+candidate_snapshot > "$current_file"
+LC_ALL=C sort -u "$baseline_file" "$approved_file" > "$excluded_file"
+comm -23 "$current_file" "$excluded_file" > "$unreviewed_file"
+
+# Surviving a block means the comment was deliberately kept.
+comm -12 "$unreviewed_file" "$pending_file" >> "$approved_file"
+LC_ALL=C sort -u -o "$approved_file" "$approved_file"
+comm -23 "$unreviewed_file" "$approved_file" > "$candidates_file"
+
+settle() {
+  LC_ALL=C sort -u -o "$approved_file" "$approved_file"
   : > "$pending_file"
-  printf '0\n' > "$attempts_file"
+  printf '%s\n' "${1:-0}" > "$attempts_file"
   exit 0
-fi
-
-fingerprint=$(git hash-object "$candidates_file")
-approved=$(sed -n '1p' "$approved_file" 2>/dev/null || true)
-pending=$(sed -n '1p' "$pending_file" 2>/dev/null || true)
-
-if [ "$fingerprint" = "$approved" ]; then
-  exit 0
-fi
-
-if [ "$fingerprint" = "$pending" ]; then
-  printf '%s\n' "$fingerprint" > "$approved_file"
-  : > "$pending_file"
-  printf '0\n' > "$attempts_file"
-  exit 0
-fi
+}
 
 attempts=$(sed -n '1p' "$attempts_file" 2>/dev/null || printf '0')
-if [ "$stop_hook_active" = "true" ] && [ "$attempts" -ge 2 ]; then
-  printf '%s\n' "$fingerprint" > "$approved_file"
-  : > "$pending_file"
-  printf '0\n' > "$attempts_file"
-  exit 0
+case $attempts in
+  '' | *[!0-9]*) attempts=0 ;;
+esac
+[ "$stop_hook_active" = "true" ] || attempts=0
+
+if [ ! -s "$candidates_file" ]; then
+  settle
 fi
 
-printf '%s\n' "$fingerprint" > "$pending_file"
+# Carry the count through so a reworded comment cannot restart the cycle.
+if [ "$attempts" -ge 2 ]; then
+  cat "$candidates_file" >> "$approved_file"
+  settle "$attempts"
+fi
+
+cp "$candidates_file" "$pending_file"
 printf '%s\n' $((attempts + 1)) > "$attempts_file"
 locations=$(head -20 "$candidates_file" | sed 's/^/- /')
 reason="Review comments introduced by your changes. First try to make each comment unnecessary by improving names, extracting intent, simplifying control flow, or encoding the constraint in code. Delete comments that describe what the code does or narrate this task, bug, ticket, or change history. Retain only comments needed to explain a non-obvious invariant, external constraint, or unavoidable workaround, and make them as concise as possible. Preserve required directives and documentation, keep the refactoring proportionate, and verify behaviour afterwards.
