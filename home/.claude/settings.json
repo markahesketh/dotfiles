@@ -26,7 +26,7 @@
     ],
     "defaultMode": "auto"
   },
-  "model": "opus[1m]",
+  "model": "fable",
   "disableClaudeAiConnectors": true,
   "skillOverrides": {
     "research": "off",
@@ -97,7 +97,7 @@
     }
   },
   "disableSideloadFlags": true,
-  "effortLevel": "medium",
+  "effortLevel": "high",
   "awaySummaryEnabled": false,
   "showClearContextOnPlanAccept": true,
   "autoMemoryEnabled": false,
