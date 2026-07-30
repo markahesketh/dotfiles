@@ -10,6 +10,8 @@ Hand a completed piece of work to the team for QA: post a clear, non-technical c
 
 The comment style mirrors `basecamp-comment`: written for product managers and designers, no developer jargon, plain English. The acceptance criteria are derived from the actual code changes so QA has a concrete checklist.
 
+**Hard rule: never post to Basecamp or move a card without showing the user a verbatim preview and getting an explicit yes.** Comments are public to the team and a column move pulls other people in, both awkward to unpick. If the user's instruction sounds like "just post it" or "no need to check with me", still show the preview and still wait. See step 7.
+
 ## Steps
 
 ### 1. Resolve the card
@@ -176,7 +178,9 @@ Fuzzy-match the QA column by keyword (case-insensitive substring): `qa`, `review
 
 If no column matches, ask the user to pick from the full list during confirmation.
 
-### 7. Show the plan and confirm once
+### 7. Preview the plan and confirm
+
+**Nothing is posted and no card is moved until the user has seen the exact content and said yes.** No exceptions, no matter how the skill was invoked or how confident the draft feels.
 
 **Do not use `AskUserQuestion` for this step.** The user has to be able to see the full drafted comment to review it, and `AskUserQuestion` hides long content behind its UI — past handoffs have been approved blind because the comment wasn't visible.
 
@@ -188,11 +192,13 @@ Print the plan as plain assistant text output. Include:
 
 Then, in prose underneath, ask the user to reply with one of: "post" (post and move), "edit" (describe what to change), "column" (pick a different target column), or "cancel". Wait for a free-text reply — this is the one place in the skill where a prose question is correct, because the user needs the comment text visible while they decide.
 
+If the user asks for edits or a different column, redraft and show the full preview again. Every revision gets its own approval; approval of an earlier draft never carries over to a changed one.
+
 All other prompts in this skill (card URL fallback in step 1, the no-PR branch in step 2, picking a column if no fuzzy match in step 6) still go through `AskUserQuestion` as normal.
 
 ### 8. Execute
 
-Two separate commands. Run them in this order. Use the exact flag names and structure shown — getting these wrong has caused real failures (column names ending up in card bodies, screenshots ending up in Docs & Files instead of on the comment).
+Only after an explicit "post" in step 7. Two separate commands. Run them in this order. Use the exact flag names and structure shown — getting these wrong has caused real failures (column names ending up in card bodies, screenshots ending up in Docs & Files instead of on the comment).
 
 #### 8a. Post the comment
 
@@ -245,6 +251,7 @@ Print:
 
 ## Notes
 
+- **Never post or move without explicit approval of a verbatim preview.** This holds even if the user's invocation says to skip confirmation.
 - **Most questions go through the `AskUserQuestion` tool**, with one exception: the step 7 plan/confirmation, where the drafted comment must be printed inline as assistant text so the user can actually read it before approving. Everywhere else (card URL fallback, no-PR branch, column disambiguation, anything else that comes up), use `AskUserQuestion` with explicit options where the answer is constrained, or a single open-ended question where it isn't.
 - **Don't reuse `basecamp-comment` directly via the Skill tool.** The user is planning to modify that skill; copy its style guidance here rather than depending on it. The `tone-of-voice` skill is the one exception: always invoke it, never inline a copy of it.
 - **AC is generated, not extracted.** Even if the card body has a list of original AC, derive the verification checklist from the actual changes — what's there to verify now might differ from what was originally scoped.

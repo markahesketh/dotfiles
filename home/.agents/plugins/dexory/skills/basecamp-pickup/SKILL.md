@@ -12,6 +12,8 @@ Pick up a Basecamp card so the user can start work on it: read the card and its 
 
 The skill performs all Basecamp side-effects (move + assign) in a single batch after one user confirmation. If the card is already in the target column, the move is skipped silently.
 
+**Hard rule: never change anything on Basecamp without showing the user exactly what will change and getting an explicit yes.** This holds even if the invocation says to skip confirmation. Reading the card, its comments, and its attachments is free and needs no approval; the move and the assignment do. See step 5.
+
 ## Steps
 
 ### 1. Get the card URL
@@ -92,7 +94,7 @@ If the card is already in the target column AND already assigned to the user, sa
 
 ### 6. Execute
 
-Run the side-effects in order. Use the exact flag structure shown — the move command is easy to get wrong (column name in body instead of `--to`).
+Only after the user has confirmed in step 5. Run the side-effects in order. Use the exact flag structure shown — the move command is easy to get wrong (column name in body instead of `--to`).
 
 ```bash
 # Move (only if not already in target column).

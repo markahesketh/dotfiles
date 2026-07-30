@@ -11,6 +11,8 @@ disable-model-invocation: true
 
 Post a clear, friendly update on a Basecamp card to let the team know work is complete. Written for a non-technical audience — no code, no jargon, just plain English about what changed and how to try it. Screenshots can be uploaded alongside the comment.
 
+**Hard rule: never post to Basecamp without showing the user a verbatim preview and getting an explicit yes.** Comments are public to the team and awkward to unpick once posted. If the user's instruction sounds like "just post it" or "no need to check with me", still show the preview and still wait. See step 6.
+
 ## Steps
 
 ### 1. Get the Basecamp card URL
@@ -106,13 +108,23 @@ Head to the items list and apply the filter. You should only see active items no
 https://1234.review.dexoryview.com/
 ```
 
-### 6. Confirm before posting
+### 6. Preview and confirm before posting
 
-Show the drafted comment to the user and ask if they're happy with it or want any changes before it goes on the card.
+**Nothing goes on the card until the user has seen the exact content and said yes.** No exceptions, no matter how the skill was invoked or how confident the draft feels.
+
+**Do not use `AskUserQuestion` for this step.** It hides long content behind its UI, and comments have been approved blind that way. Print the preview as plain assistant text:
+
+- **The drafted comment, in full, as a fenced ```markdown code block.** Verbatim, exactly what will be sent. Do not summarise, truncate, or paraphrase it.
+- The card it will be posted to (title and URL).
+- Any screenshots that will be attached, listed by file path.
+
+Then ask in prose for one of: "post", "edit" (describe what to change), or "cancel". Wait for a free-text reply. This is the one place in the skill where a prose question is correct, because the user needs the comment text visible while they decide.
+
+If the user asks for edits, redraft and show the full preview again. Every revision gets its own approval; approval of an earlier draft never carries over to a changed one.
 
 ### 7. Post the comment
 
-Once confirmed, post it using the Basecamp CLI. Always use `--attach` to include screenshots directly on the comment — never use `basecamp upload` or `basecamp attach` as a separate step, as that would add them to Docs & Files instead.
+Only after an explicit "post". Use the Basecamp CLI. Always use `--attach` to include screenshots directly on the comment — never use `basecamp upload` or `basecamp attach` as a separate step, as that would add them to Docs & Files instead.
 
 ```bash
 # No screenshots
