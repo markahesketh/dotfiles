@@ -27,6 +27,25 @@ function formatTokens(tokens: number): string {
 	return `${thousands < 10 ? Number(thousands.toFixed(1)) : Math.round(thousands)}k`;
 }
 
+// Read the active session on every render so `/new` naturally starts at $0.
+function sessionCost(ctx: ExtensionContext): number {
+	let total = 0;
+
+	for (const entry of ctx.sessionManager.getEntries()) {
+		if (entry.type === "message") {
+			if (entry.message.role === "assistant") {
+				total += entry.message.usage.cost.total;
+			} else if (entry.message.role === "toolResult" && entry.message.usage) {
+				total += entry.message.usage.cost.total;
+			}
+		} else if ((entry.type === "compaction" || entry.type === "branch_summary") && entry.usage) {
+			total += entry.usage.cost.total;
+		}
+	}
+
+	return total;
+}
+
 function contextLabel(ctx: ExtensionContext): { label: string; overLimit: boolean } {
 	const tokens = ctx.getContextUsage()?.tokens ?? 0;
 	const percent = tokens > CONTEXT_LIMIT
@@ -227,9 +246,10 @@ export default function (pi: ExtensionAPI) {
 						: theme.fg("text", context.label);
 					const model = theme.fg("success", ctx.model?.id ?? "no model");
 					const thinkingLevel = theme.fg("accent", ` (${ctx.thinkingLevel})`);
+					const cost = theme.fg("dim", ` $${sessionCost(ctx).toFixed(3)}`);
 					const cacheWarmth = cacheWarmthLabel(ctx, cacheRefresh);
 					const cache = cacheWarmth ? theme.fg("thinkingText", cacheWarmth) : "";
-					const left = `${contextText}${theme.fg("dim", " • ")}${model}${thinkingLevel}${cache}`;
+					const left = `${contextText}${theme.fg("dim", " • ")}${model}${thinkingLevel}${cost}${cache}`;
 					const usage = usageWindows
 						.map((window) => usageColor(theme, window, usageWindowLabel(window)))
 						.join(theme.fg("dim", " • "));
