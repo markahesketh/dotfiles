@@ -57,6 +57,7 @@ CLAUDE.local.md
 .config/wt.toml
 .worktreeinclude
 .pi/settings.json
+.pi-subagents
 
 # ------------------------------------------------------------------------------
 # Private files
