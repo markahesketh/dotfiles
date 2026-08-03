@@ -9,3 +9,7 @@ export PATH="$HOME/.local/share/mise/shims:$PATH"
 # Local config
 [[ -f ~/.zprofile.local ]] && source ~/.zprofile.local
 [[ -f ~/.cargo/env ]] && source $HOME/.cargo/env
+
+
+# Added by Antigravity CLI installer
+export PATH="/Users/markhesketh/.local/bin:$PATH"
