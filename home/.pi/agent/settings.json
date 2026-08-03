@@ -1,0 +1,23 @@
+{
+  "lastChangelogVersion": "0.82.1",
+  "theme": "light/dark",
+  "defaultProvider": "openai-codex",
+  "defaultModel": "gpt-5.6-luna",
+  "defaultThinkingLevel": "max",
+  "editorPaddingX": 1,
+  "steeringMode": "one-at-a-time",
+  "enabledModels": [
+    "openai-codex/gpt-5.6-sol",
+    "openai-codex/gpt-5.6-terra",
+    "openai-codex/gpt-5.6-luna"
+  ],
+  "outputPad": 1,
+  "packages": [
+    "npm:pi-mono-clear",
+    "npm:pi-mono-btw",
+    "npm:pi-mono-usage",
+    "npm:pi-web-access",
+    "npm:@narumitw/pi-btw",
+    "npm:pi-subagents"
+  ]
+}
