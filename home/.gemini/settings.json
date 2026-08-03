@@ -6,7 +6,7 @@
     }
   },
   "ui": {
-    "theme": "Default Light"
+    "theme": "Default"
   },
   "hooks": {
     "BeforeAgent": [
