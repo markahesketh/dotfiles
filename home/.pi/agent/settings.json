@@ -3,7 +3,7 @@
   "theme": "light/dark",
   "defaultProvider": "openrouter",
   "defaultModel": "openai/gpt-5.6-luna",
-  "defaultThinkingLevel": "max",
+  "defaultThinkingLevel": "xhigh",
   "editorPaddingX": 1,
   "steeringMode": "one-at-a-time",
   "enabledModels": [
