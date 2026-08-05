@@ -100,6 +100,11 @@ fi
 
 if command -v wt >/dev/null 2>&1; then eval "$(command wt config shell init zsh)"; fi
 
-
 # Added by Antigravity CLI installer
 export PATH="/Users/markhesketh/.local/bin:$PATH"
+
+# direnv: per-directory env (used by git worktree DB isolation)
+eval "$(direnv hook zsh)"
+
+# Pi
+export PATH="/Users/markhesketh/.local/share/mise/installs/node/22.19.0/bin:$PATH"
