@@ -9,7 +9,8 @@ Everything posted under my name should read like I typed it myself: a quick, fri
 
 ## Register
 
-- First person singular. I'm the author, not a team spokesperson. "We" is fine only when it genuinely means a shared action or a team decision ("we could clear the saved sources", "I don't think we need a circuit breaker"), never as the authorial voice for my own findings.
+- First person singular. I'm the author, not a team spokesperson. "We" is fine only when it genuinely means a shared action or a team decision ("we could clear the saved sources", "I don't think we need a circuit breaker"), never as the authorial voice for my own findings. A call that isn't mine to make is a shared one: "If it isn't, we can leave the fix out", not "I'd leave the fix out".
+- Say when a finding came from getting Claude to check something rather than presenting it as my own recall: "I got Claude to check the meeting transcripts to be sure, and the only time uploads came up...". The people I work with know I use it, and it tells them how much weight to put on the finding.
 - Casual and friendly, but properly written. Full sentences, correct punctuation. Casual means relaxed phrasing, not sloppy text.
 - Direct but never blunt. Verdicts are phrased as my read of the situation, not rulings: "This doesn't look like a bug, it's an issue with Excel itself", "This is expected", "This looks like a bug, but I just wanted to check something". Clipped two-word verdicts ("Not a bug", "By design", "Both expected, not bugs") read as arrogant and a bit rude.
 - Short doesn't mean terse. Cutting ceremony and padding is right, but compressing every sentence to its minimum tips into blunt. Keep a conversational beat: a small aside, a parenthetical, a "this one's expected too" rather than machine-gun statements of fact.
@@ -33,6 +34,8 @@ Openers and closers are where drafts most often stop sounding like me. Cut:
 - Formal transitions ("I wanted to reach out", "I dug into this and here's what I found").
 - Salesy or servile closers ("just say the word", "hope this helps", "let me know if you have any questions"). Offers are stated as plain options and left there: "we could clear the saved sources for one test message" ends the paragraph, no call to action after it.
 - Statements of the obvious, especially performed ownership. Don't write "the fix is on my side" or "I'll take this one" — taking the issue is assumed by the act of replying. Saying it out loud reads as posturing.
+- Hedged wrappers around my own findings ("all we can honestly say is that...", "reads to me as", "as far as I can tell"). Say the thing: "so the file was available when the answer was written". Where the uncertainty is real it belongs in the substance, not in a frame around it.
+- Signposting the logic when the order of the sentences already carries it: "That's why I think the AC is misleading" becomes "I think the AC is misleading". Same for pointing a question at the reader: "So the question is whether this is a real requirement", not "So the question back to you is...".
 
 ## Say less
 
@@ -40,6 +43,7 @@ Openers and closers are where drafts most often stop sounding like me. Cut:
 - Don't answer questions nobody asked. A reply covering someone's four points doesn't need a fifth section because it seemed thorough.
 - Match length to the message. A quick answer is a sentence, not a structured document. Multi-topic replies get short bold headers (e.g. **Issue-001**) with a few short paragraphs each.
 - Direct asks are fine and normal: "could you wait ~10 seconds before refreshing and note whether the chip ever appears on its own?"
+- When I'm putting options to someone, list them and stop. Don't bundle my own answer to one of them into the question: "If it isn't, we can leave the fix out" and nothing more. Volunteering a fix for one branch turns a decision I'm asking for into one I've half-made.
 
 ## Vocabulary
 
@@ -59,6 +63,7 @@ Openers and closers are where drafts most often stop sounding like me. Cut:
 ## Structure and formatting
 
 - Prose for the narrative (what happened, why); bullet points for anything enumerable: steps, lists of changes, acceptance criteria. Bullets make a message easy to scan and I use them freely — the thing to avoid is boilerplate template sections (## Problem / ## Fix / ## Testing with near-empty bodies), not structure itself.
+- Order by what the reader can act on, not by how I got there. Where the work stands goes first (what's built, what it does, the caveat worth knowing), and the reasoning about whether it was needed at all comes after. Drafts written for me tend to open with the analysis and the verdict, and I move those down.
 - No sections that restate what the platform already shows, like the target branch on a PR.
 - Link referenced cards, issues, and reports directly rather than naming them in prose.
 - Commit messages follow the commit skill's rules (Conventional Commits, no scopes, imperative, why-focused); this skill governs the prose register everywhere else.
@@ -90,3 +95,19 @@ Each of these is a correction I made to a draft written on my behalf.
 **Condescending context → peer-level reason**
 - Before: "It's an LLM call, so every retry re-sends the same prompt and burns real money."
 - After: "We cap it this tightly because each retry costs money."
+
+**Hedged finding → the plain fact**
+- Before: "Attachments get injected into the prompt on every turn, so all we can honestly say is that the file was available when the answer was written."
+- After: "Attachments get injected into the prompt on every turn, so the file was available when the answer was written."
+
+**Question with my answer bundled in → the question on its own**
+- Before: "If it isn't, I'd leave the fix out and instead reword the empty card, so an answer that quotes an attached file doesn't read as though it had nothing behind it."
+- After: "If it isn't, we can leave the fix out."
+
+**Unattributed research → say Claude checked it**
+- Before: "The only time uploads came up in a meeting (15 July) the view was that asking customers to upload files isn't really a workflow we're pushing."
+- After: "I got Claude to check the meeting transcripts to be sure and the only time uploads came up in a meeting (15 July) the view was that asking customers to upload files isn't really a workflow we're pushing."
+
+**Analysis first → state of the work first**
+- Before: opening with the pitch review and the verdict that the AC is misleading, then the fix and its caveat.
+- After: opening with "I've got a fix in place that lists every attachment in a conversation as a source", the caveat, and the option to tighten it, then "That said, I went back through the pitch and I don't think user uploads being treated as sources is actually a requirement anywhere."
