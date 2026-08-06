@@ -1,8 +1,6 @@
 ---
 name: pr-human
 description: "Open a PR for review. Use this for requests like 'create a PR', 'open a pull request', 'submit this for review', 'push this and make a draft PR', 'raise a PR', or similar GitHub review-submission requests."
-model: sonnet
-context: fork
 ---
 
 PR Description Prompt
