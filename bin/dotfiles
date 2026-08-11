@@ -39,6 +39,7 @@ DOTFILES=(
     ".ignored"
     ".pi/agent/extensions"
     ".pi/agent/keybindings.json"
+    ".pi/agent/model-with-effort.json"
     ".pi/agent/settings.json"
     ".pi/settings.json"
     ".pi/status-line.json"

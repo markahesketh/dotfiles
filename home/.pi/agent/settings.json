@@ -1,21 +1,11 @@
 {
-  "lastChangelogVersion": "0.83.0",
+  "lastChangelogVersion": "0.84.1",
   "theme": "light/dark",
-  "defaultProvider": "openrouter",
-  "defaultModel": "openai/gpt-5.6-luna",
-  "defaultThinkingLevel": "xhigh",
+  "defaultProvider": "openai-codex",
+  "defaultModel": "gpt-5.6-luna",
+  "defaultThinkingLevel": "max",
   "editorPaddingX": 1,
   "steeringMode": "one-at-a-time",
-  "enabledModels": [
-    "anthropic/claude-fable-5",
-    "anthropic/claude-opus-5",
-    "anthropic/claude-sonnet-5",
-    "github-copilot/gpt-5.6-sol",
-    "openrouter/google/gemini-3.6-flash",
-    "openrouter/x-ai/grok-4.5",
-    "openrouter/openai/gpt-5.6-terra",
-    "openrouter/openai/gpt-5.6-luna"
-  ],
   "outputPad": 1,
   "packages": [
     "npm:pi-mono-clear",
@@ -24,5 +14,6 @@
     "npm:pi-web-access",
     "npm:@narumitw/pi-btw",
     "npm:pi-subagents"
-  ]
+  ],
+  "enabledModels": []
 }

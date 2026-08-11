@@ -356,7 +356,7 @@ export default function modelWithEffort(pi: ExtensionAPI) {
 		if (favourite) await applyFavourite(pi, ctx, favourite, models);
 	}
 
-	pi.registerShortcut(Key.ctrlShift("m"), {
+	pi.registerShortcut(Key.ctrl("e"), {
 		description: "Select model and effort",
 		handler: openPicker,
 	});
