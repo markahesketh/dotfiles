@@ -59,7 +59,6 @@
     "refreshInterval": 60
   },
   "enabledPlugins": {
-    "internal@dotfiles": true,
     "figma@claude-plugins-official": false,
     "frontend-design@claude-plugins-official": false,
     "ruby-lsp@claude-plugins-official": true,

@@ -553,7 +553,7 @@ ${autonomy}" \
   # 7. land, same session again
   retitle_pane "$p_impl" "${id} Land"
   p_impl="$(run_chain_stage "$id" "Land" "$OPUS" "$wt_path" "${run}/land" \
-"Invoke the /internal:land skill against ${BASE}.
+"Invoke the /land skill against ${BASE}.
 Invoke /commit when done. Do not edit ${rel}.
 ${autonomy}" \
     "$chainbase" "commit_settled '$wt_path'")"
@@ -692,7 +692,7 @@ ${autonomy}" \
   # land against compare, same session
   retitle_pane "$p_fix" "${id} Land"
   p_fix="$(run_chain_stage "$id" "Land" "$OPUS" "$wt_path" "${run}/land" \
-"Invoke the /internal:land skill against ${compare}.
+"Invoke the /land skill against ${compare}.
 Invoke /commit when done.
 ${autonomy}" \
     "$chainbase" "commit_settled '$wt_path'")"
