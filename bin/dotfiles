@@ -45,6 +45,7 @@ DOTFILES=(
     ".pi/status-line.json"
     ".tmux.conf"
     ".vimrc"
+    ".zshenv"
     ".zprofile"
     ".zshrc"
 )

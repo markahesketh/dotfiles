@@ -1,15 +1,5 @@
-# Setup Mise
-if [ -f $HOME/.local/bin/mise ]; then
-    eval "$($HOME/.local/bin/mise activate zsh)"
-elif [ -f /opt/homebrew/bin/mise ]; then
-    eval "$(/opt/homebrew/bin/mise activate zsh)"
-fi
-export PATH="$HOME/.local/share/mise/shims:$PATH"
+# /etc/zprofile has just run path_helper, which demotes everything .zshenv set
+# below /usr/bin. Reapply it (idempotent - path is typeset -U).
+source ~/.zshenv
 
-# Local config
 [[ -f ~/.zprofile.local ]] && source ~/.zprofile.local
-[[ -f ~/.cargo/env ]] && source $HOME/.cargo/env
-
-
-# Added by Antigravity CLI installer
-export PATH="/Users/markhesketh/.local/bin:$PATH"

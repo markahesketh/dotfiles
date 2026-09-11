@@ -6,38 +6,6 @@ command_exists() {
 }
 
 # ------------------------------------------------------------------------------
-# PATH
-# ------------------------------------------------------------------------------
-PATH=~/bin:$PATH
-PATH=~/.composer/vendor/bin:$PATH
-PATH=~/.local/bin:$PATH
-
-if [[ "$OSTYPE" == "darwin"* ]]; then
-    PATH=$PATH:/Applications/RubyMine.app/Contents/MacOS
-fi
-
-# ------------------------------------------------------------------------------
-# Binaries
-# ------------------------------------------------------------------------------
-# Set Zed as the editor
-export VISUAL="zed --wait"
-export EDITOR="$VISUAL"
-
-# Setup Homebrew
-if command -v brew >/dev/null 2>&1; then
-    eval "$($(which brew) shellenv)"
-fi
-
-# Stop Homebrew automatically updating all packages
-export HOMEBREW_NO_AUTO_UPDATE=1
-export HOMEBREW_NO_INSTALL_UPGRADE=1
-
-# Setup Orbstack
-if command -v orbstack >/dev/null 2>&1; then
-    source ~/.orbstack/shell/init.zsh 2>/dev/null || :
-fi
-
-# ------------------------------------------------------------------------------
 # Preferences
 # ------------------------------------------------------------------------------
 # Set TERM only if not already set by the terminal emulator
@@ -56,12 +24,6 @@ setopt HIST_REDUCE_BLANKS
 autoload -Uz compinit && compinit
 zstyle ':completion:*' matcher-list 'm:{a-z}={A-Za-z}'
 
-# Terminal title (used by tmux pane-border-format via #{pane_title})
-_title_precmd() { printf '\033]0;zsh\007' }
-_title_preexec() { printf '\033]0;%s\007' "${1%% *}" }
-precmd_functions+=(_title_precmd)
-preexec_functions+=(_title_preexec)
-
 # Custom prompt, with git branch
 autoload -Uz vcs_info
 precmd_vcs_info() { vcs_info }
@@ -79,7 +41,6 @@ bindkey '\e[1;9C' forward-word     # Option + right arrow
 # ------------------------------------------------------------------------------
 # Includes
 # ------------------------------------------------------------------------------
-# Aliases
 [[ -f ~/.aliases ]] && source ~/.aliases
 
 if command_exists fzf; then
@@ -90,21 +51,32 @@ if command_exists atuin; then
     eval "$(atuin init zsh)"
 fi
 
-if command_exists workmux; then
-    eval "$(workmux completions zsh)"
+# Deliberately NOT `mise activate` - the shims in .zshenv cover every shell,
+# and activate bakes version-pinned paths into any environment that captures it.
+
+# Homebrew here rather than .zshenv: .zshenv already has the bin dirs, this is
+# only for MANPATH/INFOPATH/HOMEBREW_PREFIX, and it costs a subprocess.
+if command_exists brew; then
+    eval "$(brew shellenv)"
+    # shellenv prepends its bin dirs; keep shims ahead so a brewed node/python
+    # never shadows the mise-managed one.
+    path=($HOME/.local/share/mise/shims $path)
+fi
+
+if [[ -f ~/.orbstack/shell/init.zsh ]]; then
+    source ~/.orbstack/shell/init.zsh 2>/dev/null
+fi
+
+if command_exists wt; then
+    eval "$(command wt config shell init zsh)"
+fi
+
+if command_exists direnv; then
+    eval "$(direnv hook zsh)"
 fi
 
 if command_exists opencode; then
     export PATH=/Users/markhesketh/.opencode/bin:$PATH
 fi
 
-if command -v wt >/dev/null 2>&1; then eval "$(command wt config shell init zsh)"; fi
-
-# Added by Antigravity CLI installer
-export PATH="/Users/markhesketh/.local/bin:$PATH"
-
-# direnv: per-directory env (used by git worktree DB isolation)
-eval "$(direnv hook zsh)"
-
-# Pi
-export PATH="/Users/markhesketh/.local/share/mise/installs/node/22.19.0/bin:$PATH"
+[[ -f ~/.zshrc.local ]] && source ~/.zshrc.local
