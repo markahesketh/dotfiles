@@ -21,12 +21,10 @@
     "ask": [
       "Bash(git commit *)",
       "Bash(git push *)",
-      "Bash(git pull *)",
-      "Bash(git rebase *)"
+      "Bash(git pull *)"
     ],
     "defaultMode": "auto"
   },
-  "model": "sonnet",
   "disableClaudeAiConnectors": true,
   "skillOverrides": {
     "research": "off",
@@ -50,6 +48,9 @@
       }
     ]
   },
+  "worktree": {
+    "baseRef": "fresh"
+  },
   "disableRemoteControl": true,
   "disableWorkflows": true,
   "disableArtifact": true,
@@ -61,22 +62,25 @@
   "enabledPlugins": {
     "figma@claude-plugins-official": false,
     "frontend-design@claude-plugins-official": false,
-    "ruby-lsp@claude-plugins-official": true,
-    "i-have-adhd@i-have-adhd": true
+    "ruby-lsp@claude-plugins-official": true
   },
-  "extraKnownMarketplaces": {
-    "i-have-adhd": {
-      "source": {
-        "source": "github",
-        "repo": "ayghri/i-have-adhd"
-      }
-    }
-  },
+
   "disableSideloadFlags": true,
   "effortLevel": "high",
+  "modelSettings": {
+    "claude-opus-5": {
+      "effortLevel": "medium"
+    },
+    "claude-fable-5-1": {
+      "effortLevel": "medium"
+    }
+  },
   "awaySummaryEnabled": false,
   "showClearContextOnPlanAccept": true,
+  "askUserQuestionTimeout": "never",
   "autoMemoryEnabled": false,
   "theme": "light",
+  "verbose": false,
+  "autoCompactEnabled": true,
   "disableDeepLinkRegistration": "disable"
 }
