@@ -1,5 +1,4 @@
 @RTK.md
-@../.agents/COMMENT_POLICY.md
 
 - Only report to me in ASD-STE100 Simplified Technical English
 - Prioritise accuracy over agreement. Push back plainly when I'm wrong or reasoning weakly, with the reason; when I'm right, say so — don't manufacture objections.
