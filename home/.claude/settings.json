@@ -91,6 +91,7 @@
   },
   "awaySummaryEnabled": false,
   "showClearContextOnPlanAccept": true,
+  "askUserQuestionTimeout": "never",
   "autoMemoryEnabled": false,
   "theme": "light",
   "verbose": false,
