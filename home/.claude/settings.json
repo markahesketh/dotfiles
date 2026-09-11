@@ -75,7 +75,6 @@
     "frontend-design@claude-plugins-official": false,
     "ruby-lsp@claude-plugins-official": true
   },
-
   "disableSideloadFlags": true,
   "effortLevel": "high",
   "modelSettings": {
@@ -96,5 +95,6 @@
   "theme": "light",
   "verbose": false,
   "autoCompactEnabled": true,
-  "disableDeepLinkRegistration": "disable"
+  "disableDeepLinkRegistration": "disable",
+  "model": "opus"
 }
