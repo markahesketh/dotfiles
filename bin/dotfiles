@@ -25,6 +25,7 @@ DOTFILES=(
     ".codex/hooks.json"
     ".codex/RTK.md"
     ".config/atuin/config.toml"
+    ".config/direnv/direnv.toml"
     ".config/tmux/is-dark-mode.sh"
     ".config/tmux/on-session-created.sh"
     ".config/tmux/pane-title-from-prompt.sh"

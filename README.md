@@ -59,6 +59,7 @@ For example:
 | `.config/tmux/` | Tmux scripts (dark mode, session hooks, test runner) |
 | `.config/herdr/` | Herdr config and local plugins |
 | `.config/atuin/` | Atuin shell history config |
+| `.config/direnv/` | Direnv whitelist config |
 | `.config/workmux/` | Workmux workspace config |
 | `.config/zed/` | Zed editor config |
 | `.claude/` | Claude Code settings, hooks, and media |
