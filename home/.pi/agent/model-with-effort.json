@@ -1,3 +1,9 @@
 {
-  "favourites": []
+  "favourites": [
+    {
+      "provider": "github-copilot",
+      "model": "gpt-5.6-luna",
+      "thinkingLevel": "max"
+    }
+  ]
 }

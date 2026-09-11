@@ -1,9 +1,9 @@
 {
   "lastChangelogVersion": "0.85.1",
   "theme": "light/dark",
-  "defaultProvider": "openai-codex",
-  "defaultModel": "gpt-5.6-luna",
-  "defaultThinkingLevel": "max",
+  "defaultProvider": "anthropic",
+  "defaultModel": "claude-opus-5",
+  "defaultThinkingLevel": "medium",
   "editorPaddingX": 1,
   "steeringMode": "one-at-a-time",
   "outputPad": 1,
@@ -15,5 +15,11 @@
     "npm:@narumitw/pi-btw",
     "npm:pi-subagents"
   ],
-  "enabledModels": []
+  "enabledModels": [
+    "anthropic/claude-opus-5",
+    "anthropic/claude-sonnet-5",
+    "anthropic/claude-fable-5-1",
+    "github-copilot/gpt-5.6-luna",
+    "github-copilot/gpt-5.6-sol"
+  ]
 }
