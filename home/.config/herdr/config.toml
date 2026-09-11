@@ -1,5 +1,11 @@
 onboarding = false
 
+[theme]
+name = "tokyo-night"
+auto_switch = true
+light_name = "one-light"
+dark_name = "tokyo-night"
+
 [keys]
 prefix = "ctrl+space"
 focus_pane_left = "prefix+left"
