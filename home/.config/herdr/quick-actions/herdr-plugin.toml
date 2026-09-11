@@ -1,0 +1,33 @@
+id = "dotfiles.quick-actions"
+name = "Quick Actions"
+version = "0.1.0"
+min_herdr_version = "0.9.0"
+description = "Quick actions for coding-agent panes"
+platforms = ["linux", "macos"]
+
+[[actions]]
+id = "open"
+title = "Open Quick Actions"
+contexts = ["workspace"]
+command = ["bash", "open.sh"]
+
+[[actions]]
+id = "wt-dev"
+title = "Start Dev Server"
+contexts = ["workspace"]
+command = ["bash", "wt-step.sh", "dev"]
+
+[[actions]]
+id = "wt-open"
+title = "Open Worktree"
+contexts = ["workspace"]
+command = ["bash", "wt-step.sh", "open"]
+
+[[panes]]
+id = "menu"
+title = "Quick Actions"
+platforms = ["linux", "macos"]
+placement = "popup"
+width = "30%"
+height = 20
+command = ["bash", "quick-actions.sh"]

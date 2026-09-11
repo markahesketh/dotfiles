@@ -14,7 +14,7 @@ function updateStatus(ctx: ExtensionContext, stashed: boolean): void {
 export default function messageStash(pi: ExtensionAPI) {
 	let stashedMessage: string | undefined;
 
-	pi.registerShortcut("ctrl+s", {
+	pi.registerShortcut("alt+s", {
 		description: "Stash or restore the current message",
 		handler: (ctx) => {
 			if (ctx.mode !== "tui") return;

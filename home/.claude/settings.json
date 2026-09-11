@@ -20,8 +20,7 @@
     ],
     "ask": [
       "Bash(git commit *)",
-      "Bash(git push *)",
-      "Bash(git pull *)"
+      "Bash(git push *)"
     ],
     "defaultMode": "auto"
   },
@@ -43,6 +42,18 @@
           {
             "type": "command",
             "command": "bash ~/.claude/hooks/route-commit-to-skill.sh"
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash '/Users/markhesketh/.claude/hooks/herdr-agent-state.sh' session",
+            "timeout": 10
           }
         ]
       }
@@ -68,6 +79,9 @@
   "disableSideloadFlags": true,
   "effortLevel": "high",
   "modelSettings": {
+    "claude-sonnet-5": {
+      "effortLevel": "medium"
+    },
     "claude-opus-5": {
       "effortLevel": "medium"
     },
@@ -77,7 +91,6 @@
   },
   "awaySummaryEnabled": false,
   "showClearContextOnPlanAccept": true,
-  "askUserQuestionTimeout": "never",
   "autoMemoryEnabled": false,
   "theme": "light",
   "verbose": false,

@@ -1,0 +1,12 @@
+id = "dotfiles.layout-tools"
+name = "Layout Tools"
+version = "0.1.0"
+min_herdr_version = "0.9.0"
+description = "Pane layout actions"
+platforms = ["linux", "macos"]
+
+[[actions]]
+id = "equalize"
+title = "Equalize Panes"
+contexts = ["workspace"]
+command = ["node", "equalize.mjs"]

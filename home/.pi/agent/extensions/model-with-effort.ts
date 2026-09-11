@@ -12,10 +12,10 @@ import {
 	type ExtensionAPI,
 	type ExtensionContext,
 } from "@earendil-works/pi-coding-agent";
-import { Container, Key, type SelectItem, SelectList, Text } from "@earendil-works/pi-tui";
+import { Container, type SelectItem, SelectList, Text } from "@earendil-works/pi-tui";
 
 /**
- * Pick a saved model + effort combination with `/model-with-effort` or Ctrl+Shift+M.
+ * Pick a saved model + effort combination with `/model-with-effort` or Alt+M.
  *
  * Favourites are stored in ~/.pi/agent/model-with-effort.json. Use the Add
  * option in the picker to choose from the models scoped to the current session.
@@ -356,7 +356,7 @@ export default function modelWithEffort(pi: ExtensionAPI) {
 		if (favourite) await applyFavourite(pi, ctx, favourite, models);
 	}
 
-	pi.registerShortcut(Key.ctrl("e"), {
+	pi.registerShortcut("alt+m", {
 		description: "Select model and effort",
 		handler: openPicker,
 	});

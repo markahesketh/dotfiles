@@ -30,6 +30,9 @@ DOTFILES=(
     ".config/tmux/pane-title-from-prompt.sh"
     ".config/tmux/run-tests.sh"
     ".config/ghostty/config"
+    ".config/herdr/config.toml"
+    ".config/herdr/quick-actions"
+    ".config/herdr/layout-tools"
     ".config/workmux/config.yaml"
     ".config/worktrunk/config.toml"
     ".gemini/settings.json"
@@ -130,6 +133,15 @@ if [ "$CONT" == "y" ]; then
         do
             echo "Creating $i ..."
             create_symlink "${BASEDIR}/home/$i" "$HOME/$i"
+        done
+    fi
+
+    if command -v herdr >/dev/null 2>&1; then
+        for plugin in quick-actions layout-tools; do
+            echo "Linking Herdr ${plugin} plugin ..."
+            if ! herdr plugin link "${BASEDIR}/home/.config/herdr/${plugin}" >/dev/null; then
+                echo "Warning: could not link the Herdr ${plugin} plugin."
+            fi
         done
     fi
 

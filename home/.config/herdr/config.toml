@@ -1,0 +1,74 @@
+onboarding = false
+
+[keys]
+prefix = "ctrl+space"
+focus_pane_left = "prefix+left"
+focus_pane_down = "prefix+down"
+focus_pane_up = "prefix+up"
+focus_pane_right = "prefix+right"
+previous_tab = "prefix+shift+left"
+new_tab = "prefix+t"
+
+[[keys.command]]
+key = "prefix+p"
+type = "plugin_action"
+command = "dotfiles.quick-actions.open"
+description = "quick actions"
+
+[[keys.command]]
+key = "prefix+k"
+type = "popup"
+command = "lazygit"
+description = "open lazygit"
+width = "80%"
+height = "80%"
+
+# Worktree actions
+[[keys.command]]
+key = "prefix+r"
+type = "plugin_action"
+command = "dotfiles.quick-actions.wt-dev"
+description = "start dev server"
+
+[[keys.command]]
+key = "prefix+o"
+type = "plugin_action"
+command = "dotfiles.quick-actions.wt-open"
+description = "open worktree"
+
+# Git log in a popup
+[[keys.command]]
+key = "prefix+9"
+type = "popup"
+command = "git lg | less --mouse --wheel-lines=1 -R"
+description = "show git log"
+width = "50%"
+height = "50%"
+
+# Open the current branch's GitHub PR
+[[keys.command]]
+key = "prefix+shift+k"
+type = "shell"
+command = "gh pr view --web"
+description = "open GitHub PR"
+
+# Scratch terminal popup
+[[keys.command]]
+key = "prefix+0"
+type = "popup"
+command = "zsh"
+description = "open terminal"
+width = "50%"
+height = "50%"
+
+[[keys.command]]
+key = "prefix+e"
+type = "shell"
+command = 'rubymine "$HERDR_ACTIVE_PANE_CWD"'
+description = "open current directory in RubyMine"
+
+[[keys.command]]
+key = "prefix+shift+e"
+type = "plugin_action"
+command = "dotfiles.layout-tools.equalize"
+description = "equalize panes"
