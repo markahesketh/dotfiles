@@ -152,7 +152,7 @@ filter_mode_shell_up_key_binding = "directory"
 ## 3. Slack oauth tokens (bot, user)
 ## 4. Slack webhooks
 ## 5. Stripe live/test keys
-# secrets_filter = true
+secrets_filter = true
 
 ## Defaults to true. If enabled, upon hitting enter Atuin will immediately execute the command,
 ## whereas tab will put the command in the prompt for editing.

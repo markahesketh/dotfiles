@@ -1,5 +1,4 @@
-# If not running interactively, don't do anything
-[ -z "$PS1" ] && return
+[[ -o interactive ]] || return
 
 # ------------------------------------------------------------------------------
 # Directories and navigation
@@ -19,38 +18,9 @@ alias rm='rm -iv'
 alias mv='mv -iv'
 
 # ------------------------------------------------------------------------------
-# Docker
-# ------------------------------------------------------------------------------
-alias dcd="docker-compose down"
-alias dcu="docker-compose up"
-
-# ------------------------------------------------------------------------------
-# Git
-# ------------------------------------------------------------------------------
-alias delete-squashed='git checkout -q master && git for-each-ref refs/heads/ "--format=%(refname:short)" | while read branch; do mergeBase=$(git merge-base master $branch) && [[ $(git cherry master $(git commit-tree $(git rev-parse $branch^{tree}) -p $mergeBase -m _)) == "-"* ]] && git branch -D $branch; done'
-function gho() {
-    local repo_url=`git remote get-url origin | sed -e 's/git@//' -e 's/.git//' -e 's/:/\//'`
-    open "https://$repo_url"
-}
-
-function ghu() {
-     local repo_url=`git remote get-url upstream | sed -e 's/git@//' -e 's/.git//' -e 's/:/\//'`
-     open "https://$repo_url"
-}
-
-# ------------------------------------------------------------------------------
 # Workflow
 # ------------------------------------------------------------------------------
 alias lg="lazygit"
-alias oo='open http://localhost:$(branch-port)'
-
-# ------------------------------------------------------------------------------
-# PHP / Laravel
-# ------------------------------------------------------------------------------
-alias art="php artisan"
-alias c="composer"
-alias c1="/usr/local/bin/composer1"
-alias c2="/usr/local/bin/composer"
 
 # ------------------------------------------------------------------------------
 # Ruby on Rails
@@ -89,8 +59,7 @@ function tab() {
 
 # Reload the shell (i.e. invoke as a login shell)
 function reload() {
-    source ~/.zshrc
-    exec $SHELL -l
+    exec "${SHELL:-/bin/zsh}" -l
 }
 
 # Add the kamal SSH key to the ssh-agent
@@ -110,4 +79,4 @@ function dotfiles() {
 }
 
 # Local config
-[[ -f ~/.aliases.local ]] && source ~/.aliases.local
+[[ -r "$HOME/.aliases.local" ]] && source "$HOME/.aliases.local"

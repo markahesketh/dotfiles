@@ -1,5 +1,7 @@
-# /etc/zprofile has just run path_helper, which demotes everything .zshenv set
-# below /usr/bin. Reapply it (idempotent - path is typeset -U).
-source ~/.zshenv
+if (( $+commands[brew] )); then
+	eval "$(command brew shellenv)"
+fi
 
-[[ -f ~/.zprofile.local ]] && source ~/.zprofile.local
+(( $+functions[_dotfiles_reset_path] )) && _dotfiles_reset_path
+
+[[ -r "$HOME/.zprofile.local" ]] && source "$HOME/.zprofile.local"

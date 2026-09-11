@@ -47,9 +47,10 @@ For example:
 
 | File/Directory | Description |
 |---|---|
-| `.zshrc` | Shell config — PATH, prompt, completions, key bindings |
-| `.zprofile` | Login shell config |
-| `.aliases` | Shell aliases (git, docker, Laravel, Rails) |
+| `.zshenv` | Environment variables and PATH for every zsh process |
+| `.zprofile` | Login environment, including Homebrew |
+| `.zshrc` | Interactive prompt, completions, key bindings, and tool hooks |
+| `.aliases` | Shell aliases and Rails helpers |
 | `.gitconfig` | Git configuration and aliases |
 | `.gitignore` | Global gitignore |
 | `.vimrc` | Vim configuration |

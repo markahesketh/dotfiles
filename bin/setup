@@ -19,12 +19,19 @@ command_exists() {
 source "${BASEDIR}/dotfiles"
 
 DOCKER_COMPLETION_URL="https://raw.githubusercontent.com/docker/cli/master/contrib/completion/zsh/_docker"
-if [ ! -f ~/.docker-completion.zsh ]; then
+DOCKER_COMPLETION_DIR="$HOME/.zsh/completions"
+DOCKER_COMPLETION_FILE="$DOCKER_COMPLETION_DIR/_docker"
+if [ ! -f "$DOCKER_COMPLETION_FILE" ]; then
     echo "Downloading Docker autocomplete"
-    if command_exists curl; then
-        curl -fL -o ~/.docker-completion.zsh ${DOCKER_COMPLETION_URL}
+    mkdir -p "$DOCKER_COMPLETION_DIR"
+    if [ -f "$HOME/.docker-completion.zsh" ]; then
+        cp "$HOME/.docker-completion.zsh" "$DOCKER_COMPLETION_FILE"
+    elif command_exists curl; then
+        curl -fL -o "$DOCKER_COMPLETION_FILE" "$DOCKER_COMPLETION_URL"
     elif command_exists wget; then
-        wget -O ~/.docker-completion.zsh ${DOCKER_COMPLETION_URL}
+        wget -O "$DOCKER_COMPLETION_FILE" "$DOCKER_COMPLETION_URL"
+    else
+        echo "Warning: neither curl nor wget is installed; Docker autocomplete was skipped."
     fi
     echo ""
 else
