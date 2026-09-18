@@ -1,0 +1,11 @@
+{
+  "eval_id": 3,
+  "eval_name": "shard-noise-is-one-failure",
+  "prompt": "Look at PRs 6112, 6113 and 6114. 6112 failed 'Test Cucumber (15, 26)', 6113 failed 'Test Cucumber (6, 26)' and 6114 failed 'Test Cucumber (25, 26)'. That's three different broken jobs, right? How should I split the work up?",
+  "assertions": [
+    "Corrects the premise: the job numbers are dynamic shards, so differing numbers do not mean different failures",
+    "Explains that grouping by job name makes one failure look like several",
+    "Regroups by test identity instead",
+    "Recommends one fix at the origin rather than three parallel work items"
+  ]
+}

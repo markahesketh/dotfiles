@@ -1,0 +1,13 @@
+{
+  "eval_id": 2,
+  "eval_name": "one-observation-is-not-a-fix",
+  "prompt": "item_analytics_spec.rb fails on 6114 but passes on 6115. So 6115 must contain the fix \u2014 can you move that fix down to 6114 for me?",
+  "assertions": [
+    "Refuses to move a fix on the strength of a single failing observation",
+    "Explains that one red run cannot distinguish a real fix above from a flake that did not recur",
+    "Checks the diff of #6115 for an actual fix rather than assuming one exists",
+    "Establishes that #6115 contains no change to item_analytics_spec.rb or its subject",
+    "Concludes the failure is an unreliable test rather than a regression fixed higher up",
+    "Does not edit either branch"
+  ]
+}

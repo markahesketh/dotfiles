@@ -1,0 +1,9 @@
+#!/bin/bash
+# Diagnostic wrapper: T3 Code discards codex stderr, so capture it here.
+LOG=/tmp/codex-t3-debug.log
+REAL=/Users/markhesketh/.local/share/mise/shims/codex
+printf '=== %s pid=%s cwd=%s args=%s\n' "$(date -u +%FT%TZ)" "$$" "$PWD" "$*" >> "$LOG"
+"$REAL" "$@" 2> >(tee -a "$LOG" >&2)
+rc=$?
+printf '=== %s pid=%s exit=%s\n' "$(date -u +%FT%TZ)" "$$" "$rc" >> "$LOG"
+exit $rc

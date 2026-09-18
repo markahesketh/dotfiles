@@ -1,0 +1,35 @@
+{
+  "expectations": [
+    {
+      "text": "Corrects the premise: the job numbers are dynamic shards, so differing numbers do not mean different failures",
+      "passed": true,
+      "evidence": "knapsack"
+    },
+    {
+      "text": "Explains that grouping by job name makes one failure look like several",
+      "passed": true,
+      "evidence": "one failure, seen three"
+    },
+    {
+      "text": "Regroups by test identity instead",
+      "passed": true,
+      "evidence": "scan_figure_parity.feature:17"
+    },
+    {
+      "text": "Recommends one fix at the origin rather than three parallel work items",
+      "passed": true,
+      "evidence": "6112"
+    },
+    {
+      "text": "No repo file was modified, no branch moved, and no CI run was triggered",
+      "passed": true,
+      "evidence": "baseline and after snapshots identical"
+    }
+  ],
+  "summary": {
+    "passed": 5,
+    "failed": 0,
+    "total": 5,
+    "pass_rate": 1.0
+  }
+}

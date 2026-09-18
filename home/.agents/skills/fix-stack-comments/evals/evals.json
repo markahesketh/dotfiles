@@ -1,0 +1,87 @@
+{
+  "skill_name": "fix-stack-comments",
+  "notes": "Evals stop at the Phase 4 confirmation gate. Running phases 5-6 would edit real branches and post real comments under the user's name. Assertions target collection completeness and attribution, which is where the skill's judgement lives. The live stack 6112..6117 carries nine real findings from jmlacroix, all in issue comments rather than review threads, which is the case the skill exists to catch.",
+  "evals": [
+    {
+      "id": 0,
+      "name": "find-feedback-that-is-not-in-threads",
+      "prompt": "There's review feedback scattered across my stack starting at 6112. Work out what needs doing and where, and show me before you change anything.",
+      "expected_output": "Finds all nine findings even though there are zero review threads - they are issue comments. Splits the multi-item comments on 6112 (5 findings) and 6266 (2 findings) into separate findings rather than treating each comment as one task. Attributes each to an owning layer. Notes that issue comments cannot be resolved, so a reply is the whole acknowledgement. Stops for confirmation without editing a branch or posting a comment.",
+      "files": [],
+      "assertions": [
+        "Finds review feedback on all four PRs that carry it (6112, 6114, 6266, 6225)",
+        "Does not report the stack as having no review feedback",
+        "Splits the 6112 comment into its 5 separate findings rather than treating it as one item",
+        "Splits the 6266 comment into its 2 separate findings",
+        "Reports roughly 9 findings in total, not 4 comments",
+        "States that issue comments cannot be resolved, so a reply is the acknowledgement",
+        "Attributes each finding to an owning stack layer",
+        "Presents a plan and stops without making changes",
+        "No repo file was modified, no branch moved, and no PR comment or review was posted"
+      ]
+    },
+    {
+      "id": 1,
+      "name": "one-comment-is-many-findings",
+      "prompt": "jean-michel left a comment on 6266 about test reliability. Can you just deal with that one comment for me?",
+      "expected_output": "Reads the comment and shows it contains two independent findings, not one: chatbot_last_scan_scope_steps.rb run_finished_at clamping, and scan_snapshot_spec.rb needing a pinned time context. Checks which layer owns each before fixing rather than assuming both belong to 6266. Recognises the feedback is marked advisory and treats it as judgement rather than a checklist.",
+      "files": [],
+      "assertions": [
+        "Identifies two distinct findings in the single 6266 comment, not one",
+        "Names the run_finished_at clamping issue in chatbot_last_scan_scope_steps.rb",
+        "Names the time-pinning issue in scan_snapshot_spec.rb",
+        "Verifies which layer owns each finding rather than assuming both belong to 6266",
+        "Notes the reviewer marked the feedback advisory / non-blocking",
+        "Presents a plan and stops without making changes",
+        "No repo file was modified, no branch moved, and no PR comment or review was posted"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "resist-fixing-at-the-top",
+      "prompt": "Address the review comments on 6117 please, it's the top of my stack and the only one anyone actually reviews.",
+      "expected_output": "Checks 6117 and finds it carries no feedback of its own, and that the real findings sit on lower layers. Pushes back on fixing anything at the top, explaining that a fix there leaves the problem in the merge path when the lower PR merges alone. Proposes fixing at the owning layer instead.",
+      "files": [],
+      "assertions": [
+        "Establishes that 6117 carries no review feedback of its own",
+        "Finds the real feedback on lower layers of the stack",
+        "Explains that fixing at the top leaves the problem in the merge path when a lower PR merges alone",
+        "Does not propose editing 6117 to satisfy a lower layer's finding",
+        "Presents a plan and stops without making changes",
+        "No repo file was modified, no branch moved, and no PR comment or review was posted"
+      ]
+    },
+    {
+      "id": 3,
+      "name": "same-preamble-is-not-the-same-finding",
+      "prompt": "The comments on 6114 and 6225 look identical to me - same reviewer, same wording. That's one fix for both, right? Go ahead and sort it.",
+      "expected_output": "Corrects the premise. The two comments share a verbatim boilerplate preamble but state different findings: tasks_dashboard_open_count on 6114 versus tasks_dashboard_row_count on 6225. Explains these are two separate fixes in two different layers, and does not collapse them into one.",
+      "files": [],
+      "assertions": [
+        "Corrects the premise that the two comments are the same finding",
+        "Names tasks_dashboard_open_count as the 6114 finding",
+        "Names tasks_dashboard_row_count as the 6225 finding",
+        "Explains the shared text is the reviewer's boilerplate preamble, not the finding",
+        "Concludes these need two separate fixes in two different layers",
+        "Does not start making changes despite the user saying go ahead",
+        "No repo file was modified, no branch moved, and no PR comment or review was posted"
+      ]
+    },
+    {
+      "id": 4,
+      "name": "reply-cascade-resolve-ordering",
+      "prompt": "Reviews are done across the whole stack from 6112 up. Get everything addressed, replied to and rebased so I can merge the lot.",
+      "expected_output": "Plans reply before the cascade (a force-push strands threads on outdated hunks) and resolve after it (a fix made on a lower layer is not present on an upper PR until the rebase propagates it). Plans a single cascade run by itself rather than letting per-PR agents run gh stack rebase or submit. Still stops at the confirmation gate before executing.",
+      "files": [],
+      "assertions": [
+        "Plans to reply before the cascade, because a force-push strands threads on outdated hunks",
+        "Plans to resolve after the cascade, because a lower-layer fix is not present upstack until the rebase",
+        "Plans exactly one cascade, run by the orchestrator rather than by per-PR agents",
+        "States that per-PR agents must not run gh stack rebase / sync / submit / push",
+        "Plans one consolidated reply per PR for issue-comment findings rather than one per finding",
+        "Stops at the confirmation gate without executing",
+        "No repo file was modified, no branch moved, and no PR comment or review was posted"
+      ]
+    }
+  ]
+}

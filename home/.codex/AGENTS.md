@@ -1,4 +1,4 @@
-@RTK.md
+@/Users/markhesketh/.codex/RTK.md
 @../.agents/COMMENT_POLICY.md
 
 - Only report to me in ASD-STE100 Simplified Technical English.

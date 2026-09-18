@@ -34,6 +34,7 @@ DOTFILES=(
     ".config/herdr/config.toml"
     ".config/herdr/quick-actions"
     ".config/herdr/layout-tools"
+    ".config/herdr/plugins/config/persiyanov.reviewr/config.toml"
     ".config/workmux/config.yaml"
     ".config/worktrunk/config.toml"
     ".gemini/settings.json"

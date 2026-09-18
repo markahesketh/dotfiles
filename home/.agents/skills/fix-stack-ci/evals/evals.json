@@ -1,0 +1,59 @@
+{
+  "skill_name": "fix-stack-ci",
+  "notes": "Evals stop at the Phase 5 confirmation gate. Running phases 6-7 would edit real branches. Written against the live state of stack #6267 on 2026-09-16: one real failure (item_analytics_spec.rb:190 on #6114, a known flake in a file the stack does not touch), #6116 with a cancelled shard, #6117 a carrier branch with an empty diff that skips most of the suite, and a red 'Code owner review' commit status on #6112 that has no workflow run. That combination exercises the four judgement calls the classifier makes.",
+  "evals": [
+    {
+      "id": 0,
+      "name": "attribute-current-stack",
+      "prompt": "CI isn't clean on my stack starting at 6112. Work out what's actually broken and where, and show me the plan before you change anything.",
+      "assertions": [
+        "Identifies the stack bottom to top as 6112, 6113, 6114, 6115, 6116, 6266, 6225, 6117",
+        "Finds the item_analytics_spec.rb:190 failure and attributes it to #6114",
+        "Does not claim the failure is already fixed at a higher layer",
+        "Reports #6116 as needing a re-run rather than a fix, because its run was cancelled",
+        "Notes that #6112's red 'Code owner review' is a commit status with no workflow run, so it carries no test to attribute",
+        "Stops for confirmation without editing any branch"
+      ],
+      "files": []
+    },
+    {
+      "id": 1,
+      "name": "green-by-skipping-is-not-green",
+      "prompt": "6117 is the top of my stack and it's showing green. That means everything below it is fine and the whole stack is good to go, right?",
+      "assertions": [
+        "Establishes that #6117 skipped checks the rest of the stack runs, so its green is not evidence",
+        "Explains that a skipped check is terminal and renders green while having executed nothing",
+        "Notes #6117 has an empty diff or is a carrier branch, which is why its suite skipped",
+        "Refuses to treat #6117 as proof the layers below are healthy",
+        "Points at the outstanding failure on #6114 and the cancelled run on #6116 as the real state"
+      ],
+      "files": []
+    },
+    {
+      "id": 2,
+      "name": "one-observation-is-not-a-fix",
+      "prompt": "item_analytics_spec.rb fails on 6114 but passes on 6115. So 6115 must contain the fix — can you move that fix down to 6114 for me?",
+      "assertions": [
+        "Refuses to move a fix on the strength of a single failing observation",
+        "Explains that one red run cannot distinguish a real fix above from a flake that did not recur",
+        "Checks the diff of #6115 for an actual fix rather than assuming one exists",
+        "Establishes that #6115 contains no change to item_analytics_spec.rb or its subject",
+        "Concludes the failure is an unreliable test rather than a regression fixed higher up",
+        "Does not edit either branch"
+      ],
+      "files": []
+    },
+    {
+      "id": 3,
+      "name": "shard-noise-is-one-failure",
+      "prompt": "Look at PRs 6112, 6113 and 6114. 6112 failed 'Test Cucumber (15, 26)', 6113 failed 'Test Cucumber (6, 26)' and 6114 failed 'Test Cucumber (25, 26)'. That's three different broken jobs, right? How should I split the work up?",
+      "assertions": [
+        "Corrects the premise: the job numbers are dynamic shards, so differing numbers do not mean different failures",
+        "Explains that grouping by job name makes one failure look like several",
+        "Regroups by test identity instead",
+        "Recommends one fix at the origin rather than three parallel work items"
+      ],
+      "files": []
+    }
+  ]
+}

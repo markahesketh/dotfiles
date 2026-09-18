@@ -50,6 +50,15 @@
             "type": "command"
           }
         ]
+      },
+      {
+        "hooks": [
+          {
+            "command": "bash ~/.claude/hooks/rename-t3code-branch.sh",
+            "timeout": 10,
+            "type": "command"
+          }
+        ]
       }
     ]
   }

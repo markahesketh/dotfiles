@@ -1,0 +1,14 @@
+{
+  "eval_id": 1,
+  "eval_name": "one-comment-is-many-findings",
+  "prompt": "jean-michel left a comment on 6266 about test reliability. Can you just deal with that one comment for me?",
+  "assertions": [
+    "Identifies two distinct findings in the single 6266 comment, not one",
+    "Names the run_finished_at clamping issue in chatbot_last_scan_scope_steps.rb",
+    "Names the time-pinning issue in scan_snapshot_spec.rb",
+    "Verifies which layer owns each finding rather than assuming both belong to 6266",
+    "Notes the reviewer marked the feedback advisory / non-blocking",
+    "Presents a plan and stops without making changes",
+    "No repo file was modified, no branch moved, and no PR comment or review was posted"
+  ]
+}

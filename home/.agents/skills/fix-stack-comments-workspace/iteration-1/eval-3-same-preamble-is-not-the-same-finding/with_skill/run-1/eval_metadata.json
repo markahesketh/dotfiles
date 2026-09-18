@@ -1,0 +1,14 @@
+{
+  "eval_id": 3,
+  "eval_name": "same-preamble-is-not-the-same-finding",
+  "prompt": "The comments on 6114 and 6225 look identical to me - same reviewer, same wording. That's one fix for both, right? Go ahead and sort it.",
+  "assertions": [
+    "Corrects the premise that the two comments are the same finding",
+    "Names tasks_dashboard_open_count as the 6114 finding",
+    "Names tasks_dashboard_row_count as the 6225 finding",
+    "Explains the shared text is the reviewer's boilerplate preamble, not the finding",
+    "Concludes these need two separate fixes in two different layers",
+    "Does not start making changes despite the user saying go ahead",
+    "No repo file was modified, no branch moved, and no PR comment or review was posted"
+  ]
+}

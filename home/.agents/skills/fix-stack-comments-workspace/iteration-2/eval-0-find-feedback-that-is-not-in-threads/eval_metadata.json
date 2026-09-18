@@ -1,0 +1,16 @@
+{
+  "eval_id": 0,
+  "eval_name": "find-feedback-that-is-not-in-threads",
+  "prompt": "There's review feedback scattered across my stack starting at 6112. Work out what needs doing and where, and show me before you change anything.",
+  "assertions": [
+    "Finds review feedback on all four PRs that carry it (6112, 6114, 6266, 6225)",
+    "Does not report the stack as having no review feedback",
+    "Splits the 6112 comment into its 5 separate findings rather than treating it as one item",
+    "Splits the 6266 comment into its 2 separate findings",
+    "Reports roughly 9 findings in total, not 4 comments",
+    "States that issue comments cannot be resolved, so a reply is the acknowledgement",
+    "Attributes each finding to an owning stack layer",
+    "Presents a plan and stops without making changes",
+    "No repo file was modified, no branch moved, and no PR comment or review was posted"
+  ]
+}

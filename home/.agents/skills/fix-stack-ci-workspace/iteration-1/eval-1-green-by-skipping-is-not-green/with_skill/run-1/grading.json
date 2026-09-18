@@ -1,0 +1,40 @@
+{
+  "expectations": [
+    {
+      "text": "Establishes that #6117 skipped checks the rest of the stack runs, so its green is not evidence",
+      "passed": true,
+      "evidence": "skip"
+    },
+    {
+      "text": "Explains that a skipped check is terminal and renders green while having executed nothing",
+      "passed": true,
+      "evidence": "executed nothing"
+    },
+    {
+      "text": "Notes #6117 has an empty diff or is a carrier branch, which is why its suite skipped",
+      "passed": true,
+      "evidence": "empty diff"
+    },
+    {
+      "text": "Refuses to treat #6117 as proof the layers below are healthy",
+      "passed": true,
+      "evidence": "No."
+    },
+    {
+      "text": "Points at the outstanding failure on #6114 and the cancelled run on #6116 as the real state",
+      "passed": true,
+      "evidence": "both named"
+    },
+    {
+      "text": "No repo file was modified, no branch moved, and no CI run was triggered",
+      "passed": true,
+      "evidence": "baseline and after snapshots identical"
+    }
+  ],
+  "summary": {
+    "passed": 6,
+    "failed": 0,
+    "total": 6,
+    "pass_rate": 1.0
+  }
+}

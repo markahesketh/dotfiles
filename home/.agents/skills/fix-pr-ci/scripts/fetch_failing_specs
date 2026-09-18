@@ -1,0 +1,148 @@
+#!/usr/bin/env ruby
+# Extract failing test identities from a PR's most recent failed CI run.
+#
+# Repo-agnostic: derives the repository from `gh repo view` and discovers the
+# failed run via the PR's status checks, so it does not assume a workflow name.
+#
+# Usage:
+#   fetch_failing_specs           # PR for the current branch
+#   fetch_failing_specs 1234      # explicit PR number
+#   fetch_failing_specs --json    # machine-readable output on stdout
+
+require "json"
+require "open3"
+require "set"
+
+def capture(*cmd, allow_failure: false)
+  stdout, stderr, status = Open3.capture3(*cmd)
+  return stdout.strip if status.success?
+  return nil if allow_failure
+
+  warn "Error running: #{cmd.join(' ')}"
+  warn stderr
+  exit 1
+end
+
+def repo_slug
+  capture("gh", "repo", "view", "--json", "nameWithOwner", "-q", ".nameWithOwner")
+end
+
+def pr_for_current_branch
+  branch = capture("git", "rev-parse", "--abbrev-ref", "HEAD")
+  json = capture("gh", "pr", "list", "--head", branch, "--json", "number", "--limit", "1")
+  prs = JSON.parse(json)
+  if prs.empty?
+    warn "No PR found for branch '#{branch}'"
+    exit 1
+  end
+  prs.first["number"]
+end
+
+# The PR's failed check runs point at their workflow runs, so we never have to
+# guess a workflow filename. Different repos name them differently.
+def failed_run_ids(pr_number)
+  json = capture("gh", "pr", "view", pr_number.to_s, "--json", "statusCheckRollup")
+  rollup = JSON.parse(json)["statusCheckRollup"] || []
+
+  rollup.filter_map { |check|
+    next unless %w[FAILURE CANCELLED TIMED_OUT].include?(check["conclusion"])
+    url = check["detailsUrl"].to_s
+    url[%r{/actions/runs/(\d+)}, 1]
+  }.uniq
+end
+
+def failed_job_ids(repo, run_id)
+  out = capture("gh", "api", "--paginate",
+    "repos/#{repo}/actions/runs/#{run_id}/jobs",
+    "-q", '.jobs[] | select(.conclusion == "failure") | .id',
+    allow_failure: true)
+  out.to_s.lines.map(&:strip).reject(&:empty?)
+end
+
+def job_log(repo, job_id)
+  # `gh run view --log` is used rather than the raw logs API because gh refuses to
+  # emit API responses containing terminal escape sequences, which CI logs always do.
+  log = capture("gh", "run", "view", "--job=#{job_id}", "--log", "-R", repo, allow_failure: true)
+  log ||= capture("gh", "api", "repos/#{repo}/actions/jobs/#{job_id}/logs",
+    "-H", "Accept: application/vnd.github.v3.raw", "--allow-escape-sequences", allow_failure: true)
+  log.to_s.gsub(/\e\[[0-9;]*[A-Za-z]/, "")
+end
+
+# Test identity is the stable key across runs. CI shards tests dynamically, so a
+# job name like "Test Ruby (17, 34)" refers to different tests on every run and is
+# useless for comparing one run against another.
+def extract_identities(logs)
+  found = []
+
+  # RSpec: the "Failed examples:" summary block.
+  logs.scan(%r{rspec\s+(\./)?(spec/[^\s:]+:\d+(?::\d+)*)}) do |_, path|
+    found << "rspec #{path}"
+  end
+
+  # RSpec: inline failure bodies, for logs truncated before the summary.
+  logs.scan(%r{^\s*#\s+(\./)?(spec/[^\s:]+:\d+)$}) do |_, path|
+    found << "rspec #{path}"
+  end
+
+  # Cucumber: the "Failing Scenarios:" block, with or without a profile flag. The
+  # scenario name is captured where present because line numbers shift whenever
+  # anything above the scenario is edited — relevant when comparing across branches.
+  named = logs.scan(%r{cucumber\s+(?:-p\s+\S+\s+)?(features/\S+?):(\d+)\s*#\s*Scenario:\s*(.+?)\s*$})
+  named.each { |path, line, name| found << "cucumber #{path}:#{line}  # #{name}" }
+  named_paths = named.map(&:first).to_set
+
+  logs.scan(%r{cucumber\s+(?:-p\s+\S+\s+)?(features/[^\s:]+):(\d+)}) do |path, line|
+    found << "cucumber #{path}:#{line}" unless named_paths.include?(path)
+  end
+
+  # Jest / Vitest.
+  logs.scan(%r{^\s*(?:FAIL|✗|×)\s+((?:src|app|test|spec)/\S+\.(?:test|spec)\.[jt]sx?)}) do |path,|
+    found << "js #{path}"
+  end
+
+  found.uniq.sort
+end
+
+json_output = ARGV.delete("--json")
+pr_number = ARGV.first&.to_i || pr_for_current_branch
+repo = repo_slug
+
+warn "Repo #{repo}, PR ##{pr_number}"
+
+run_ids = failed_run_ids(pr_number)
+if run_ids.empty?
+  warn "No failed check runs on PR ##{pr_number} — it may be green or still running."
+  puts "[]" if json_output
+  exit 0
+end
+
+job_ids = run_ids.flat_map { |run_id| failed_job_ids(repo, run_id) }.uniq
+if job_ids.empty?
+  warn "Failed runs found but no failed jobs — likely a setup or infrastructure failure."
+  warn "Inspect directly: gh run view #{run_ids.first} --log-failed"
+  puts "[]" if json_output
+  exit 0
+end
+
+warn "Fetching logs for #{job_ids.length} failed job(s)..."
+
+identities = job_ids.map { |jid|
+  Thread.new { extract_identities(job_log(repo, jid)) }
+}.flat_map(&:value).uniq.sort
+
+if json_output
+  puts JSON.pretty_generate(identities)
+  exit 0
+end
+
+if identities.empty?
+  warn "\nNo test identities parsed. The failure is probably a build, lint or setup"
+  warn "step rather than a test. Inspect it directly:"
+  job_ids.each { |jid| warn "  gh run view --job=#{jid} --log-failed" }
+  exit 0
+end
+
+File.write("failing_specs.txt", identities.join("\n") + "\n")
+warn "\nFound #{identities.length} failing test(s):"
+puts identities
+warn "\nSaved to failing_specs.txt"

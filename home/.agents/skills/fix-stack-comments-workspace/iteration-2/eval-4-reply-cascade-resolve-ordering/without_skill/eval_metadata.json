@@ -1,0 +1,14 @@
+{
+  "eval_id": 4,
+  "eval_name": "reply-cascade-resolve-ordering",
+  "prompt": "Reviews are done across the whole stack from 6112 up. Get everything addressed, replied to and rebased so I can merge the lot.",
+  "assertions": [
+    "Plans to reply before the cascade, because a force-push strands threads on outdated hunks",
+    "Plans to resolve after the cascade, because a lower-layer fix is not present upstack until the rebase",
+    "Plans exactly one cascade, run by the orchestrator rather than by per-PR agents",
+    "States that per-PR agents must not run gh stack rebase / sync / submit / push",
+    "Plans one consolidated reply per PR for issue-comment findings rather than one per finding",
+    "Stops at the confirmation gate without executing",
+    "No repo file was modified, no branch moved, and no PR comment or review was posted"
+  ]
+}

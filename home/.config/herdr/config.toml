@@ -42,6 +42,13 @@ type = "plugin_action"
 command = "dotfiles.quick-actions.wt-open"
 description = "open worktree"
 
+# Reviewr (opens as an overlay, see plugins/config/persiyanov.reviewr/config.toml)
+[[keys.command]]
+key = "prefix+l"
+type = "plugin_action"
+command = "persiyanov.reviewr.toggle"
+description = "toggle reviewr"
+
 # Git log in a popup
 [[keys.command]]
 key = "prefix+9"

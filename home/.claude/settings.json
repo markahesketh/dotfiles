@@ -24,6 +24,7 @@
     ],
     "defaultMode": "auto"
   },
+  "model": "fable",
   "disableClaudeAiConnectors": true,
   "skillOverrides": {
     "research": "off",
@@ -53,6 +54,18 @@
           {
             "type": "command",
             "command": "bash '/Users/markhesketh/.claude/hooks/herdr-agent-state.sh' session",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ~/.claude/hooks/rename-t3code-branch.sh",
             "timeout": 10
           }
         ]
@@ -95,6 +108,5 @@
   "theme": "light",
   "verbose": false,
   "autoCompactEnabled": true,
-  "disableDeepLinkRegistration": "disable",
-  "model": "opus"
+  "disableDeepLinkRegistration": "disable"
 }

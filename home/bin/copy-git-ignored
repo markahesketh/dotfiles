@@ -11,6 +11,9 @@
 # Usage:
 #   copy-git-ignored [<source> <target>]
 #
+# Set IGNORE_COPY_EXCLUDE to an extended regex of paths to skip, in addition to
+# node_modules/ (at any depth) and tmp/ which are always skipped, e.g. IGNORE_COPY_EXCLUDE='^(log|coverage)/'.
+#
 # Examples:
 #   copy-git-ignored                                               # auto-detect from worktree
 #   copy-git-ignored ~/Code/myapp ~/Code/myapp-worktrees/feature  # explicit paths
@@ -50,7 +53,7 @@ echo ""
 IGNORED_FILES=()
 while IFS= read -r line; do
     IGNORED_FILES+=("$line")
-done < <(git -C "$SOURCE" ls-files --others --ignored --exclude-standard | grep -v '^node_modules/' | grep -v '^tmp/')
+done < <(git -C "$SOURCE" ls-files --others --ignored --exclude-standard | grep -Ev '(^|/)node_modules/' | grep -v '^tmp/' | grep -Ev "${IGNORE_COPY_EXCLUDE:-^\$}")
 
 if [[ ${#IGNORED_FILES[@]} -eq 0 ]]; then
     echo "No gitignored files found in source."
