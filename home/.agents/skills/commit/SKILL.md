@@ -1,15 +1,11 @@
 ---
 name: commit
-description: "Create git commits. Use for any commit request e.g. 'commit this', 'commit and push', 'stage and commit', 'split into separate commits', or similar."
+description: "Create git commits. Always use when committing to a git repo. Triggered by any commit request e.g. 'commit this', 'commit and push', 'stage and commit', 'split into separate commits', or similar."
 ---
 
 Atomic commits. Conventional Commits.
 
 ## Workflow
-
-Two bundled scripts (in this skill's `scripts/` dir — you're given the base
-directory at launch) make the mechanical steps deterministic, so spend your
-attention on grouping and messages, not on git plumbing.
 
 1. **Inspect.** `bash <skill-dir>/scripts/inspect.sh` — one read-only snapshot:
    branch, status, per-file changes (including untracked files, which `git diff`

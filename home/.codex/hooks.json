@@ -4,61 +4,11 @@
       {
         "hooks": [
           {
-            "command": "bash ~/.codex/hooks/validate-commit.sh",
+            "command": "bash ~/.codex/hooks/route-commit-to-skill.sh",
             "type": "command"
           }
         ],
         "matcher": "Bash"
-      }
-    ],
-    "SessionStart": [
-      {
-        "hooks": [
-          {
-            "command": "bash ~/.codex/hooks/title-from-prompt.sh --reset",
-            "type": "command"
-          }
-        ]
-      },
-      {
-        "hooks": [
-          {
-            "command": "bash ~/.agents/hooks/review-new-comments.sh",
-            "timeout": 10,
-            "type": "command"
-          }
-        ],
-        "matcher": "startup|resume|clear|compact"
-      }
-    ],
-    "Stop": [
-      {
-        "hooks": [
-          {
-            "command": "bash ~/.agents/hooks/review-new-comments.sh",
-            "timeout": 30,
-            "type": "command"
-          }
-        ]
-      }
-    ],
-    "UserPromptSubmit": [
-      {
-        "hooks": [
-          {
-            "command": "bash ~/.codex/hooks/title-from-prompt.sh",
-            "type": "command"
-          }
-        ]
-      },
-      {
-        "hooks": [
-          {
-            "command": "bash ~/.claude/hooks/rename-t3code-branch.sh",
-            "timeout": 10,
-            "type": "command"
-          }
-        ]
       }
     ]
   }

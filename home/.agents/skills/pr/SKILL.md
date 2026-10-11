@@ -1,19 +1,15 @@
 ---
 name: pr
-description: "Open a draft PR: resolve the base branch, confirm the title and body, create it, report the URL. Use for 'create a PR', 'raise a PR', 'submit this for review', or when a ready (non-draft) PR is asked for."
+description: "Open a PR. Use every time you create a pull request, or are asked to 'create a PR', 'raise a PR', 'submit this for review'"
 ---
 
 The PR body is a **briefing** for one busy reviewer. Write it as a briefing, not as a record of the work.
 
-Invoke the /tone-of-voice skill before you draft to sound like me. Be concise. Write in ASD-STE100 Simplified Technical English.
+Be concise. Write in ASD-STE100 Simplified Technical English.
 
 ## Workflow
 
-Two bundled scripts (in this skill's `scripts/` dir — you are given the base
-directory at launch) make the mechanical steps deterministic and cheap to
-re-run, so spend your attention on the briefing, not on git and gh plumbing.
-
-1. **Inspect.** `bash <skill-dir>/scripts/inspect.sh` — one read-only snapshot:
+1. **Inspect.** `<skill-dir>/scripts/inspect.sh <base>` — one read-only snapshot:
    base branch, current branch, uncommitted files, and the commits and diff the
    reviewer will see. Pass an explicit base as the first argument when the branch
    is stacked on another feature branch, or when the repository releases from
@@ -21,7 +17,7 @@ re-run, so spend your attention on the briefing, not on git and gh plumbing.
 2. **Draft the briefing** from the commits and the diff in that snapshot. Write
    it to a file with the Write tool, so `--body-file` carries it and shell
    quoting cannot break it.
-3. **Confirm.** Show the proposed title, the proposed body, and the exact command:
+3. **Confirm.** Show the proposed title, the proposed body:
 
    ```
    bash <skill-dir>/scripts/create.sh --base <base> --title "<title>" --body-file <path>
@@ -29,8 +25,13 @@ re-run, so spend your attention on the briefing, not on git and gh plumbing.
 
    Wait for the user to approve. The script creates a draft; add `--ready` only
    when the user asks for a ready PR.
-4. **Create the PR** with the approved command. It pushes the branch, then opens
-   the PR, and prints the URL on its last line.
+4. **Create the PR** with the script:
+
+   ```
+   bash <skill-dir>/scripts/create.sh --base <base> --title "<title>" --body-file <path>
+   ```
+
+   It pushes the branch, then opens the PR, and prints the URL on its last line.
 5. **Report the PR URL.** Also report any file the snapshot showed as uncommitted.
 
 Uncommitted work stays uncommitted. This skill commits nothing.
@@ -69,7 +70,7 @@ Then make the rest scannable in seconds:
   does` on a feature. Cut any heading whose body is near-empty: a
   refactor with nothing to warn about is a summary and a `Fix` section.
 - Add a fourth heading only when the PR has a genuine fourth thing to say, for
-  example `Left out` for scope deliberately not covered.
+  example `Excluded` for scope deliberately not covered.
 - Use bullets for anything enumerable: causes, deliverables, affected
   environments, verification results. Use prose for a genuine narrative, or for
   a judgement call that needs its reasoning.
@@ -84,6 +85,8 @@ Example:
 [Basecamp](https://app.basecamp.com/...) | [Jira Ticket](https://dexory.atlassian.net/jira/...)
 
 The short summary goes here.
+
+<screenshots>
 
 ### Issue
 

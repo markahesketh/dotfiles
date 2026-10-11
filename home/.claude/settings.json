@@ -24,7 +24,7 @@
     ],
     "defaultMode": "auto"
   },
-  "model": "fable",
+  "model": "opus",
   "disableClaudeAiConnectors": true,
   "skillOverrides": {
     "research": "off",
@@ -43,30 +43,6 @@
           {
             "type": "command",
             "command": "bash ~/.claude/hooks/route-commit-to-skill.sh"
-          }
-        ]
-      }
-    ],
-    "SessionStart": [
-      {
-        "matcher": "*",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash '/Users/markhesketh/.claude/hooks/herdr-agent-state.sh' session",
-            "timeout": 10
-          }
-        ]
-      }
-    ],
-    "UserPromptSubmit": [
-      {
-        "matcher": "*",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash ~/.claude/hooks/rename-t3code-branch.sh",
-            "timeout": 10
           }
         ]
       }
@@ -89,7 +65,7 @@
     "ruby-lsp@claude-plugins-official": true
   },
   "disableSideloadFlags": true,
-  "effortLevel": "high",
+  "effortLevel": "medium",
   "modelSettings": {
     "claude-sonnet-5": {
       "effortLevel": "medium"
