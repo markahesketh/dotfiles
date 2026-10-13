@@ -1,6 +1,6 @@
 ---
 name: commit
-description: "Create git commits. Always use when committing to a git repo. Triggered by any commit request e.g. 'commit this', 'commit and push', 'stage and commit', 'split into separate commits', or similar."
+description: "Create git commits. Use this instead of running `git commit` yourself, every time you commit — whether the user asks ('commit this', 'commit and push', 'stage and commit', 'split into separate commits', 'commit and open a PR') or committing is a step in a larger task."
 ---
 
 Atomic commits. Conventional Commits.

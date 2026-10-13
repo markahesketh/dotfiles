@@ -1,6 +1,6 @@
 ---
 name: pr
-description: "Open a PR. Use every time you create a pull request, or are asked to 'create a PR', 'raise a PR', 'submit this for review'"
+description: "Open a GitHub pull request. Use this instead of running `gh pr create` yourself, every time you open a PR — whether the user asks ('create a PR', 'raise a PR', 'open a PR', 'push and open a PR', 'submit this for review') or opening a PR is a step in a larger task."
 ---
 
 The PR body is a **briefing** for one busy reviewer. Write it as a briefing, not as a record of the work.
