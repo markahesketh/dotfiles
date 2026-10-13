@@ -58,7 +58,6 @@ For example:
 | `.hushlogin` | Suppresses login message |
 | `.config/ghostty/` | Ghostty terminal config |
 | `.config/tmux/` | Tmux scripts (dark mode, session hooks, test runner) |
-| `.config/herdr/` | Herdr config and local plugins |
 | `.config/atuin/` | Atuin shell history config |
 | `.config/direnv/` | Direnv whitelist config |
 | `.config/workmux/` | Workmux workspace config |

@@ -1,5 +1,5 @@
 [whitelist]
 prefix = [
   "~/Code/worktrees/",
-  "~/.herdr/worktrees/",
+  "~/.paseo/worktrees/"
 ]

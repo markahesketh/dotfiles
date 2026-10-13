@@ -31,10 +31,6 @@ DOTFILES=(
     ".config/tmux/pane-title-from-prompt.sh"
     ".config/tmux/run-tests.sh"
     ".config/ghostty/config.ghostty"
-    ".config/herdr/config.toml"
-    ".config/herdr/quick-actions"
-    ".config/herdr/layout-tools"
-    ".config/herdr/plugins/config/persiyanov.reviewr/config.toml"
     ".config/workmux/config.yaml"
     ".config/worktrunk/config.toml"
     ".gemini/settings.json"
@@ -144,15 +140,6 @@ if [ "$CONT" == "y" ]; then
 
         echo "Creating $MACOS_GHOSTTY_CONFIG ..."
         create_symlink "${BASEDIR}/home/.config/ghostty/config.ghostty" "$HOME/$MACOS_GHOSTTY_CONFIG"
-    fi
-
-    if command -v herdr >/dev/null 2>&1; then
-        for plugin in quick-actions layout-tools; do
-            echo "Linking Herdr ${plugin} plugin ..."
-            if ! herdr plugin link "${BASEDIR}/home/.config/herdr/${plugin}" >/dev/null; then
-                echo "Warning: could not link the Herdr ${plugin} plugin."
-            fi
-        done
     fi
 
     echo "Dotfiles symlinks created successfully!"

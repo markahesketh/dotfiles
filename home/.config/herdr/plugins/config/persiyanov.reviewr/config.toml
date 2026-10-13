@@ -1,7 +1,0 @@
-theme = "one-light"
-
-# Fill the tab when toggled rather than opening a split pane.
-toggle_placement = "overlay"
-
-# Don't auto-open on worktree creation; toggle it with prefix+l.
-auto_open = false
