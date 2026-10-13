@@ -4,7 +4,7 @@
       {
         "hooks": [
           {
-            "command": "bash ~/.codex/hooks/route-commit-to-skill.sh",
+            "command": "bash ~/.claude/hooks/route-to-skill.sh",
             "type": "command"
           }
         ],

@@ -55,7 +55,7 @@
             "type": "command"
           },
           {
-            "command": "bash ~/.claude/hooks/route-commit-to-skill.sh",
+            "command": "bash ~/.claude/hooks/route-to-skill.sh",
             "type": "command"
           }
         ],

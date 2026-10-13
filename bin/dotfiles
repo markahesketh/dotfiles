@@ -21,7 +21,6 @@ DOTFILES=(
     ".claude/statusline-command.sh"
     ".codex/AGENTS.md"
     ".codex/agents"
-    ".codex/hooks"
     ".codex/hooks.json"
     ".codex/RTK.md"
     ".config/atuin/config.toml"
