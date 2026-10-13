@@ -51,7 +51,7 @@ If, after reading the diff, nothing rises to the blocking bar, say so plainly an
 
    GitHub only accepts inline comments on lines that appear in the diff — added or context lines in a hunk, numbered by the new file (`side: RIGHT`, the default). To comment on a deleted line, use the old file's line number and `"side": "LEFT"`. A comment on any other line makes GitHub reject the entire review, so if the problem is in code the PR didn't touch, anchor the comment to the nearest changed line that calls or depends on it and say so in the comment. The post script checks every anchor against the diff before posting and tells you which ones are wrong.
 
-5. **Draft the report and review** using the `tone-of-voice` skill for every piece of written text.
+5. **Draft the summary and the GitHub review.**
 
    First prepare the user-facing summary:
 
@@ -91,5 +91,5 @@ If, after reading the diff, nothing rises to the blocking bar, say so plainly an
 - Nothing was posted without the exact wording being seen and confirmed first.
 - By default, every comment posted is something that would genuinely justify blocking the merge — no style, docs, test-status, or dependency mentions slipped in.
 - The user-facing summary is brief for blocking findings and lists non-blocking observations separately; the posted summary does not include non-blockers unless explicitly selected.
-- Inline comments are anchored to the correct file and line, and read the way they'd actually be written (via `tone-of-voice`).
+- Inline comments are anchored to the correct file and line, and read the way they'd actually be written.
 - If there was nothing blocking, no review was posted by default, and the absence of blockers plus any non-blocking observations was communicated plainly.
