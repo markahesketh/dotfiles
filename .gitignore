@@ -5,3 +5,5 @@
 /home/.claude/plugins/
 __pycache__/
 *.skill
+/home/.agents/skills/synced/
+/home/.agents/skills/.trash/
