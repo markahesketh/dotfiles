@@ -17,14 +17,9 @@ Be concise. Write in ASD-STE100 Simplified Technical English.
 2. **Draft the briefing** from the commits and the diff in that snapshot. Write
    it to a file with the Write tool, so `--body-file` carries it and shell
    quoting cannot break it.
-3. **Confirm.** Show the proposed title, the proposed body:
-
-   ```
-   bash <skill-dir>/scripts/create.sh --base <base> --title "<title>" --body-file <path>
-   ```
-
-   Wait for the user to approve. The script creates a draft; add `--ready` only
-   when the user asks for a ready PR.
+3. **Confirm.** Show the user the proposed base, title, and body, and wait for
+   approval. The PR is created as a draft; add `--ready` in step 4 only when
+   the user asks for a ready PR.
 4. **Create the PR** with the script:
 
    ```
