@@ -17,6 +17,8 @@ import json
 import sys
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
 from pr_common import gh, gh_api_paginated, gh_json, resolve_pr
 
 
