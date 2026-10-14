@@ -3,96 +3,74 @@ name: pr
 description: "Open a GitHub pull request. Use this instead of running `gh pr create` yourself, every time you open a PR — whether the user asks ('create a PR', 'raise a PR', 'open a PR', 'push and open a PR', 'submit this for review') or opening a PR is a step in a larger task."
 ---
 
-The PR body is a **briefing** for one busy reviewer. Write it as a briefing, not as a record of the work.
-
-Be concise. Write in ASD-STE100 Simplified Technical English.
+The PR body is a **briefing** for one busy reviewer, not a record of the work. Be concise. Write in ASD-STE100 Simplified Technical English.
 
 ## Workflow
 
-1. **Inspect.** `<skill-dir>/scripts/inspect.sh <base>` — one read-only snapshot:
-   base branch, current branch, uncommitted files, and the commits and diff the
-   reviewer will see. Pass an explicit base as the first argument when the branch
-   is stacked on another feature branch, or when the repository releases from
-   something other than its default branch.
-2. **Draft the briefing** from the commits and the diff in that snapshot. Write
-   it to a file with the Write tool, so `--body-file` carries it and shell
-   quoting cannot break it.
-3. **Confirm.** Show the user the proposed base, title, and body, and wait for
-   approval. The PR is created as a draft; add `--ready` in step 4 only when
-   the user asks for a ready PR.
-4. **Create the PR** with the script:
+1. **Inspect:** `<skill-dir>/scripts/inspect.sh [base]`. Pass the base when the branch is stacked, or the repo releases from a non-default branch.
+2. **Prove:** answer "Give me irrefutable proof that this works now." Use this session's evidence; if it is not irrefutable, run the change or ask the user.
+3. **Draft** the body to a file with the Write tool.
+4. **Confirm** the base, title, body, and attachments with the user. Wait for approval.
+5. **Create:** `bash <skill-dir>/scripts/create.sh --base <base> --title "<title>" --body-file <path> [--attach /abs/path]...`. Opens a draft; add `--ready` only when asked.
+6. **Report** the PR URL and any uncommitted files from the snapshot. Commit nothing.
 
-   ```
-   bash <skill-dir>/scripts/create.sh --base <base> --title "<title>" --body-file <path>
-   ```
+## Title
 
-   It pushes the branch, then opens the PR, and prints the URL on its last line.
-5. **Report the PR URL.** Also report any file the snapshot showed as uncommitted.
+Prose that says what the PR delivers, with no Conventional Commit prefix: "Show the scan date on the location page".
 
-Uncommitted work stays uncommitted. This skill commits nothing.
+## Body
 
-The work is done when the PR URL is reported.
+Write only what the diff cannot show: the problem or feature, its impact, key context (issues, dependencies, breaking changes), and what needs careful review — name the file or decision. Omit what GitHub shows: branch, commits, file counts.
 
-## The title
+- First line: Basecamp/Jira links. Then a short summary.
+- Then `###` headings, in this order, worded exactly: `Issue` (`What it does` for a feature), `Fix`, `Proof`, `Important`. Cut near-empty headings. Add another (e.g. `Excluded`) only for a genuine extra point.
+- Bullets for lists, prose for reasoning. A few bullets or two to three sentences per section.
 
-Write the title as succinct prose that says what the PR delivers: "Show the
-scan date on the location page". Conventional Commit prefixes belong on commits,
-so a PR title starts with the first word of the sentence.
+## Proof
 
-## The briefing
+Irrefutable: the reviewer sees it work as a user does, or can repeat the steps and get the same result. "I tested it", unit tests, and CI are not proof.
 
-Say what the PR delivers:
+Use the form that fits; combine if needed:
 
-- The problem solved, or the feature added.
-- The user-facing or system-level impact.
-- Key context: related issues, dependencies, breaking changes.
-- Important areas that need careful review, where such areas exist.
+- **UI:** screenshots or video, before and after.
+- **Acceptance criteria:** checklist, each with how it was checked.
+- **Bug fix:** repro steps, result before and after.
+- **Performance:** before/after table, with method and data set.
+- **API/CLI/backend:** the command and trimmed output.
+- **Data/migration:** the query and before/after counts.
 
-Keep it high-level. Reviewers are intelligent and busy, so respect their time,
-and write only what the diff cannot show them. Name a file, a function, or a
-design decision when the reviewer must scrutinise it: complex logic, an edge
-case, a security concern, an architectural choice.
+Rules:
 
-## Format
+- Never invent a result. Leave unchecked criteria unticked, with the reason.
+- Capture media yourself to `/tmp/pr-<branch>/`; if you cannot, ask the user. No placeholders.
+- Reference media by absolute path, and pass the same path to `--attach`; gh swaps in the uploaded URL. Put a video alone on its line.
+- No observable behaviour change (refactor, dependency bump): drop `Proof`, and say in `Fix` what makes it safe.
 
-Link any related Basecamp cards or Jira tickets at the top, then open with a short summary of what the PR delivers. 
-Then make the rest scannable in seconds:
-
-- Use these `###` headings, in this order, worded as written: `Issue`, `Fix`,
-  `Important`. Same word in the same place on every PR, so a reviewer who reads
-  several of mine knows where to look.
-- The first heading names the driver, so `Issue` on a bug fix becomes `What it
-  does` on a feature. Cut any heading whose body is near-empty: a
-  refactor with nothing to warn about is a summary and a `Fix` section.
-- Add a fourth heading only when the PR has a genuine fourth thing to say, for
-  example `Excluded` for scope deliberately not covered.
-- Use bullets for anything enumerable: causes, deliverables, affected
-  environments, verification results. Use prose for a genuine narrative, or for
-  a judgement call that needs its reasoning.
-- Keep each section to a few bullets, or to two or three sentences.
-- Leave out what the platform already shows: target branch, commit list,
-  changed-file counts.
-- Only include a testing section if it's noteworthy.
-
-Example:
+## Example
 
 ```
-[Basecamp](https://app.basecamp.com/...) | [Jira Ticket](https://dexory.atlassian.net/jira/...)
+[Basecamp](https://app.basecamp.com/...) | [Jira](https://dexory.atlassian.net/jira/...)
 
-The short summary goes here.
-
-<screenshots>
+Show the scan date on the location page.
 
 ### Issue
 
-A brief summary of the problem, if there was one.
+Users cannot tell how old a location's data is.
 
 ### Fix
 
-A brief summary of the fix, if there was one.
+Add the last scan date to the location header.
+
+### Proof
+
+| Before | After |
+| --- | --- |
+| ![No scan date](/tmp/pr-scan-date/before.png) | ![Scan date shown](/tmp/pr-scan-date/after.png) |
+
+- [x] Date shows in the user's timezone — checked on staging as UTC and BST users
+- [ ] "Never scanned" state — not checked: no such location on staging
 
 ### Important
 
-- Something here
-- And another thing
+- `formatScanDate` falls back to UTC when the site has no timezone.
 ```
