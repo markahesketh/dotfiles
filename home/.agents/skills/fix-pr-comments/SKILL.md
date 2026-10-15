@@ -22,7 +22,7 @@ The unit of work is a **finding**, not a comment. Split comments that hold sever
 
 ## Steps
 
-1. **Collect** every outstanding finding from all three objects.
+1. **Collect** every outstanding finding from all three objects with `scripts/outstanding.sh <pr>`.
 2. **Verify** each claim against the current code. Reviewers can be wrong, outdated or preference-only, and a real finding can carry a wrong diagnosis — check the mechanism, not just the conclusion. Advisory feedback invites judgement, not compliance.
 3. **Present and stop.** This step is read-only: no edits, commits, pushes, replies or resolves. Number each finding and give:
    - who raised it and where (file:line, or which review/comment)
