@@ -9,7 +9,7 @@ The PR body is a **briefing** for one busy reviewer, not a record of the work. B
 
 1. **Inspect:** `<skill-dir>/scripts/inspect.sh [base]`. Pass the base when the branch is stacked, or the repo releases from a non-default branch.
 2. **Prove:** answer "Give me irrefutable proof that this works now." Use this session's evidence; if it is not irrefutable, run the change or ask the user.
-3. **Draft** the body to a file with the Write tool.
+3. **Draft** the body to a file with the Write tool, then run the unslop skill (pstack:unslop) over it.
 4. **Confirm** the base, title, body, and attachments with the user. Wait for approval.
 5. **Create:** `bash <skill-dir>/scripts/create.sh --base <base> --title "<title>" --body-file <path> [--attach /abs/path]...`. Opens a draft; add `--ready` only when asked.
 6. **Report** the PR URL and any uncommitted files from the snapshot. Commit nothing.
