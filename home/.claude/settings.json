@@ -67,6 +67,16 @@
         ],
         "matcher": "Bash"
       }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "command": "bash ~/.claude/hooks/load-direnv.sh",
+            "type": "command"
+          }
+        ]
+      }
     ]
   },
   "includeGitInstructions": false,
