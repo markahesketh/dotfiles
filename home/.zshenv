@@ -47,4 +47,11 @@ export VISUAL=$EDITOR
 export HOMEBREW_NO_AUTO_UPDATE=1
 export HOMEBREW_NO_INSTALL_UPGRADE=1
 
+# ------------------------------------------------------------------------------
+# Options
+# ------------------------------------------------------------------------------
+# Bash-compatible globbing: pass unmatched globs through (--include=*.rb) and
+# don't expand =word (echo ===).
+setopt no_nomatch no_equals
+
 [[ -r "$HOME/.zshenv.local" ]] && source "$HOME/.zshenv.local"
