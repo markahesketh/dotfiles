@@ -44,6 +44,12 @@
         "repo": "grafana/gcx",
         "source": "github"
       }
+    },
+    "pstack-claude": {
+      "source": {
+        "repo": "michael-denyer/pstack-claude",
+        "source": "github"
+      }
     }
   },
   "hooks": {
