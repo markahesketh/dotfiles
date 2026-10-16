@@ -17,6 +17,7 @@ DOTFILES=(
     ".claude/hooks"
     ".claude/media"
     ".claude/plugins"
+    ".claude/pstack-models.md"
     ".claude/settings.json"
     ".claude/statusline-command.sh"
     ".codex/AGENTS.md"
