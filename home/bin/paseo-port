@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+# paseo-port - Paseo servicePorts portScript: deterministic port per worktree and service.
+# Args from Paseo: service name, workspace ID, branch name, worktree path.
+# Keyed on the worktree path so every branch checked out there keeps one URL.
+
+set -euo pipefail
+
+service="${1:-}"
+workspace_id="${2:-}"
+branch="${3:-}"
+worktree="${4:-}"
+
+# Resolved so it matches `pwd -P` in .scratch/bin/run and dexory-url.
+[[ -n "$worktree" && -d "$worktree" ]] && worktree="$(cd "$worktree" && pwd -P)"
+
+exec "$(dirname "$0")/branch-port" "${worktree:-${branch:-$workspace_id}}:$service"
