@@ -1,104 +1,10 @@
 {
-  "askUserQuestionTimeout": "never",
   "attribution": {
     "commit": "",
     "pr": ""
   },
-  "autoCompactEnabled": true,
-  "autoCompactWindow": 300000,
-  "autoMemoryEnabled": false,
-  "autoMode": {
-    "soft_deny": [
-      "$defaults",
-      "Bash(kamal app restart *)",
-      "Bash(kamal app stop *)",
-      "Bash(kamal deploy *)"
-    ]
-  },
-  "awaySummaryEnabled": false,
-  "disableArtifact": true,
-  "disableBundledSkills": true,
-  "disableClaudeAiConnectors": true,
-  "disableDeepLinkRegistration": "disable",
-  "disableRemoteControl": true,
-  "disableSideloadFlags": true,
-  "disableWorkflows": true,
-  "effortLevel": "medium",
-  "enabledPlugins": {
-    "claude-api@anthropic-agent-skills": true,
-    "figma@claude-plugins-official": false,
-    "frontend-design@claude-plugins-official": false,
-    "gcx@gcx-marketplace": true,
-    "ruby-lsp@claude-plugins-official": false,
-    "slack@claude-plugins-official": true
-  },
-  "extraKnownMarketplaces": {
-    "anthropic-agent-skills": {
-      "source": {
-        "repo": "anthropics/skills",
-        "source": "github"
-      }
-    },
-    "gcx-marketplace": {
-      "source": {
-        "repo": "grafana/gcx",
-        "source": "github"
-      }
-    },
-    "pstack-claude": {
-      "source": {
-        "repo": "michael-denyer/pstack-claude",
-        "source": "github"
-      }
-    }
-  },
-  "hooks": {
-    "PreToolUse": [
-      {
-        "hooks": [
-          {
-            "command": "rtk hook claude",
-            "type": "command"
-          },
-          {
-            "command": "bash ~/.claude/hooks/route-to-skill.sh",
-            "type": "command"
-          }
-        ],
-        "matcher": "Bash"
-      }
-    ],
-    "SessionStart": [
-      {
-        "hooks": [
-          {
-            "command": "bash ~/.claude/hooks/load-direnv.sh",
-            "type": "command"
-          }
-        ]
-      }
-    ]
-  },
   "includeGitInstructions": false,
-  "model": "opus[1m]",
-  "modelSettings": {
-    "claude-fable-5-1": {
-      "effortLevel": "medium"
-    },
-    "claude-opus-5-5": {
-      "effortLevel": "medium"
-    },
-    "claude-sonnet-5-5": {
-      "effortLevel": "high"
-    }
-  },
-  "outputStyle": "Concise",
   "permissions": {
-    "ask": [
-      "Bash(git commit *)",
-      "Bash(git push *)"
-    ],
-    "defaultMode": "auto",
     "deny": [
       "EnterPlanMode",
       "ExitPlanMode",
@@ -111,16 +17,111 @@
       "ExitWorktree",
       "ShareOnboardingGuide",
       "AskUserQuestion"
+    ],
+    "ask": [
+      "Bash(git commit *)",
+      "Bash(git push *)"
+    ],
+    "defaultMode": "auto"
+  },
+  "model": "sonnet",
+  "disableClaudeAiConnectors": true,
+  "disableBundledSkills": true,
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "rtk hook claude"
+          },
+          {
+            "type": "command",
+            "command": "bash ~/.claude/hooks/route-to-skill.sh"
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ~/.claude/hooks/load-direnv.sh"
+          }
+        ]
+      }
     ]
   },
-  "statusLine": {
-    "command": "bash ~/.claude/statusline-command.sh",
-    "refreshInterval": 60,
-    "type": "command"
-  },
-  "theme": "light",
-  "verbose": false,
   "worktree": {
     "baseRef": "fresh"
-  }
+  },
+  "disableRemoteControl": true,
+  "disableWorkflows": true,
+  "disableArtifact": true,
+  "statusLine": {
+    "type": "command",
+    "command": "bash ~/.claude/statusline-command.sh",
+    "refreshInterval": 60
+  },
+  "enabledPlugins": {
+    "claude-api@anthropic-agent-skills": true,
+    "figma@claude-plugins-official": false,
+    "frontend-design@claude-plugins-official": false,
+    "gcx@gcx-marketplace": true,
+    "pstack@pstack-claude": true,
+    "ruby-lsp@claude-plugins-official": false,
+    "slack@claude-plugins-official": true
+  },
+  "extraKnownMarketplaces": {
+    "anthropic-agent-skills": {
+      "source": {
+        "source": "github",
+        "repo": "anthropics/skills"
+      }
+    },
+    "gcx-marketplace": {
+      "source": {
+        "source": "github",
+        "repo": "grafana/gcx"
+      }
+    },
+    "pstack-claude": {
+      "source": {
+        "source": "github",
+        "repo": "michael-denyer/pstack-claude"
+      }
+    }
+  },
+  "disableSideloadFlags": true,
+  "outputStyle": "Concise",
+  "effortLevel": "high",
+  "modelSettings": {
+    "claude-fable-5-1": {
+      "effortLevel": "medium"
+    },
+    "claude-opus-5-5": {
+      "effortLevel": "medium"
+    },
+    "claude-sonnet-5-5": {
+      "effortLevel": "high"
+    }
+  },
+  "autoCompactWindow": 300000,
+  "awaySummaryEnabled": false,
+  "askUserQuestionTimeout": "never",
+  "autoMemoryEnabled": false,
+  "theme": "light",
+  "verbose": false,
+  "autoCompactEnabled": true,
+  "autoMode": {
+    "soft_deny": [
+      "$defaults",
+      "Bash(kamal app restart *)",
+      "Bash(kamal app stop *)",
+      "Bash(kamal deploy *)"
+    ]
+  },
+  "disableDeepLinkRegistration": "disable"
 }
