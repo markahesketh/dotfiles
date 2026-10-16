@@ -23,7 +23,7 @@ Prose that says what the PR delivers, with no Conventional Commit prefix: "Show 
 Write only what the diff cannot show: the problem or feature, its impact, key context (issues, dependencies, breaking changes), and what needs careful review — name the file or decision. Omit what GitHub shows: branch, commits, file counts.
 
 - First line: Basecamp/Jira links. Then a short summary.
-- Then `###` headings, in this order, worded exactly: `Issue` (`What it does` for a feature), `Fix`, `Proof`, `Important`. Cut near-empty headings. Add another (e.g. `Excluded`) only for a genuine extra point.
+- Then `###` headings, in this order, worded exactly: `Issue` (optional, if a bug), `Fix` (`What it does` for a feature), `Important`. Cut near-empty headings. Include proof under `Fix`/`What it does`. Add another (e.g. `Excluded`) only for a genuine extra point.
 - Bullets for lists, prose for reasoning. A few bullets or two to three sentences per section.
 
 ## Proof
@@ -57,15 +57,15 @@ Show the scan date on the location page.
 
 Users cannot tell how old a location's data is.
 
-### Fix
+### Fix / What it does
 
 Add the last scan date to the location header.
-
-### Proof
 
 | Before | After |
 | --- | --- |
 | ![No scan date](/tmp/pr-scan-date/before.png) | ![Scan date shown](/tmp/pr-scan-date/after.png) |
+
+#### Checked
 
 - [x] Date shows in the user's timezone — checked on staging as UTC and BST users
 - [ ] "Never scanned" state — not checked: no such location on staging
